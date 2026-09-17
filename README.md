@@ -1,17 +1,8 @@
-# test1
+# QuickRecipe
 
-A new Flutter project.
+Aplikasi yang membantu pengguna menentukan menu masakan secara cepat dan tepat berdasarkan bahan yang mereka miliki, dengan bantuan chatbot berbasis AI yang juga dapat memberikan saran makanan, rekomendasi diet, dan menyesuaikan rekomendasi dengan preferensi pengguna.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Kelompok Martabak - QuickRecipe
+Edric Roland Li		241401079
+Yasmin Assyifa		241401076
+Najla Az Zahra Tanjung	241401136
