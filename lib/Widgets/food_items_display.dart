@@ -29,14 +29,17 @@ class FoodItemsDisplay extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: double.infinity,
-                  height: 160,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: NetworkImage(documentSnapshot['image']),
+                Hero(
+                  tag: documentSnapshot['image'],
+                  child: Container(
+                    width: double.infinity,
+                    height: 160,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      image: DecorationImage(
+                        fit: BoxFit.cover,
+                        image: NetworkImage(documentSnapshot['image']),
+                      ),
                     ),
                   ),
                 ),
@@ -45,7 +48,7 @@ class FoodItemsDisplay extends StatelessWidget {
                   documentSnapshot['name'],
                   style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 5),
+                SizedBox(height: 5),
                 Row(
                   children: [
                     Icon(Iconsax.flash_1, size: 16, color: Colors.grey),
