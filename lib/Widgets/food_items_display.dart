@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:quick_recipe/Provider/favorite_provider.dart';
+import 'package:quick_recipe/views/recipe_detail_screen.dart';
 
 class FoodItemsDisplay extends StatelessWidget {
   final DocumentSnapshot<Object?> documentSnapshot;
@@ -8,8 +10,17 @@ class FoodItemsDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = FavoriteProvider.of(context);
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (contect) =>
+                RecipeDetailScreen(documentSnapshot: documentSnapshot),
+          ),
+        );
+      },
       child: Container(
         margin: EdgeInsets.only(right: 10),
         width: 230,
@@ -34,7 +45,7 @@ class FoodItemsDisplay extends StatelessWidget {
                   documentSnapshot['name'],
                   style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 Row(
                   children: [
                     Icon(Iconsax.flash_1, size: 16, color: Colors.grey),
@@ -70,13 +81,24 @@ class FoodItemsDisplay extends StatelessWidget {
 
             // for favorite button
             Positioned(
-              top: 5, right: 5,
+              top: 5,
+              right: 5,
               child: CircleAvatar(
                 radius: 15,
                 backgroundColor: Colors.white,
                 child: InkWell(
-                  onTap: () {},
-                  child: Icon(Iconsax.heart, color: Colors.black, size: 20,),
+                  onTap: () {
+                    provider.toggleFavorite(documentSnapshot);
+                  },
+                  child: Icon(
+                    provider.isExist(documentSnapshot)
+                        ? Iconsax.heart5
+                        : Iconsax.heart,
+                    color: provider.isExist(documentSnapshot)
+                        ? Colors.red
+                        : Colors.black,
+                    size: 20,
+                  ),
                 ),
               ),
             ),
