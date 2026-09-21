@@ -1,0 +1,32 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "recipes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "bahan_keywords", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "tingkat_kesulitan", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "recipes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tags_diet", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "tingkat_kesulitan", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": [
+    {
+      "collectionGroup": "recipes",
+      "fieldPath": "judul_lowercase",
+      "indexes": [{ "order": "ASCENDING", "queryScope": "COLLECTION" }]
+    },
+    {
+      "collectionGroup": "inventory",
+      "fieldPath": "nama_lowercase",
+      "indexes": [{ "order": "ASCENDING", "queryScope": "COLLECTION" }]
+    }
+  ]
+}
