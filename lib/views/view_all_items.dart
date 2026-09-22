@@ -65,22 +65,6 @@ class _ViewAllItemsState extends State<ViewAllItems> {
                       return Column(
                         children: [
                           FoodItemsDisplay(documentSnapshot: documentSnapshot),
-                          Row(
-                            children: [
-                              Icon(Iconsax.star1, color: Colors.amberAccent),
-                              SizedBox(width: 5),
-                              Text(
-                                documentSnapshot['rate'],
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              Text("/5"),
-                              SizedBox(width: 5),
-                              Text(
-                                "${documentSnapshot['reviews'.toString()]} Reviews",
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                            ],
-                          ),
                         ],
                       );
                     }),

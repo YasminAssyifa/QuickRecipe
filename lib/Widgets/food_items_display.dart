@@ -61,7 +61,7 @@ class FoodItemsDisplay extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      "-",
+                      " • ",
                       style: TextStyle(
                         fontWeight: FontWeight.w900,
                         color: Colors.grey,
