@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:quick_recipe/Utils/constants.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:quick_recipe/Widgets/Banner.dart';
@@ -21,6 +20,8 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
   // for category
   final CollectionReference categoriesItems = FirebaseFirestore.instance
       .collection("App-Category");
+  // searching controller
+  final TextEditingController _searchController = TextEditingController();
   // for all items display
   Query get filteredRecipes => FirebaseFirestore.instance
       .collection("Complete-Flutter-App")
@@ -75,7 +76,9 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (_) => const ViewAllItems()),
+                              MaterialPageRoute(
+                                builder: (_) => const ViewAllItems(),
+                              ),
                             );
                           },
                           child: Text(
@@ -98,12 +101,21 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
                   if (snapshot.hasData) {
                     final List<DocumentSnapshot> recipes =
                         snapshot.data?.docs ?? [];
+
+                    final searchText = _searchController.text.toLowerCase();
+
+                    final filteredItems = recipes.where((doc) {
+                      final name = doc['name'].toString().toLowerCase();
+
+                      return name.contains(searchText);
+                    }).toList();
+
                     return Padding(
                       padding: EdgeInsetsGeometry.only(top: 5, left: 15),
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
-                          children: recipes
+                          children: filteredItems
                               .map((e) => FoodItemsDisplay(documentSnapshot: e))
                               .toList(),
                         ),
@@ -171,21 +183,40 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 22),
       child: TextField(
+        controller: _searchController,
+
+        onChanged: (value) {
+          setState(() {});
+        },
+
         decoration: InputDecoration(
           filled: true,
-          prefixIcon: Icon(Iconsax.search_normal),
+          prefixIcon: const Icon(Iconsax.search_normal),
           fillColor: Colors.white,
           border: InputBorder.none,
           hintText: "Search any recipes",
           hintStyle: const TextStyle(color: Colors.grey),
+
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide.none,
           ),
+
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide.none,
           ),
+
+          // Clear button
+          suffixIcon: _searchController.text.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Iconsax.close_circle),
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() {});
+                  },
+                )
+              : null,
         ),
       ),
     );
@@ -207,6 +238,12 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
         MyIconButton(icon: Iconsax.notification, pressed: () {}),
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 }
 
