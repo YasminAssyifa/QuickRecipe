@@ -5,6 +5,7 @@ import 'package:quick_recipe/Widgets/Banner.dart';
 import 'package:quick_recipe/Widgets/food_items_display.dart';
 import 'package:quick_recipe/Widgets/my_icon_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:quick_recipe/views/recipe_detail_screen.dart';
 import 'package:quick_recipe/views/view_all_items.dart';
 
 class MyAppHomeScreen extends StatefulWidget {
@@ -120,6 +121,7 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
                               .toList(),
                         ),
                       ),
+                      
                     );
                   }
                   return Center(child: CircularProgressIndicator());
@@ -179,45 +181,114 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
     );
   }
 
-  Padding mySearchBar() {
+  Widget mySearchBar() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 22),
-      child: TextField(
-        controller: _searchController,
+      child: Column(
+        children: [
+          TextField(
+            controller: _searchController,
 
-        onChanged: (value) {
-          setState(() {});
-        },
+            onChanged: (value) {
+              setState(() {});
+            },
 
-        decoration: InputDecoration(
-          filled: true,
-          prefixIcon: const Icon(Iconsax.search_normal),
-          fillColor: Colors.white,
-          border: InputBorder.none,
-          hintText: "Search any recipes",
-          hintStyle: const TextStyle(color: Colors.grey),
+            decoration: InputDecoration(
+              filled: true,
+              prefixIcon: const Icon(Iconsax.search_normal),
+              fillColor: Colors.white,
+              border: InputBorder.none,
+              hintText: "Search any recipes",
+              hintStyle: const TextStyle(color: Colors.grey),
 
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
+              ),
+
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
+              ),
+
+              suffixIcon: _searchController.text.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Iconsax.close_circle),
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() {});
+                      },
+                    )
+                  : null,
+            ),
           ),
 
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
-          ),
+          // Suggestion list
+          if (_searchController.text.isNotEmpty)
+            StreamBuilder(
+              stream: selectedRecipes.snapshots(),
+              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (!snapshot.hasData) {
+                  return const SizedBox();
+                }
 
-          // Clear button
-          suffixIcon: _searchController.text.isNotEmpty
-              ? IconButton(
-                  icon: const Icon(Iconsax.close_circle),
-                  onPressed: () {
-                    _searchController.clear();
-                    setState(() {});
-                  },
-                )
-              : null,
-        ),
+                final searchText = _searchController.text.toLowerCase();
+
+                final suggestions = snapshot.data!.docs
+                    .where((doc) {
+                      final name = doc['name'].toString().toLowerCase();
+
+                      return name.contains(searchText);
+                    })
+                    .take(5)
+                    .toList();
+
+                if (suggestions.isEmpty) {
+                  return const SizedBox();
+                }
+
+                return Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(top: 5),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: suggestions.map((doc) {
+                      return ListTile(
+                        dense: true,
+                        leading: const Icon(Iconsax.receipt_item, size: 20),
+                        title: Text(
+                          doc['name'].toString(),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  RecipeDetailScreen(documentSnapshot: doc),
+                            ),
+                          );
+                        },
+                      );
+                    }).toList(),
+                  ),
+                );
+              },
+            ),
+        ],
       ),
     );
   }
@@ -235,7 +306,7 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
         ),
         const Spacer(),
         // ini kt gw ga kepake
-        MyIconButton(icon: Iconsax.notification, pressed: () {}),
+        MyIconButton(icon: Iconsax.profile_circle, pressed: () {}),
       ],
     );
   }

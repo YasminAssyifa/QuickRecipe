@@ -7,6 +7,7 @@ import 'package:quick_recipe/Provider/quantity.dart';
 import 'package:quick_recipe/Utils/constants.dart';
 import 'package:quick_recipe/Widgets/my_icon_button.dart';
 import 'package:quick_recipe/Widgets/quantity_increment_decrement.dart';
+import 'package:quick_recipe/views/step_screen.dart';
 
 class RecipeDetailScreen extends StatefulWidget {
   final DocumentSnapshot<Object?> documentSnapshot;
@@ -18,6 +19,7 @@ class RecipeDetailScreen extends StatefulWidget {
 
 class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   bool _initialized = false;
+  bool isStepsExpanded = false;
   final ScrollController _scrollController = ScrollController();
   double _scrollOffset = 0;
 
@@ -54,7 +56,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     final provider = FavoriteProvider.of(context);
     final quantityProvider = Provider.of<QuantityProvider>(context);
     return Scaffold(
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: startCookingandFavoriteButton(provider),
       backgroundColor: Colors.white,
       body: Stack(
@@ -159,8 +161,102 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 15),
 
+                      // Steps dropdown
+                      Column(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              setState(() {
+                                isStepsExpanded = !isStepsExpanded;
+                              });
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    'Steps',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+
+                                  AnimatedRotation(
+                                    turns: isStepsExpanded ? 0.5 : 0,
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                    child: const Icon(
+                                      Icons.keyboard_arrow_down,
+                                      size: 28,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          AnimatedSize(
+                            duration: const Duration(milliseconds: 400),
+                            curve: Curves.easeInOut,
+                            child: isStepsExpanded
+                                ? Padding(
+                                    padding: const EdgeInsets.only(bottom: 15),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        ...List.generate(
+                                          (widget.documentSnapshot['step'] ??
+                                                  [])
+                                              .length,
+                                          (index) {
+                                            final step = widget
+                                                .documentSnapshot['step'][index];
+
+                                            return Padding(
+                                              padding: const EdgeInsets.only(
+                                                bottom: 12,
+                                              ),
+                                              child: Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    '${index + 1}. ',
+                                                    style: const TextStyle(
+                                                      fontSize: 15,
+                                          
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    child: Text(
+                                                      step.toString(),
+                                                      style: TextStyle(
+                                                        fontSize: 15,
+                                                        color: Colors.grey.shade500,
+                                                        height: 1.4,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : const SizedBox.shrink(),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 15),
                       Row(
                         children: [
                           Column(
@@ -178,7 +274,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                                 "How many servings?",
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.grey,
+                                  color: Colors.grey.shade500,
                                 ),
                               ),
                             ],
@@ -232,7 +328,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                                             ingredient,
                                             style: TextStyle(
                                               fontSize: 16,
-                                              color: Colors.grey,
+                                              color: Colors.grey.shade500,
                                             ),
                                           ),
                                         ),
@@ -254,7 +350,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                                             "$amount gm",
                                             style: TextStyle(
                                               fontSize: 16,
-                                              color: Colors.grey.shade400,
+                                              color: Colors.grey.shade500,
                                             ),
                                           ),
                                         ),
@@ -284,6 +380,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                 MyIconButton(
                   icon: Icons.arrow_back_ios_new,
                   pressed: () {
+                    context.read<QuantityProvider>().resetQuantity();
                     Navigator.pop(context);
                   },
                 ),
@@ -318,7 +415,15 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               ),
               foregroundColor: Colors.white,
             ),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      StepScreen(documentSnapshot: widget.documentSnapshot),
+                ),
+              );
+            },
             child: Text(
               "Start Cooking",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
