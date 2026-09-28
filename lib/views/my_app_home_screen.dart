@@ -6,6 +6,7 @@ import 'package:quick_recipe/Widgets/food_items_display.dart';
 import 'package:quick_recipe/Widgets/my_icon_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:quick_recipe/views/recipe_detail_screen.dart';
+import 'package:quick_recipe/views/signin_screen.dart';
 import 'package:quick_recipe/views/view_all_items.dart';
 
 class MyAppHomeScreen extends StatefulWidget {
@@ -306,7 +307,14 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
         ),
         const Spacer(),
         // ini kt gw ga kepake
-        MyIconButton(icon: Iconsax.profile_circle, pressed: () {}),
+        MyIconButton(icon: Iconsax.profile_circle, pressed: () {
+          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const SigninScreen(),
+                              ),
+                            );
+        }),
       ],
     );
   }

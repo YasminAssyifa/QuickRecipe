@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quick_recipe/Utils/constants.dart';
 import 'signin_screen.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -30,6 +31,7 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kbackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -45,7 +47,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: Colors.green.shade700,
+                    color: kprimaryColor,
                   ),
                 ),
               ),
@@ -200,7 +202,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     // Sign up functionality will be connected later.
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green.shade700,
+                    backgroundColor: kprimaryColor,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -229,7 +231,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     child: Text(
                       'Sign In',
                       style: TextStyle(
-                        color: Colors.green.shade700,
+                        color: kprimaryColor,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:quick_recipe/Utils/constants.dart';
+import 'package:quick_recipe/Widgets/my_icon_button.dart';
+
 import 'signup_screen.dart';
 
 class SigninScreen extends StatefulWidget {
@@ -24,14 +27,15 @@ class _SigninScreenState extends State<SigninScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kbackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              
               const SizedBox(height: 60),
-
               // App title
               Center(
                 child: Text(
@@ -39,7 +43,7 @@ class _SigninScreenState extends State<SigninScreen> {
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: Colors.green.shade700,
+                    color: kprimaryColor,
                   ),
                 ),
               ),
@@ -48,29 +52,21 @@ class _SigninScreenState extends State<SigninScreen> {
 
               const Text(
                 'Welcome Back!',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
 
               const SizedBox(height: 8),
 
               Text(
                 'Sign in to continue to QuickRecipe',
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.grey.shade600,
-                ),
+                style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
               ),
 
               const SizedBox(height: 35),
 
               const Text(
                 'Email',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
 
               const SizedBox(height: 8),
@@ -91,9 +87,7 @@ class _SigninScreenState extends State<SigninScreen> {
 
               const Text(
                 'Password',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
 
               const SizedBox(height: 8),
@@ -132,7 +126,7 @@ class _SigninScreenState extends State<SigninScreen> {
                     // Login functionality will be connected later.
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green.shade700,
+                    backgroundColor: kprimaryColor,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -140,10 +134,7 @@ class _SigninScreenState extends State<SigninScreen> {
                   ),
                   child: const Text(
                     'Sign In',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -166,7 +157,7 @@ class _SigninScreenState extends State<SigninScreen> {
                     child: Text(
                       'Sign Up',
                       style: TextStyle(
-                        color: Colors.green.shade700,
+                        color: kprimaryColor,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
