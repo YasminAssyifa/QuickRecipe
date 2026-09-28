@@ -67,7 +67,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     return Stack(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.all(15),
+                          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
                           child: GestureDetector(
                             onTap: () {
                               Navigator.push(

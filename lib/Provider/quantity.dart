@@ -29,4 +29,10 @@ class QuantityProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // Reset quantity when leaving recipe
+  void resetQuantity() {
+    _currentNumber = 1;
+    notifyListeners();
+  }
 }

@@ -38,7 +38,7 @@ class _ViewAllItemsState extends State<ViewAllItems> {
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           Spacer(),
-          MyIconButton(icon: Iconsax.notification, pressed: () {}),
+          MyIconButton(icon: Iconsax.crown, pressed: () {}),
           SizedBox(width: 15),
         ],
       ),
