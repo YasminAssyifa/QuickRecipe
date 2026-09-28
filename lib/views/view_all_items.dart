@@ -38,7 +38,7 @@ class _ViewAllItemsState extends State<ViewAllItems> {
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           Spacer(),
-          MyIconButton(icon: Iconsax.notification, pressed: () {}),
+          MyIconButton(icon: Iconsax.crown, pressed: () {}),
           SizedBox(width: 15),
         ],
       ),
@@ -65,22 +65,6 @@ class _ViewAllItemsState extends State<ViewAllItems> {
                       return Column(
                         children: [
                           FoodItemsDisplay(documentSnapshot: documentSnapshot),
-                          Row(
-                            children: [
-                              Icon(Iconsax.star1, color: Colors.amberAccent),
-                              SizedBox(width: 5),
-                              Text(
-                                documentSnapshot['rate'],
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              Text("/5"),
-                              SizedBox(width: 5),
-                              Text(
-                                "${documentSnapshot['reviews'.toString()]} Reviews",
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                            ],
-                          ),
                         ],
                       );
                     }),

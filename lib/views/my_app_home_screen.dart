@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:quick_recipe/Utils/constants.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:quick_recipe/Widgets/Banner.dart';
 import 'package:quick_recipe/Widgets/food_items_display.dart';
 import 'package:quick_recipe/Widgets/my_icon_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:quick_recipe/views/recipe_detail_screen.dart';
 import 'package:quick_recipe/views/view_all_items.dart';
 
 class MyAppHomeScreen extends StatefulWidget {
@@ -21,6 +21,8 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
   // for category
   final CollectionReference categoriesItems = FirebaseFirestore.instance
       .collection("App-Category");
+  // searching controller
+  final TextEditingController _searchController = TextEditingController();
   // for all items display
   Query get filteredRecipes => FirebaseFirestore.instance
       .collection("Complete-Flutter-App")
@@ -75,7 +77,9 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (_) => const ViewAllItems()),
+                              MaterialPageRoute(
+                                builder: (_) => const ViewAllItems(),
+                              ),
                             );
                           },
                           child: Text(
@@ -98,16 +102,26 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
                   if (snapshot.hasData) {
                     final List<DocumentSnapshot> recipes =
                         snapshot.data?.docs ?? [];
+
+                    final searchText = _searchController.text.toLowerCase();
+
+                    final filteredItems = recipes.where((doc) {
+                      final name = doc['name'].toString().toLowerCase();
+
+                      return name.contains(searchText);
+                    }).toList();
+
                     return Padding(
                       padding: EdgeInsetsGeometry.only(top: 5, left: 15),
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
-                          children: recipes
+                          children: filteredItems
                               .map((e) => FoodItemsDisplay(documentSnapshot: e))
                               .toList(),
                         ),
                       ),
+                      
                     );
                   }
                   return Center(child: CircularProgressIndicator());
@@ -167,26 +181,114 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
     );
   }
 
-  Padding mySearchBar() {
+  Widget mySearchBar() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 22),
-      child: TextField(
-        decoration: InputDecoration(
-          filled: true,
-          prefixIcon: Icon(Iconsax.search_normal),
-          fillColor: Colors.white,
-          border: InputBorder.none,
-          hintText: "Search any recipes",
-          hintStyle: const TextStyle(color: Colors.grey),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
+      child: Column(
+        children: [
+          TextField(
+            controller: _searchController,
+
+            onChanged: (value) {
+              setState(() {});
+            },
+
+            decoration: InputDecoration(
+              filled: true,
+              prefixIcon: const Icon(Iconsax.search_normal),
+              fillColor: Colors.white,
+              border: InputBorder.none,
+              hintText: "Search any recipes",
+              hintStyle: const TextStyle(color: Colors.grey),
+
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
+              ),
+
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
+              ),
+
+              suffixIcon: _searchController.text.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Iconsax.close_circle),
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() {});
+                      },
+                    )
+                  : null,
+            ),
           ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
-          ),
-        ),
+
+          // Suggestion list
+          if (_searchController.text.isNotEmpty)
+            StreamBuilder(
+              stream: selectedRecipes.snapshots(),
+              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (!snapshot.hasData) {
+                  return const SizedBox();
+                }
+
+                final searchText = _searchController.text.toLowerCase();
+
+                final suggestions = snapshot.data!.docs
+                    .where((doc) {
+                      final name = doc['name'].toString().toLowerCase();
+
+                      return name.contains(searchText);
+                    })
+                    .take(5)
+                    .toList();
+
+                if (suggestions.isEmpty) {
+                  return const SizedBox();
+                }
+
+                return Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(top: 5),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: suggestions.map((doc) {
+                      return ListTile(
+                        dense: true,
+                        leading: const Icon(Iconsax.receipt_item, size: 20),
+                        title: Text(
+                          doc['name'].toString(),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  RecipeDetailScreen(documentSnapshot: doc),
+                            ),
+                          );
+                        },
+                      );
+                    }).toList(),
+                  ),
+                );
+              },
+            ),
+        ],
       ),
     );
   }
@@ -204,9 +306,15 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
         ),
         const Spacer(),
         // ini kt gw ga kepake
-        MyIconButton(icon: Iconsax.notification, pressed: () {}),
+        MyIconButton(icon: Iconsax.profile_circle, pressed: () {}),
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 }
 
