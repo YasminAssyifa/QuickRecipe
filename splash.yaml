@@ -1,0 +1,13 @@
+flutter_native_splash:
+  color: "#FCBD59"
+  color_dark: "#FCBD59"
+  image: assets\quick_recipe_logo_white.png
+  image_dark: assets\quick_recipe_logo_white.png
+
+  android_12:
+    color: "#FCBD59"
+    color_dark: "#FCBD59"
+    image: assets\quick_recipe_logo_white.png
+    image_dark: assets\quick_recipe_logo_white.png
+
+  web: false

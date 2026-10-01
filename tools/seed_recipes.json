@@ -1,0 +1,562 @@
+{
+  "App-Category": [
+    {
+      "id": "uts-snack",
+      "name": "Snack"
+    },
+    {
+      "id": "uts-dessert",
+      "name": "Dessert"
+    }
+  ],
+  "Complete-Flutter-App": [
+    {
+      "name": "Egg Fried Rice",
+      "category": "Lunch",
+      "cal": "420",
+      "time": 15,
+      "ingredientsName": [
+        "Cooked rice",
+        "Egg",
+        "Garlic",
+        "Cooking oil",
+        "Soy sauce"
+      ],
+      "ingredientsAmount": [
+        200.0,
+        50.0,
+        3.0,
+        10.0,
+        10.0
+      ],
+      "step": [
+        "Mince the garlic and loosen the cooked rice. Beat the egg in a bowl.",
+        "Heat the oil in a pan. Cook the garlic briefly, add the egg and scramble until set.",
+        "Add rice and soy sauce. Stir-fry until the rice is steaming hot throughout, then serve."
+      ],
+      "calorieNote": "Illustrative estimate for the UTS demo, per serving.",
+      "servings": 1,
+      "id": "uts-egg-fried-rice",
+      "image": "https://www.themealdb.com/images/media/meals/wuyd2h1765655837.jpg?recipe=uts-egg-fried-rice",
+      "imageAttribution": "TheMealDB; illustrative dish photograph, may differ from this demo recipe.",
+      "categoryId": "Second"
+    },
+    {
+      "name": "Chicken Rice Bowl",
+      "category": "Lunch",
+      "cal": "510",
+      "time": 25,
+      "ingredientsName": [
+        "Cooked rice",
+        "Chicken",
+        "Carrot",
+        "Cooking oil",
+        "Soy sauce"
+      ],
+      "ingredientsAmount": [
+        200.0,
+        120.0,
+        50.0,
+        10.0,
+        10.0
+      ],
+      "step": [
+        "Cut chicken into small pieces and slice the carrot.",
+        "Heat oil and cook the chicken thoroughly. Add carrot and a splash of water; cook until tender.",
+        "Stir in soy sauce. Serve over hot cooked rice."
+      ],
+      "calorieNote": "Illustrative estimate for the UTS demo, per serving.",
+      "servings": 1,
+      "id": "uts-chicken-rice-bowl",
+      "image": "https://www.themealdb.com/images/media/meals/er4d081765186828.jpg?recipe=uts-chicken-rice-bowl",
+      "imageAttribution": "TheMealDB; illustrative dish photograph, may differ from this demo recipe.",
+      "categoryId": "Second"
+    },
+    {
+      "name": "Tofu Fried Rice",
+      "category": "Lunch",
+      "cal": "390",
+      "time": 20,
+      "ingredientsName": [
+        "Cooked rice",
+        "Tofu",
+        "Garlic",
+        "Cooking oil",
+        "Soy sauce"
+      ],
+      "ingredientsAmount": [
+        200.0,
+        100.0,
+        3.0,
+        10.0,
+        10.0
+      ],
+      "step": [
+        "Pat tofu dry and cut into cubes. Mince garlic.",
+        "Heat oil and fry tofu until golden. Add garlic and stir briefly.",
+        "Add cooked rice and soy sauce. Stir-fry until hot throughout."
+      ],
+      "calorieNote": "Illustrative estimate for the UTS demo, per serving.",
+      "servings": 1,
+      "id": "uts-tofu-fried-rice",
+      "image": "https://www.themealdb.com/images/media/meals/wuyd2h1765655837.jpg?recipe=uts-tofu-fried-rice",
+      "imageAttribution": "TheMealDB; illustrative dish photograph, may differ from this demo recipe.",
+      "categoryId": "Second"
+    },
+    {
+      "name": "Vegetable Rice",
+      "category": "Lunch",
+      "cal": "350",
+      "time": 15,
+      "ingredientsName": [
+        "Cooked rice",
+        "Carrot",
+        "Sweet corn",
+        "Cooking oil",
+        "Salt"
+      ],
+      "ingredientsAmount": [
+        200.0,
+        50.0,
+        50.0,
+        5.0,
+        1.0
+      ],
+      "step": [
+        "Dice carrot into small pieces.",
+        "Heat oil and cook carrot and corn with a splash of water until tender.",
+        "Add cooked rice and salt. Stir until steaming hot."
+      ],
+      "calorieNote": "Illustrative estimate for the UTS demo, per serving.",
+      "servings": 1,
+      "id": "uts-vegetable-rice",
+      "image": "https://www.themealdb.com/images/media/meals/kw92t41604181871.jpg?recipe=uts-vegetable-rice",
+      "imageAttribution": "TheMealDB; illustrative dish photograph, may differ from this demo recipe.",
+      "categoryId": "Second"
+    },
+    {
+      "name": "Garlic Noodles",
+      "category": "Lunch",
+      "cal": "380",
+      "time": 15,
+      "ingredientsName": [
+        "Noodles",
+        "Garlic",
+        "Cooking oil",
+        "Soy sauce"
+      ],
+      "ingredientsAmount": [
+        100.0,
+        6.0,
+        10.0,
+        10.0
+      ],
+      "step": [
+        "Boil noodles following the package instructions, then drain.",
+        "Mince garlic and cook gently in oil until fragrant.",
+        "Toss noodles with garlic oil and soy sauce. Serve warm."
+      ],
+      "calorieNote": "Illustrative estimate for the UTS demo, per serving.",
+      "servings": 1,
+      "id": "uts-garlic-noodles",
+      "image": "https://www.themealdb.com/images/media/meals/2wx8cm1763373419.jpg?recipe=uts-garlic-noodles",
+      "imageAttribution": "TheMealDB; illustrative dish photograph, may differ from this demo recipe.",
+      "categoryId": "Second"
+    },
+    {
+      "name": "Chicken Noodle Soup",
+      "category": "Lunch",
+      "cal": "440",
+      "time": 30,
+      "ingredientsName": [
+        "Noodles",
+        "Chicken",
+        "Carrot",
+        "Garlic",
+        "Salt"
+      ],
+      "ingredientsAmount": [
+        80.0,
+        100.0,
+        50.0,
+        3.0,
+        1.0
+      ],
+      "step": [
+        "Cut chicken and carrot into bite-sized pieces. Mince garlic.",
+        "Bring 500 ml water to a boil. Add chicken, carrot, garlic and salt; simmer until chicken is fully cooked.",
+        "Add noodles and cook according to package instructions. Serve with broth."
+      ],
+      "calorieNote": "Illustrative estimate for the UTS demo, per serving.",
+      "servings": 1,
+      "id": "uts-chicken-noodle-soup",
+      "image": "https://www.themealdb.com/images/media/meals/ip5xtp1769779958.jpg?recipe=uts-chicken-noodle-soup",
+      "imageAttribution": "TheMealDB; illustrative dish photograph, may differ from this demo recipe.",
+      "categoryId": "Second"
+    },
+    {
+      "name": "Vegetable Noodles",
+      "category": "Lunch",
+      "cal": "340",
+      "time": 20,
+      "ingredientsName": [
+        "Noodles",
+        "Cabbage",
+        "Carrot",
+        "Cooking oil",
+        "Soy sauce"
+      ],
+      "ingredientsAmount": [
+        100.0,
+        70.0,
+        50.0,
+        10.0,
+        10.0
+      ],
+      "step": [
+        "Cook noodles according to the package instructions and drain.",
+        "Slice vegetables. Stir-fry in oil until tender.",
+        "Add noodles and soy sauce; toss until evenly mixed and hot."
+      ],
+      "calorieNote": "Illustrative estimate for the UTS demo, per serving.",
+      "servings": 1,
+      "id": "uts-vegetable-noodles",
+      "image": "https://www.themealdb.com/images/media/meals/2wx8cm1763373419.jpg?recipe=uts-vegetable-noodles",
+      "imageAttribution": "TheMealDB; illustrative dish photograph, may differ from this demo recipe.",
+      "categoryId": "Second"
+    },
+    {
+      "name": "Egg Noodle Stir-fry",
+      "category": "Lunch",
+      "cal": "410",
+      "time": 15,
+      "ingredientsName": [
+        "Noodles",
+        "Egg",
+        "Onion",
+        "Cooking oil",
+        "Soy sauce"
+      ],
+      "ingredientsAmount": [
+        100.0,
+        50.0,
+        30.0,
+        10.0,
+        10.0
+      ],
+      "step": [
+        "Cook noodles and drain. Slice onion and beat the egg.",
+        "Heat oil, soften onion, then add the egg and scramble until set.",
+        "Add noodles and soy sauce. Toss together and serve."
+      ],
+      "calorieNote": "Illustrative estimate for the UTS demo, per serving.",
+      "servings": 1,
+      "id": "uts-egg-noodle-stir-fry",
+      "image": "https://www.themealdb.com/images/media/meals/ip5xtp1769779958.jpg?recipe=uts-egg-noodle-stir-fry",
+      "imageAttribution": "TheMealDB; illustrative dish photograph, may differ from this demo recipe.",
+      "categoryId": "Second"
+    },
+    {
+      "name": "Soy Sauce Chicken",
+      "category": "Dinner",
+      "cal": "320",
+      "time": 30,
+      "ingredientsName": [
+        "Chicken",
+        "Onion",
+        "Garlic",
+        "Soy sauce",
+        "Cooking oil"
+      ],
+      "ingredientsAmount": [
+        150.0,
+        40.0,
+        3.0,
+        15.0,
+        10.0
+      ],
+      "step": [
+        "Cut chicken into small pieces. Chop onion and garlic.",
+        "Heat oil and brown chicken. Add onion and garlic; cook until fragrant.",
+        "Add soy sauce and 80 ml water. Simmer until chicken is fully cooked and sauce thickens."
+      ],
+      "calorieNote": "Illustrative estimate for the UTS demo, per serving.",
+      "servings": 1,
+      "id": "uts-soy-sauce-chicken",
+      "image": "https://www.themealdb.com/images/media/meals/cj56fs1762340001.jpg?recipe=uts-soy-sauce-chicken",
+      "imageAttribution": "TheMealDB; illustrative dish photograph, may differ from this demo recipe.",
+      "categoryId": "Third"
+    },
+    {
+      "name": "Crispy Tofu",
+      "category": "Dinner",
+      "cal": "260",
+      "time": 20,
+      "ingredientsName": [
+        "Tofu",
+        "Cooking oil",
+        "Salt",
+        "Pepper"
+      ],
+      "ingredientsAmount": [
+        180.0,
+        15.0,
+        1.0,
+        0.5
+      ],
+      "step": [
+        "Drain tofu and pat dry. Cut into small cubes.",
+        "Season with salt and pepper. Heat oil in a non-stick pan.",
+        "Fry tofu on each side until golden. Drain excess oil and serve."
+      ],
+      "calorieNote": "Illustrative estimate for the UTS demo, per serving.",
+      "servings": 1,
+      "id": "uts-crispy-tofu",
+      "image": "https://www.themealdb.com/images/media/meals/minfsc1763766806.jpg?recipe=uts-crispy-tofu",
+      "imageAttribution": "TheMealDB; illustrative dish photograph, may differ from this demo recipe.",
+      "categoryId": "Third"
+    },
+    {
+      "name": "Sweet Soy Tempeh",
+      "category": "Dinner",
+      "cal": "310",
+      "time": 20,
+      "ingredientsName": [
+        "Tempeh",
+        "Garlic",
+        "Soy sauce",
+        "Cooking oil"
+      ],
+      "ingredientsAmount": [
+        150.0,
+        3.0,
+        15.0,
+        10.0
+      ],
+      "step": [
+        "Slice tempeh into thin strips and mince garlic.",
+        "Pan-fry tempeh in oil until golden, then add garlic.",
+        "Add soy sauce and a splash of water. Toss until coated and hot."
+      ],
+      "calorieNote": "Illustrative estimate for the UTS demo, per serving.",
+      "servings": 1,
+      "id": "uts-sweet-soy-tempeh",
+      "image": "https://www.themealdb.com/images/media/meals/minfsc1763766806.jpg?recipe=uts-sweet-soy-tempeh",
+      "imageAttribution": "TheMealDB; illustrative dish photograph, may differ from this demo recipe.",
+      "categoryId": "Third"
+    },
+    {
+      "name": "Tomato Scrambled Eggs",
+      "category": "Dinner",
+      "cal": "230",
+      "time": 10,
+      "ingredientsName": [
+        "Egg",
+        "Tomato",
+        "Cooking oil",
+        "Salt"
+      ],
+      "ingredientsAmount": [
+        100.0,
+        100.0,
+        5.0,
+        1.0
+      ],
+      "step": [
+        "Chop tomato. Beat eggs with salt.",
+        "Heat oil and cook tomato until softened.",
+        "Pour in eggs and gently stir until fully set. Serve immediately."
+      ],
+      "calorieNote": "Illustrative estimate for the UTS demo, per serving.",
+      "servings": 1,
+      "id": "uts-tomato-scrambled-eggs",
+      "image": "https://www.themealdb.com/images/media/meals/47y6ii1765658818.jpg?recipe=uts-tomato-scrambled-eggs",
+      "imageAttribution": "TheMealDB; illustrative dish photograph, may differ from this demo recipe.",
+      "categoryId": "Third"
+    },
+    {
+      "name": "Garlic Spinach",
+      "category": "Lunch",
+      "cal": "110",
+      "time": 10,
+      "ingredientsName": [
+        "Spinach",
+        "Garlic",
+        "Cooking oil",
+        "Salt"
+      ],
+      "ingredientsAmount": [
+        150.0,
+        6.0,
+        5.0,
+        1.0
+      ],
+      "step": [
+        "Wash spinach thoroughly and drain. Mince garlic.",
+        "Heat oil, add garlic and stir briefly.",
+        "Add spinach and salt. Toss until wilted and serve."
+      ],
+      "calorieNote": "Illustrative estimate for the UTS demo, per serving.",
+      "servings": 1,
+      "id": "uts-garlic-spinach",
+      "image": "https://www.themealdb.com/images/media/meals/minfsc1763766806.jpg?recipe=uts-garlic-spinach",
+      "imageAttribution": "TheMealDB; illustrative dish photograph, may differ from this demo recipe.",
+      "categoryId": "Second"
+    },
+    {
+      "name": "Carrot Cabbage Stir-fry",
+      "category": "Lunch",
+      "cal": "130",
+      "time": 15,
+      "ingredientsName": [
+        "Carrot",
+        "Cabbage",
+        "Garlic",
+        "Cooking oil",
+        "Salt"
+      ],
+      "ingredientsAmount": [
+        100.0,
+        100.0,
+        3.0,
+        5.0,
+        1.0
+      ],
+      "step": [
+        "Wash and slice carrot and cabbage. Mince garlic.",
+        "Heat oil and cook garlic. Add carrot with a splash of water; cook until tender.",
+        "Add cabbage and salt. Stir-fry until cabbage softens."
+      ],
+      "calorieNote": "Illustrative estimate for the UTS demo, per serving.",
+      "servings": 1,
+      "id": "uts-carrot-cabbage-stir-fry",
+      "image": "https://www.themealdb.com/images/media/meals/minfsc1763766806.jpg?recipe=uts-carrot-cabbage-stir-fry",
+      "imageAttribution": "TheMealDB; illustrative dish photograph, may differ from this demo recipe.",
+      "categoryId": "Second"
+    },
+    {
+      "name": "Potato Corn Soup",
+      "category": "Lunch",
+      "cal": "240",
+      "time": 25,
+      "ingredientsName": [
+        "Potato",
+        "Sweet corn",
+        "Milk",
+        "Onion",
+        "Salt"
+      ],
+      "ingredientsAmount": [
+        150.0,
+        80.0,
+        100.0,
+        30.0,
+        1.0
+      ],
+      "step": [
+        "Peel and dice potato. Chop onion.",
+        "Simmer potato, onion and corn in 250 ml water until potato is tender.",
+        "Add milk and salt. Warm gently while stirring; serve hot."
+      ],
+      "calorieNote": "Illustrative estimate for the UTS demo, per serving.",
+      "servings": 1,
+      "id": "uts-potato-corn-soup",
+      "image": "https://www.themealdb.com/images/media/meals/1529446137.jpg?recipe=uts-potato-corn-soup",
+      "imageAttribution": "TheMealDB; illustrative dish photograph, may differ from this demo recipe.",
+      "categoryId": "Second"
+    },
+    {
+      "name": "Tofu Vegetable Soup",
+      "category": "Lunch",
+      "cal": "190",
+      "time": 20,
+      "ingredientsName": [
+        "Tofu",
+        "Carrot",
+        "Cabbage",
+        "Garlic",
+        "Salt"
+      ],
+      "ingredientsAmount": [
+        100.0,
+        60.0,
+        60.0,
+        3.0,
+        1.0
+      ],
+      "step": [
+        "Cut tofu into cubes. Slice carrot and cabbage; mince garlic.",
+        "Bring 400 ml water to a boil. Add garlic and carrot; simmer until tender.",
+        "Add tofu, cabbage and salt. Simmer until heated through and cabbage is soft."
+      ],
+      "calorieNote": "Illustrative estimate for the UTS demo, per serving.",
+      "servings": 1,
+      "id": "uts-tofu-vegetable-soup",
+      "image": "https://www.themealdb.com/images/media/meals/1529445893.jpg?recipe=uts-tofu-vegetable-soup",
+      "imageAttribution": "TheMealDB; illustrative dish photograph, may differ from this demo recipe.",
+      "categoryId": "Second"
+    },
+    {
+      "name": "Banana Pancakes",
+      "category": "Snack",
+      "cal": "310",
+      "time": 20,
+      "ingredientsName": [
+        "Banana",
+        "Egg",
+        "Flour",
+        "Milk",
+        "Cooking oil"
+      ],
+      "ingredientsAmount": [
+        100,
+        50,
+        40,
+        50,
+        5
+      ],
+      "step": [
+        "Mash the banana, then whisk in the egg and milk.",
+        "Fold in the flour to make a thick batter.",
+        "Heat a lightly oiled pan over medium-low heat. Cook small pancakes on both sides until the centers are fully set."
+      ],
+      "servings": 1,
+      "id": "uts-banana-pancakes",
+      "image": "https://www.themealdb.com/images/media/meals/sywswr1511383814.jpg?recipe=uts-banana-pancakes",
+      "imageAttribution": "TheMealDB; illustrative dish photograph, may differ from this demo recipe.",
+      "categoryId": "uts-snack",
+      "calorieNote": "Illustrative estimate for the UTS demo, per serving."
+    },
+    {
+      "name": "Bread and Butter Pudding",
+      "category": "Dessert",
+      "cal": "360",
+      "time": 35,
+      "ingredientsName": [
+        "Bread",
+        "Milk",
+        "Egg",
+        "Butter",
+        "Sugar"
+      ],
+      "ingredientsAmount": [
+        60,
+        100,
+        50,
+        10,
+        15
+      ],
+      "step": [
+        "Heat the oven to 180 C. Butter the bread and arrange it in a small ovenproof dish.",
+        "Whisk the milk, egg and sugar. Pour over the bread and let it soak for 5 minutes.",
+        "Bake for 25 minutes or until the custard is set throughout. Allow to cool slightly before serving."
+      ],
+      "servings": 1,
+      "id": "uts-bread-and-butter-pudding",
+      "image": "https://www.themealdb.com/images/media/meals/xqwwpy1483908697.jpg?recipe=uts-bread-and-butter-pudding",
+      "imageAttribution": "TheMealDB; illustrative dish photograph, may differ from this demo recipe.",
+      "categoryId": "uts-dessert",
+      "calorieNote": "Illustrative estimate for the UTS demo, per serving."
+    }
+  ]
+}
