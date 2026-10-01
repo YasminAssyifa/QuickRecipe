@@ -1,0 +1,39 @@
+00:00 +0: loading D:/develop/StudioProjects/quick_recipe/test/kitchen_model_test.dart
+00:00 +0: D:/develop/StudioProjects/quick_recipe/test/kitchen_model_test.dart: Quantity rejects ""
+00:00 +1: D:/develop/StudioProjects/quick_recipe/test/kitchen_model_test.dart: Quantity rejects "0"
+00:00 +2: D:/develop/StudioProjects/quick_recipe/test/kitchen_model_test.dart: Quantity rejects "-1"
+00:00 +3: D:/develop/StudioProjects/quick_recipe/test/kitchen_model_test.dart: Quantity rejects "NaN"
+00:00 +4: D:/develop/StudioProjects/quick_recipe/test/kitchen_model_test.dart: Quantity rejects "Infinity"
+00:00 +5: D:/develop/StudioProjects/quick_recipe/test/kitchen_model_test.dart: Quantity rejects "text"
+00:00 +6: D:/develop/StudioProjects/quick_recipe/test/kitchen_model_test.dart: Quantity rejects "100001"
+00:00 +7: D:/develop/StudioProjects/quick_recipe/test/kitchen_model_test.dart: Quantity accepts decimal comma and positive number
+00:00 +8: D:/develop/StudioProjects/quick_recipe/test/kitchen_model_test.dart: Names reject whitespace and oversized input
+00:00 +9: D:/develop/StudioProjects/quick_recipe/test/kitchen_model_test.dart: Ingredient aliases normalize Indonesian and English
+00:00 +10: D:/develop/StudioProjects/quick_recipe/test/kitchen_model_test.dart: Fridge data roundtrip preserves quantity and ID relation
+00:00 +11: D:/develop/StudioProjects/quick_recipe/test/kitchen_model_test.dart: Collection IDs are deduplicated on serialization
+00:00 +12: D:/develop/StudioProjects/quick_recipe/test/kitchen_model_test.dart: Matching separates available and missing ingredients
+00:00 +13: D:/develop/StudioProjects/quick_recipe/test/kitchen_model_test.dart: Expired ingredients do not contribute to a match
+00:00 +14: D:/develop/StudioProjects/quick_recipe/test/kitchen_model_test.dart: Ingredients remain usable on their use-by date
+00:00 +15: D:/develop/StudioProjects/quick_recipe/test/kitchen_model_test.dart: Empty recipe match is finite
+00:00 +16: D:/develop/StudioProjects/quick_recipe/test/kitchen_model_test.dart: Demo empty does not change repository data
+00:00 +17: D:/develop/StudioProjects/quick_recipe/test/kitchen_model_test.dart: Demo failure retries real repository without mutation
+00:00 +18: D:/develop/StudioProjects/quick_recipe/test/kitchen_widget_test.dart: Fridge empty state provides add ingredient action
+00:01 +19: D:/develop/StudioProjects/quick_recipe/test/profile_test.dart: Sign up rejects mismatched passwords without creating an account
+00:02 +20: D:/develop/StudioProjects/quick_recipe/test/kitchen_widget_test.dart: Fridge form rejects empty mandatory fields
+00:02 +21: D:/develop/StudioProjects/quick_recipe/test/kitchen_widget_test.dart: Fridge form rejects empty mandatory fields
+00:02 +22: D:/develop/StudioProjects/quick_recipe/test/kitchen_widget_test.dart: Fridge form rejects empty mandatory fields
+00:02 +23: D:/develop/StudioProjects/quick_recipe/test/profile_test.dart: Sign in rejects empty input before requesting Firebase
+00:02 +24: D:/develop/StudioProjects/quick_recipe/test/kitchen_widget_test.dart: Fridge form writes selected values and disables repeated submit
+00:02 +25: D:/develop/StudioProjects/quick_recipe/test/kitchen_widget_test.dart: Fridge form writes selected values and disables repeated submit
+00:02 +26: D:/develop/StudioProjects/quick_recipe/test/kitchen_widget_test.dart: Fridge save failure keeps entered values for retry
+00:03 +27: D:/develop/StudioProjects/quick_recipe/test/kitchen_widget_test.dart: Fridge deletion supports cancel and confirmation
+00:03 +28: D:/develop/StudioProjects/quick_recipe/test/kitchen_widget_test.dart: Fridge demo failure retries Firestore source
+00:04 +29: D:/develop/StudioProjects/quick_recipe/test/kitchen_widget_test.dart: Collections empty action opens form and validates name
+00:04 +30: D:/develop/StudioProjects/quick_recipe/test/kitchen_widget_test.dart: Collection saves recipe ID and name
+00:04 +31: D:/develop/StudioProjects/quick_recipe/test/kitchen_widget_test.dart: Collection edit removes recipe without deleting catalog
+00:05 +32: D:/develop/StudioProjects/quick_recipe/test/kitchen_widget_test.dart: Collection deletion preserves recipe catalog
+00:05 +33: D:/develop/StudioProjects/quick_recipe/test/kitchen_widget_test.dart: Recipe matches show missing ingredients
+00:05 +34: D:/develop/StudioProjects/quick_recipe/test/kitchen_widget_test.dart: AI preview reports empty input and does not claim generated answer
+00:05 +35: D:/develop/StudioProjects/quick_recipe/test/kitchen_widget_test.dart: AI shortcut opens AI and hides on AI screen
+00:05 +36: D:/develop/StudioProjects/quick_recipe/test/kitchen_widget_test.dart: Form fits a small screen with keyboard inset
+00:06 +37: All tests passed!

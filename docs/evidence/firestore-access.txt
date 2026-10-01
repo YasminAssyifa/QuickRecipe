@@ -1,0 +1,38 @@
+PASS: Disposable account registration
+PASS: Email/password sign-in
+PASS: Sign-in preserves account UID
+PASS: Disposable account registration
+PASS: Email/password sign-in
+PASS: Sign-in preserves account UID
+PASS: Anonymous catalog access denied
+PASS: Authenticated catalog read
+PASS: At least 20 recipes
+PASS: Authenticated categories read
+PASS: At least 5 actual categories
+PASS: fridge: owner create
+PASS: fridge: owner read
+PASS: fridge: other account denied
+PASS: fridge: anonymous denied
+PASS: fridge: other account write denied
+PASS: fridge: owner update
+PASS: Fridge rejects zero amount
+PASS: fridge: owner delete
+PASS: fridge: deleted record absent
+PASS: collections: owner create
+PASS: collections: owner read
+PASS: collections: other account denied
+PASS: collections: anonymous denied
+PASS: collections: other account write denied
+PASS: collections: owner update
+PASS: collections: owner delete
+PASS: collections: deleted record absent
+PASS: favorites: owner create
+PASS: favorites: owner read
+PASS: favorites: other account denied
+PASS: favorites: anonymous denied
+PASS: favorites: other account write denied
+PASS: favorites: owner delete
+PASS: favorites: deleted record absent
+PASS: Other profile path denied
+Result: 36 live checks passed; catalog=20, categories=5.
+Temporary accounts/documents cleanup: PASS

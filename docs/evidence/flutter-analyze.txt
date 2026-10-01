@@ -1,0 +1,9 @@
+Analyzing quick_recipe...                                       
+
+   info - Missing type annotation. Try adding a type annotation - lib\views\app_main_screen.dart:76:21 - strict_top_level_inference
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement - lib\views\my_app_home_screen.dart:264:45 - deprecated_member_use
+   info - The member 'dispose' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation - lib\views\recipe_detail_screen.dart:396:8 - annotate_overrides
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement - lib\views\recipe_detail_screen.dart:405:37 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement - lib\views\recipe_detail_screen.dart:436:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement - lib\views\step_screen.dart:153:41 - deprecated_member_use
+

@@ -1,0 +1,121 @@
+{
+  "Complete-Flutter-App": [
+    {
+      "id": "recipe-tempe-orek",
+      "name": "Tempe Orek",
+      "category": "Dinner",
+      "categoryId": "Third",
+      "cal": "360",
+      "time": 20,
+      "servings": 1,
+      "ingredientsName": ["Tempe", "Bawang merah", "Bawang putih", "Kecap manis", "Minyak", "Air"],
+      "ingredientsAmount": [120, 15, 5, 15, 10, 30],
+      "step": [
+        "Potong tempe kecil memanjang. Iris bawang merah dan bawang putih.",
+        "Panaskan minyak. Masak tempe sambil dibalik hingga matang dan kecokelatan, lalu sisihkan.",
+        "Tumis bawang di wajan yang sama hingga harum. Masukkan kecap manis dan air.",
+        "Masukkan kembali tempe, aduk hingga bumbu merata dan air menyusut. Sajikan hangat."
+      ],
+      "image": "https://www.themealdb.com/images/media/meals/minfsc1763766806.jpg?recipe=tempe-orek",
+      "imageAttribution": "TheMealDB; illustrative photograph, not the exact dish.",
+      "calorieNote": "Illustrative estimate per serving."
+    },
+    {
+      "id": "recipe-nasi-goreng-telur",
+      "name": "Nasi Goreng Telur",
+      "category": "Lunch",
+      "categoryId": "Second",
+      "cal": "440",
+      "time": 15,
+      "servings": 1,
+      "ingredientsName": ["Nasi", "Telur", "Bawang merah", "Bawang putih", "Kecap manis", "Minyak"],
+      "ingredientsAmount": [200, 50, 15, 5, 15, 10],
+      "step": [
+        "Uraikan nasi matang. Iris bawang merah dan bawang putih, lalu kocok telur.",
+        "Panaskan minyak dan tumis bawang hingga harum. Tambahkan telur, lalu orak-arik hingga matang.",
+        "Masukkan nasi dan kecap manis. Aduk hingga tercampur rata dan seluruh nasi panas, lalu sajikan."
+      ],
+      "image": "https://www.themealdb.com/images/media/meals/wuyd2h1765655837.jpg?recipe=nasi-goreng-telur",
+      "imageAttribution": "TheMealDB; illustrative photograph, not the exact dish.",
+      "calorieNote": "Illustrative estimate per serving."
+    },
+    {
+      "id": "recipe-tumis-kangkung",
+      "name": "Tumis Kangkung",
+      "category": "Lunch",
+      "categoryId": "Second",
+      "cal": "160",
+      "time": 10,
+      "servings": 1,
+      "ingredientsName": ["Kangkung", "Bawang putih", "Bawang merah", "Cabai merah", "Minyak", "Garam", "Air"],
+      "ingredientsAmount": [150, 5, 15, 10, 10, 1, 30],
+      "step": [
+        "Petik kangkung dan cuci bersih. Iris bawang dan cabai.",
+        "Panaskan minyak. Tumis bawang serta cabai hingga harum.",
+        "Masukkan kangkung, air, dan garam. Aduk sampai batang empuk dan daun layu, lalu sajikan."
+      ],
+      "image": "https://www.themealdb.com/images/media/meals/minfsc1763766806.jpg?recipe=tumis-kangkung",
+      "imageAttribution": "TheMealDB; illustrative vegetable photograph, not the exact dish.",
+      "calorieNote": "Illustrative estimate per serving."
+    },
+    {
+      "id": "recipe-sayur-bening-bayam",
+      "name": "Sayur Bening Bayam",
+      "category": "Lunch",
+      "categoryId": "Second",
+      "cal": "100",
+      "time": 15,
+      "servings": 1,
+      "ingredientsName": ["Bayam", "Jagung", "Bawang merah", "Garam", "Air"],
+      "ingredientsAmount": [100, 70, 10, 1, 350],
+      "step": [
+        "Cuci bayam dan jagung. Pipil jagung dan iris bawang merah.",
+        "Didihkan air bersama bawang merah. Masukkan jagung dan masak hingga empuk.",
+        "Tambahkan bayam serta garam. Masak sampai daun layu dan matang, lalu sajikan."
+      ],
+      "image": "https://www.themealdb.com/images/media/meals/kw92t41604181871.jpg?recipe=sayur-bening-bayam",
+      "imageAttribution": "TheMealDB; illustrative vegetable photograph, not the exact dish.",
+      "calorieNote": "Illustrative estimate per serving."
+    },
+    {
+      "id": "recipe-tahu-kecap",
+      "name": "Tahu Kecap",
+      "category": "Dinner",
+      "categoryId": "Third",
+      "cal": "270",
+      "time": 15,
+      "servings": 1,
+      "ingredientsName": ["Tahu", "Bawang putih", "Bawang merah", "Kecap manis", "Minyak", "Air"],
+      "ingredientsAmount": [150, 5, 15, 15, 10, 50],
+      "step": [
+        "Potong tahu menjadi kubus. Iris bawang putih dan bawang merah.",
+        "Panaskan minyak. Masak tahu hingga kedua sisinya kecokelatan, lalu sisihkan.",
+        "Tumis bawang hingga harum. Tambahkan kecap manis, air, dan tahu.",
+        "Aduk perlahan dan masak sampai tahu panas merata serta kuah sedikit menyusut. Sajikan."
+      ],
+      "image": "https://www.themealdb.com/images/media/meals/minfsc1763766806.jpg?recipe=tahu-kecap",
+      "imageAttribution": "TheMealDB; illustrative photograph, not the exact dish.",
+      "calorieNote": "Illustrative estimate per serving."
+    },
+    {
+      "id": "recipe-telur-balado",
+      "name": "Telur Balado",
+      "category": "Dinner",
+      "categoryId": "Third",
+      "cal": "290",
+      "time": 25,
+      "servings": 1,
+      "ingredientsName": ["Telur", "Cabai merah", "Tomat", "Bawang merah", "Bawang putih", "Minyak", "Garam", "Air"],
+      "ingredientsAmount": [100, 20, 50, 20, 5, 10, 1, 40],
+      "step": [
+        "Rebus telur hingga putih dan kuningnya matang. Dinginkan, kupas, lalu sisihkan.",
+        "Haluskan cabai, tomat, bawang merah, dan bawang putih.",
+        "Panaskan minyak. Tumis bumbu halus sampai matang dan harum.",
+        "Tambahkan air, garam, dan telur. Aduk perlahan hingga telur terbalut bumbu dan kuah menyusut. Sajikan."
+      ],
+      "image": "https://www.themealdb.com/images/media/meals/47y6ii1765658818.jpg?recipe=telur-balado",
+      "imageAttribution": "TheMealDB; illustrative egg photograph, not the exact dish.",
+      "calorieNote": "Illustrative estimate per serving."
+    }
+  ]
+}

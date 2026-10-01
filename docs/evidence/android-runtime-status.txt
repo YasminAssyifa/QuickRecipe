@@ -1,0 +1,8 @@
+30 September 2026
+Android integration build and installation succeeded.
+Runtime end-to-end flow: BLOCKED at Firebase Authentication sign-up.
+Firebase SDK reported: java.security.cert.CertPathValidatorException: Trust anchor for certification path not found.
+The temporary account was not created in this attempt.
+No TLS bypass or insecure certificate validation was added to the app.
+37 local Flutter tests and 36 direct Firebase REST checks passed separately.
+End-to-end Android interaction must be repeated on a trusted device/network before the group demo.
