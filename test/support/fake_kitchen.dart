@@ -30,6 +30,33 @@ class FakeKitchen implements KitchenRepository {
   int saveCount = 0, reads = 0, serial = 0;
   bool fail = false;
   Completer<void>? pendingSave;
+  final processedOperations = <String>{};
+  @override
+  Future<void> useStock(String operationId, List<StockUse> usages) async {
+    if (fail) throw StateError('Offline');
+    if (processedOperations.contains(operationId)) return;
+    final changes = <String, double>{};
+    for (final usage in usages) {
+      changes[usage.itemId] = remainingStock(
+        items.firstWhere((item) => item.id == usage.itemId),
+        usage,
+      );
+    }
+    items = items
+        .map(
+          (item) => FridgeItem(
+            id: item.id,
+            name: item.name,
+            amount: changes[item.id] ?? item.amount,
+            unit: item.unit,
+            categoryId: item.categoryId,
+            notes: item.notes,
+          ),
+        )
+        .toList();
+    processedOperations.add(operationId);
+  }
+
   @override
   String newId(String module) => 'test-${serial++}';
   @override

@@ -6,6 +6,7 @@ import 'kitchen_repository.dart';
 import 'shared.dart';
 import 'collection_screens.dart';
 import 'recipe_matches_screen.dart';
+import 'use_ingredients_screen.dart';
 
 class FridgeScreen extends StatefulWidget {
   const FridgeScreen({super.key});
@@ -17,6 +18,7 @@ class _FridgeScreenState extends State<FridgeScreen> {
   late KitchenRepository _repo;
   late Future<List<FridgeItem>> _future;
   DemoScenario _demo = DemoScenario.normal;
+  String? _group;
   final Set<String> _deleting = {};
   @override
   void initState() {
@@ -54,6 +56,17 @@ class _FridgeScreenState extends State<FridgeScreen> {
       if (mounted) showMessage(context, messageFor(error));
     } finally {
       if (mounted) setState(() => _deleting.remove(item.id));
+    }
+  }
+
+  Future<void> _useIngredients() async {
+    final saved = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => const UseIngredientsScreen()),
+    );
+    if (saved == true && mounted) {
+      _reload();
+      showMessage(context, 'Stock updated.');
     }
   }
 
@@ -124,6 +137,14 @@ class _FridgeScreenState extends State<FridgeScreen> {
                 onAction: _demo == DemoScenario.empty ? _reload : _edit,
               ),
             if (items.isNotEmpty) ...[
+              OutlinedButton.icon(
+                onPressed: items.any((item) => item.inStock)
+                    ? _useIngredients
+                    : null,
+                icon: const Icon(Icons.restaurant),
+                label: const Text('Pakai bahan'),
+              ),
+              const SizedBox(height: 12),
               PrimaryAction(
                 label: 'Find recipes',
                 onPressed: () => Navigator.push(
@@ -140,65 +161,93 @@ class _FridgeScreenState extends State<FridgeScreen> {
                 label: const Text('Add ingredient'),
               ),
               const SizedBox(height: 12),
-              ...items.map(
-                (item) => Card(
-                  color: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+              DropdownButtonFormField<String>(
+                initialValue: _group ?? 'all',
+                decoration: fieldStyle('Kelompok bahan'),
+                isExpanded: true,
+                items: [
+                  const DropdownMenuItem(
+                    value: 'all',
+                    child: Text('All ingredients'),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item.name,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          '${item.amount.toStringAsFixed(item.amount % 1 == 0 ? 0 : 1)} ${item.unit} • ${foodGroups[item.categoryId] ?? item.categoryId}',
-                        ),
-                        Text(
-                          '${item.expiredAt(DateTime.now()) ? 'Expired' : 'Use by'} ${dateText(item.expiry)}',
-                          style: TextStyle(
-                            color: item.expiredAt(DateTime.now())
-                                ? Colors.red.shade700
-                                : Colors.black54,
-                          ),
-                        ),
-                        if (item.notes.isNotEmpty) Text(item.notes),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                  ...foodGroups.entries.map(
+                    (entry) => DropdownMenuItem(
+                      value: entry.key,
+                      child: Text(entry.value),
+                    ),
+                  ),
+                ],
+                onChanged: (value) =>
+                    setState(() => _group = value == 'all' ? null : value),
+              ),
+              const SizedBox(height: 12),
+              if (!items.any(
+                (item) => _group == null || item.categoryId == _group,
+              ))
+                const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text(
+                    'No ingredients in this group. Choose All ingredients or add one.',
+                  ),
+                ),
+              ...items
+                  .where((item) => _group == null || item.categoryId == _group)
+                  .map(
+                    (item) => Card(
+                      color: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            TextButton(
-                              onPressed: _deleting.contains(item.id)
-                                  ? null
-                                  : () => _edit(item),
-                              child: const Text('Edit'),
-                            ),
-                            TextButton(
-                              onPressed: _deleting.contains(item.id)
-                                  ? null
-                                  : () => _delete(item),
-                              child: Text(
-                                _deleting.contains(item.id)
-                                    ? 'Deleting…'
-                                    : 'Delete',
-                                style: const TextStyle(color: Colors.red),
+                            Text(
+                              item.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
                               ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              '${amountText(item.amount)} ${item.unit} • ${foodGroups[item.categoryId] ?? item.categoryId}',
+                            ),
+                            if (!item.inStock)
+                              const Text(
+                                'Habis',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            if (item.notes.isNotEmpty) Text(item.notes),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                TextButton(
+                                  onPressed: _deleting.contains(item.id)
+                                      ? null
+                                      : () => _edit(item),
+                                  child: const Text('Edit'),
+                                ),
+                                TextButton(
+                                  onPressed: _deleting.contains(item.id)
+                                      ? null
+                                      : () => _delete(item),
+                                  child: Text(
+                                    _deleting.contains(item.id)
+                                        ? 'Deleting…'
+                                        : 'Delete',
+                                    style: const TextStyle(color: Colors.red),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ),
             ],
           ],
         ),
@@ -216,11 +265,10 @@ class FridgeFormScreen extends StatefulWidget {
 
 class _FridgeFormScreenState extends State<FridgeFormScreen> {
   final _form = GlobalKey<FormState>();
-  late final TextEditingController _name, _amount, _notes, _expiryText;
+  late final TextEditingController _name, _amount, _notes;
   late final KitchenRepository _repo;
   late final String _id;
   late String _unit, _category;
-  DateTime? _expiry;
   bool _busy = false;
   @override
   void initState() {
@@ -231,10 +279,6 @@ class _FridgeFormScreenState extends State<FridgeFormScreen> {
     _name = TextEditingController(text: item?.name ?? '');
     _amount = TextEditingController(text: item?.amount.toString() ?? '');
     _notes = TextEditingController(text: item?.notes ?? '');
-    _expiry = item?.expiry;
-    _expiryText = TextEditingController(
-      text: _expiry == null ? '' : dateText(_expiry!),
-    );
     _unit = item?.unit ?? 'g';
     _category = item?.categoryId ?? 'produce';
   }
@@ -244,25 +288,7 @@ class _FridgeFormScreenState extends State<FridgeFormScreen> {
     _name.dispose();
     _amount.dispose();
     _notes.dispose();
-    _expiryText.dispose();
     super.dispose();
-  }
-
-  Future<void> _pickDate() async {
-    if (_busy) return;
-    final today = DateTime.now();
-    final selected = await showDatePicker(
-      context: context,
-      initialDate: _expiry ?? today,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-    );
-    if (selected != null && mounted) {
-      setState(() {
-        _expiry = selected;
-        _expiryText.text = dateText(selected);
-      });
-    }
   }
 
   Future<void> _save() async {
@@ -277,7 +303,6 @@ class _FridgeFormScreenState extends State<FridgeFormScreen> {
           amount: double.parse(_amount.text.replaceAll(',', '.')),
           unit: _unit,
           categoryId: _category,
-          expiry: _expiry!,
           notes: _notes.text,
         ),
         create: widget.item == null,
@@ -288,6 +313,14 @@ class _FridgeFormScreenState extends State<FridgeFormScreen> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  void _adjustAmount(int delta) {
+    final current = double.tryParse(_amount.text.replaceAll(',', '.')) ?? 0;
+    final next = ((current.isFinite ? current : 0) + delta)
+        .clamp(0, 100000)
+        .toDouble();
+    _amount.text = amountText(next);
   }
 
   @override
@@ -318,11 +351,23 @@ class _FridgeFormScreenState extends State<FridgeFormScreen> {
               TextFormField(
                 controller: _amount,
                 enabled: !_busy,
-                decoration: fieldStyle('Quantity'),
+                decoration: fieldStyle('Quantity').copyWith(
+                  prefixIcon: IconButton(
+                    tooltip: 'Decrease quantity',
+                    onPressed: _busy ? null : () => _adjustAmount(-1),
+                    icon: const Icon(Icons.remove),
+                  ),
+                  suffixIcon: IconButton(
+                    tooltip: 'Increase quantity',
+                    onPressed: _busy ? null : () => _adjustAmount(1),
+                    icon: const Icon(Icons.add),
+                  ),
+                ),
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                validator: positiveAmount,
+                validator: (value) =>
+                    positiveAmount(value, allowZero: widget.item != null),
                 textInputAction: TextInputAction.next,
               ),
               const SizedBox(height: 20),
@@ -343,7 +388,10 @@ class _FridgeFormScreenState extends State<FridgeFormScreen> {
               DropdownButtonFormField<String>(
                 initialValue: _category,
                 isExpanded: true,
-                decoration: fieldStyle('Food group'),
+                decoration: fieldStyle('Kelompok bahan').copyWith(
+                  helperText:
+                      'Groups help you filter ingredients in your fridge.',
+                ),
                 items: foodGroups.entries
                     .map(
                       (entry) => DropdownMenuItem(
@@ -355,18 +403,6 @@ class _FridgeFormScreenState extends State<FridgeFormScreen> {
                 onChanged: _busy
                     ? null
                     : (value) => setState(() => _category = value!),
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: _expiryText,
-                readOnly: true,
-                enabled: !_busy,
-                decoration: fieldStyle('Use-by date').copyWith(
-                  suffixIcon: const Icon(Icons.calendar_today_outlined),
-                ),
-                onTap: _pickDate,
-                validator: (_) =>
-                    _expiry == null ? 'Select a use-by date.' : null,
               ),
               const SizedBox(height: 20),
               TextFormField(

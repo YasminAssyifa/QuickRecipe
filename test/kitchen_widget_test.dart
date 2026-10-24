@@ -8,6 +8,7 @@ import 'package:quick_recipe/additions/fridge_screen.dart';
 import 'package:quick_recipe/additions/collection_screens.dart';
 import 'package:quick_recipe/additions/recipe_matches_screen.dart';
 import 'package:quick_recipe/additions/ai_access.dart';
+import 'package:quick_recipe/additions/use_ingredients_screen.dart';
 
 import 'support/fake_kitchen.dart';
 
@@ -17,7 +18,6 @@ FridgeItem sample() => FridgeItem(
   amount: 2,
   unit: 'pcs',
   categoryId: 'protein',
-  expiry: DateTime(2030),
 );
 Widget host(FakeKitchen repo, Widget child) =>
     Provider<KitchenRepository?>.value(
@@ -41,6 +41,141 @@ Future<void> click(WidgetTester tester, String label) async {
 }
 
 void main() {
+  testWidgets('AI preference and send remain reachable with keyboard', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(360, 640);
+    tester.view.devicePixelRatio = 1;
+    tester.view.viewInsets = const FakeViewPadding(bottom: 260);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetViewInsets);
+    await tester.pumpWidget(const MaterialApp(home: AiScreen()));
+    await tester.enterText(find.byType(TextField), 'One\nTwo\nThree\nFour');
+    await tester.pumpAndSettle();
+    expect(
+      tester.getRect(find.byTooltip('Preview message')).bottom,
+      lessThanOrEqualTo(380),
+    );
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets(
+    'Collection save stays visible with a long catalog and keyboard',
+    (tester) async {
+      tester.view.physicalSize = const Size(360, 640);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.view.resetViewInsets);
+      final repo = FakeKitchen()
+        ..catalog = List.generate(
+          100,
+          (i) => TestRecipe('r$i', {'name': 'Recipe $i'}),
+        );
+      await tester.pumpWidget(host(repo, const CollectionFormScreen()));
+      await tester.pumpAndSettle();
+      final button = find.widgetWithText(ElevatedButton, 'Save collection');
+      final initialY = tester.getRect(button).top;
+      await tester.enterText(find.byType(TextFormField).first, 'Dinner');
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -1200),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.getRect(button).top, initialY);
+      tester.view.viewInsets = const FakeViewPadding(bottom: 260);
+      await tester.pumpAndSettle();
+      expect(tester.getRect(button).bottom, lessThanOrEqualTo(380));
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+      expect(repo.folders.single.name, 'Dinner');
+      expect(tester.takeException(), isNull);
+    },
+  );
+  testWidgets('AI preference fills an editable prompt above the input', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: AiScreen()));
+    await click(tester, 'Custom');
+    await click(tester, 'Diet-friendly');
+    final input = find.byType(TextField);
+    expect(
+      tester.widget<TextField>(input).controller!.text,
+      contains('lighter meal'),
+    );
+    expect(
+      tester.getRect(find.byType(DropdownButtonFormField<String>)).bottom,
+      lessThan(tester.getRect(input).top),
+    );
+    await tester.enterText(input, 'My own dinner idea');
+    await tester.tap(find.byTooltip('Preview message'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('AI is not connected yet. Your message was not sent or saved.'),
+      findsOneWidget,
+    );
+    expect(
+      tester.widget<TextField>(input).controller!.text,
+      'My own dinner idea',
+    );
+  });
+  testWidgets(
+    'Use ingredients validates, cancels and deducts confirmed stock',
+    (tester) async {
+      final repo = FakeKitchen()..items = [sample()];
+      await tester.pumpWidget(host(repo, const FridgeScreen()));
+      await tester.pumpAndSettle();
+      await click(tester, 'Pakai bahan');
+      await click(tester, 'Tinjau pemakaian');
+      expect(find.text('Pilih minimal satu bahan.'), findsOneWidget);
+      await tester.tap(find.byType(CheckboxListTile));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextFormField), '3');
+      await click(tester, 'Tinjau pemakaian');
+      expect(find.text('Maksimal 2 pcs.'), findsOneWidget);
+      await tester.enterText(find.byType(TextFormField), '2');
+      await click(tester, 'Tinjau pemakaian');
+      await click(tester, 'Batal');
+      expect(repo.items.single.amount, 2);
+      await click(tester, 'Tinjau pemakaian');
+      await click(tester, 'Konfirmasi');
+      expect(find.byType(UseIngredientsScreen), findsNothing);
+      expect(repo.items.single.amount, 0);
+      expect(find.text('Habis'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+  testWidgets('New ingredient needs five fields without date or location', (
+    tester,
+  ) async {
+    final repo = FakeKitchen();
+    await tester.pumpWidget(host(repo, const FridgeFormScreen()));
+    expect(find.byType(TextFormField), findsNWidgets(3));
+    expect(find.byType(DropdownButtonFormField<String>), findsNWidgets(2));
+    await tester.enterText(find.byType(TextFormField).first, 'Tempe');
+    await tester.tap(find.byTooltip('Increase quantity'));
+    await click(tester, 'Save ingredient');
+    expect(repo.items.single.amount, 1);
+    expect(repo.items.single.toMap().containsKey('expiry'), false);
+  });
+  testWidgets(
+    'Group filter explains an empty group without hiding add action',
+    (tester) async {
+      final repo = FakeKitchen()..items = [sample()];
+      await tester.pumpWidget(host(repo, const FridgeScreen()));
+      await tester.pumpAndSettle();
+      await click(tester, 'All ingredients');
+      await click(tester, 'Dairy');
+      expect(find.text('Egg'), findsNothing);
+      expect(
+        find.text(
+          'No ingredients in this group. Choose All ingredients or add one.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Add ingredient'), findsOneWidget);
+    },
+  );
   testWidgets('Fridge empty state provides add ingredient action', (
     tester,
   ) async {
@@ -55,7 +190,10 @@ void main() {
     await tester.pumpWidget(host(repo, const FridgeFormScreen()));
     await click(tester, 'Save ingredient');
     expect(find.text('Please enter a name.'), findsOneWidget);
-    expect(find.text('Select a use-by date.'), findsOneWidget);
+    expect(
+      find.text('Enter a quantity greater than 0 and at most 100000.'),
+      findsOneWidget,
+    );
     expect(repo.saveCount, 0);
   });
   testWidgets(
@@ -145,6 +283,23 @@ void main() {
     expect(repo.folders.single.recipeIds, ['recipe-1']);
     expect(repo.folders.single.name, 'Quick dinners');
   });
+  testWidgets('Saved collection appears immediately after form closes', (
+    tester,
+  ) async {
+    final repo = FakeKitchen();
+    await tester.pumpWidget(host(repo, const CollectionsScreen()));
+    await tester.pumpAndSettle();
+    await click(tester, 'Create collection');
+    await tester.enterText(
+      find.byType(TextFormField).first,
+      'New dinner folder',
+    );
+    await click(tester, 'Egg rice');
+    await click(tester, 'Save collection');
+    expect(find.byType(CollectionFormScreen), findsNothing);
+    expect(find.text('New dinner folder'), findsOneWidget);
+    expect(find.text('No collections yet'), findsNothing);
+  });
   testWidgets('Collection edit removes recipe without deleting catalog', (
     tester,
   ) async {
@@ -213,6 +368,29 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    final shortcut = find.bySemanticsLabel('Open QuickRecipe AI');
+    final shortcutTapTarget = find
+        .descendant(
+          of: find.byType(AiShortcutLayer),
+          matching: find.byType(InkWell),
+        )
+        .last;
+    expect(tester.getRect(shortcutTapTarget).top, greaterThan(350));
+    for (final route in ['/recipe-detail', '/cooking-steps']) {
+      unawaited(
+        appNavigatorKey.currentState!.push(
+          MaterialPageRoute<void>(
+            settings: RouteSettings(name: route),
+            builder: (_) => const Scaffold(body: Text('Cooking view')),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(shortcut, findsNothing);
+      appNavigatorKey.currentState!.pop();
+      await tester.pumpAndSettle();
+      expect(shortcut, findsOneWidget);
+    }
     await tester.tap(
       find
           .descendant(

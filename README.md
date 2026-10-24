@@ -1,6 +1,6 @@
-# QuickRecipe — UTS
+# QuickRecipe
 
-> Revisi aktif: poin 1–3 memakai login demo dengan Firebase Anonymous, yang sudah aktif di server beserta aturan profilnya. Tap Sign In tanpa kredensial; Sign Up hanya simulasi. Enam uji Auth/profil revisi ini lulus. Petunjuk Email/Password serta hasil 37 uji di bawah merupakan versi sebelumnya. Lihat [status tahap 1](docs/REVISION_STAGE_1.md).
+> Revisi aktif sampai poin 12: login demo Firebase Anonymous, 26 resep, Pakai bahan, koleksi dengan tombol Save tetap terlihat, preferensi AI, dan penamaan katalog netral. Lihat [tahap 1](docs/REVISION_STAGE_1.md).
 
 Aplikasi resep Android dengan Firebase Authentication dan Cloud Firestore. Folder kerja melanjutkan desain teman dari `D:/develop/StudioProjects/QuickRecipe-main`; folder referensi tidak diubah. Rincian perubahan ada di [CHANGELOG](docs/CHANGELOG.md).
 
@@ -14,7 +14,7 @@ flutter devices
 flutter run
 ```
 
-Pilih perangkat Android. Koneksi internet diperlukan untuk autentikasi, data Firestore dan gambar resep. Gunakan **Sign Up** untuk membuat akun sendiri, lalu **Sign In**. Tidak ada akun/password bawaan. Profile menyediakan edit nama dan Sign Out; email mengikuti Firebase Authentication.
+Pilih perangkat Android. Koneksi internet diperlukan untuk Firebase Anonymous, data Firestore dan gambar resep. Tekan **Sign In** tanpa kredensial. **Sign Up** hanya simulasi form dan kembali ke Sign In, tidak membuat akun email/password. Profile menyediakan edit nama dan Sign Out.
 
 Konfigurasi client Firebase `quickrecipe-00` sudah tersedia pada `android/app/google-services.json` dan `lib/firebase_options.dart`. Konfigurasi client bukan kredensial admin. Jangan menambahkan password, ID token atau service-account JSON ke source.
 
@@ -29,16 +29,16 @@ Hasil: `build/app/outputs/flutter-apk/app-debug.apk`. Platform yang menjadi targ
 ## Fitur
 
 - Home, pencarian, kategori, kartu, detail, pengaturan porsi, langkah memasak dan navigasi bawah memakai UI awal.
-- Autentikasi Email/Password Firebase, profil dan Favorite per akun.
-- **Fridge CRUD**: nama bahan, jumlah, satuan, kelompok, use-by date, catatan; validasi, proses simpan, konfirmasi hapus, pesan sukses dan retry.
-- **Find recipes** mencocokkan nama bahan yang belum kedaluwarsa, termasuk beberapa alias Indonesia/Inggris. Menampilkan bahan tersedia/kurang. Tidak menghitung kecukupan berat bahan.
+- Login demo Firebase Anonymous, profil dan Favorite berdasarkan UID.
+- **Fridge CRUD**: nama bahan, jumlah, satuan, kelompok, catatan. Tanpa tanggal/lokasi. Kelompok dipakai untuk filter; tombol **Pakai bahan** memilih beberapa bahan dan mengurangi stok setelah konfirmasi, secara atomik di Firestore. Stok nol tetap tampil sebagai Habis.
+- **Find recipes** mencocokkan nama bahan dengan stok lebih dari nol, termasuk beberapa alias Indonesia/Inggris. Menampilkan bahan tersedia/kurang. Tidak menghitung kecukupan berat bahan.
 - **Collections CRUD** melalui ikon folder di Favorite/Fridge. Favorite adalah satu daftar cepat; koleksi adalah folder bernama yang dapat diisi beberapa ID resep. Satu resep bisa masuk beberapa koleksi; menghapus koleksi tidak menghapus resep.
-- Tombol logo bulat menuju **AI Preview**, bisa digeser, tersedia lintas layar dan disembunyikan saat dialog/halaman AI. Sesuai scope, belum ada backend AI dan percakapan tidak dikirim/disimpan.
+- Tombol logo bulat menuju **AI Preview**, posisi awal kanan bawah di atas navigasi, bisa digeser, disembunyikan saat dialog, halaman AI, detail resep dan langkah memasak. Belum ada backend AI dan percakapan tidak dikirim/disimpan.
 - Explore membuka daftar resep. Ikon mahkota menampilkan penjelasan bahwa fitur katalog tersedia tanpa premium.
 
 ## Data dan arsitektur
 
-Firestore sudah berisi **20 resep**: 2 dokumen asli tidak ditimpa, 18 tambahan dari `tools/seed_recipes.json`. Ada **5 kategori nyata** (Breakfast, Lunch, Dinner, Snack, Dessert) dan satu dokumen All untuk filter. Dua resep asli masih berisi placeholder dari sumber awal; pilih resep tambahan untuk demo lengkap.
+Firestore sudah berisi **26 resep**: 2 dokumen asli, 18 tambahan dari `tools/seed_recipes.json`, dan 6 resep Indonesia dari `tools/indonesian_recipes.json`. Penambahan tidak menimpa dokumen lama. Tetap **5 kategori nyata** (Breakfast, Lunch, Dinner, Snack, Dessert) dan satu dokumen All untuk filter. Dua resep asli masih berisi placeholder dari sumber awal; pilih resep tambahan untuk demo lengkap.
 
 Provider mengelola sesi/profil/Favorite dan menyediakan repository berdasarkan UID. Model, repository dan UI baru terpisah di `lib/additions`. Penyimpanan final memakai Firestore; tidak ditambahkan SQLite, SharedPreferences atau database lokal. Cache internal SDK bukan database aplikasi tambahan.
 
@@ -48,12 +48,13 @@ Provider mengelola sesi/profil/Favorite dan menyediakan repository berdasarkan U
 | App-Category/{categoryId} | Referensi kategori resep |
 | users/{uid} | Nama, email dan timestamp profil |
 | users/{uid}/favorites/{recipeId} | ID resep favorit |
-| users/{uid}/fridge/{itemId} | Bahan, jumlah, satuan, kelompok, tanggal, catatan |
+| users/{uid}/fridge/{itemId} | Bahan, jumlah, satuan, kelompok, catatan |
+| users/{uid}/stockOperations/{operationId} | Penanda transaksi untuk mencegah pengurangan berulang |
 | users/{uid}/collections/{collectionId} | Nama, catatan, array recipeIds unik |
 
 Lima kelompok bahan disediakan sebagai referensi statis pada `foodGroups`; kategori resep tetap dibaca dari Firestore. Form menyimpan ID sekali, mengunci submit saat proses, dan mempertahankan input saat gagal. Transaksi melindungi update dokumen yang sudah dihapus. State form yang belum disimpan hanya berada di memori.
 
-## Simulasi state UTS
+## Simulasi state
 
 Buka **Fridge → menu tiga titik (Demo scenarios)**:
 
@@ -65,7 +66,7 @@ Buka **Fridge → menu tiga titik (Demo scenarios)**:
 
 ## Firebase dan aturan akses
 
-Email/Password sudah aktif. `firestore.rules` telah dipublikasikan pada 30 September 2026. Uji REST langsung mengonfirmasi CRUD milik sendiri diizinkan, akses akun lain/anonim ditolak, serta katalog tidak bisa dibaca anonim. Write katalog dari aplikasi diblokir; pengisian resep merupakan tugas developer. Profile tidak menyediakan hapus akun pada scope ini.
+Anonymous dan Email/Password aktif; aplikasi memakai Anonymous untuk demo. `firestore.rules` terbaru dipublikasikan pada 7 Oktober 2026. CRUD milik UID sendiri diizinkan; akses lintas UID dan tanpa autentikasi ditolak. Pengguna Firebase Anonymous tetap memiliki UID yang terautentikasi. Write katalog dari aplikasi diblokir; pengisian resep merupakan tugas developer.
 
 Data Favorite global dari versi awal tidak dihapus atau dimigrasikan otomatis karena pemiliknya tidak diketahui. Akun versi baru menggunakan path UID sendiri.
 
@@ -93,9 +94,9 @@ flutter analyze --no-fatal-infos
 flutter build apk --debug
 ```
 
-- 37 uji Flutter lulus (model, form, state, navigasi AI, pencegahan submit berulang, ukuran layar kecil/keyboard).
-- 4 uji Python seed lulus.
-- 36 pemeriksaan Firebase live lulus, termasuk registrasi/login, CRUD, isolasi UID dan jumlah katalog; seluruh akun/data uji sementara dibersihkan.
+- 47 uji Flutter lulus, termasuk Save pada katalog panjang/keyboard, dropdown AI, koleksi langsung muncul, Pakai bahan, stok nol dan navigasi AI.
+- 7 uji Python seed/migrasi lulus.
+- 37 pemeriksaan Firebase live dengan akun anonim lulus, termasuk CRUD, isolasi UID, stok nol/negatif dan penanda transaksi; seluruh akun/data uji sementara dibersihkan.
 - Analyzer: tidak ada error/warning; 6 info lint dari source lama masih ada.
 - Uji end-to-end Android sempat terhenti pada Firebase Auth karena `CertPathValidatorException: Trust anchor for certification path not found` di jaringan emulator. Ini **belum merupakan bukti tiga alur live Android lulus**. Lakukan checklist perangkat pada matriks memakai koneksi yang dipercaya perangkat.
 
@@ -115,4 +116,4 @@ Lihat [matriks uji](docs/TEST_MATRIX.md), [persona/model/kontribusi](docs/UTS_BR
 python tools/package_source.py
 ```
 
-Hasil: `dist/QuickRecipe-UTS-source.zip`. Script mengecualikan build, .dart_tool, cache, local.properties, keystore, service-account dan file token/kredensial. Sertakan source ZIP ini, isi nama/NIM kontribusi sebenarnya, lalu rekam video 8–10 menit mengikuti panduan. Video, screenshot alur Android lengkap, dan kesiapan presentasi setiap anggota masih perlu dikerjakan kelompok.
+Hasil: `dist/QuickRecipe-source.zip`. Script mengecualikan build, .dart_tool, cache, local.properties, keystore, service-account dan file token/kredensial. Sertakan source ZIP ini, isi nama/NIM kontribusi sebenarnya, lalu rekam video 8–10 menit mengikuti panduan. Video, screenshot alur Android lengkap, dan kesiapan presentasi setiap anggota masih perlu dikerjakan kelompok.

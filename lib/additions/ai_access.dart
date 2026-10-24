@@ -11,8 +11,13 @@ class AiRouteObserver extends NavigatorObserver {
   final List<Route<dynamic>> _routes = [];
   void _update() {
     final top = _routes.isEmpty ? null : _routes.last;
-    final visible = top is! PopupRoute &&
-        !const {'/ai', '/recipe-detail', '/cooking-steps'}.contains(top?.settings.name);
+    final visible =
+        top is! PopupRoute &&
+        !const {
+          '/ai',
+          '/recipe-detail',
+          '/cooking-steps',
+        }.contains(top?.settings.name);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       aiShortcutVisible.value = visible;
     });
@@ -127,6 +132,28 @@ class AiScreen extends StatefulWidget {
 
 class _AiScreenState extends State<AiScreen> {
   final _input = TextEditingController();
+  String _preference = 'Custom';
+  static const _prompts = {
+    'Custom': '',
+    'Balanced meals': 'Suggest a balanced meal with vegetables and protein.',
+    'Diet-friendly': 'Suggest a lighter meal with vegetables and protein.',
+    'Quick & easy': 'Suggest an easy meal I can cook in under 20 minutes.',
+    'Budget-friendly': 'Suggest a meal using affordable everyday ingredients.',
+    'Vegetarian': 'Suggest a vegetarian meal without meat or fish.',
+    'Use my ingredients':
+        'Help me plan a meal using ingredients I already have.',
+  };
+
+  void _choosePreference(String? preference) {
+    if (preference == null) return;
+    setState(() => _preference = preference);
+    final prompt = _prompts[preference]!;
+    if (prompt.isNotEmpty) {
+      _input.text = prompt;
+      _input.selection = TextSelection.collapsed(offset: prompt.length);
+    }
+  }
+
   @override
   void dispose() {
     _input.dispose();
@@ -208,6 +235,7 @@ class _AiScreenState extends State<AiScreen> {
                     padding: const EdgeInsets.only(bottom: 8),
                     child: OutlinedButton(
                       onPressed: () {
+                        setState(() => _preference = 'Custom');
                         _input.text = text;
                         _input.selection = TextSelection.collapsed(
                           offset: text.length,
@@ -223,6 +251,22 @@ class _AiScreenState extends State<AiScreen> {
                   style: TextStyle(color: Colors.black54),
                 ),
               ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: DropdownButtonFormField<String>(
+              initialValue: _preference,
+              key: ValueKey(_preference),
+              isExpanded: true,
+              decoration: fieldStyle('Meal preference'),
+              items: _prompts.keys
+                  .map(
+                    (label) =>
+                        DropdownMenuItem(value: label, child: Text(label)),
+                  )
+                  .toList(),
+              onChanged: _choosePreference,
             ),
           ),
           Padding(

@@ -3,15 +3,55 @@ import 'package:quick_recipe/additions/kitchen_repository.dart';
 
 import 'support/fake_kitchen.dart';
 
-FridgeItem egg({DateTime? expiry}) => FridgeItem(
+FridgeItem egg({double amount = 2}) => FridgeItem(
   id: 'egg',
   name: 'Telur',
-  amount: 2,
+  amount: amount,
   unit: 'pcs',
   categoryId: 'protein',
-  expiry: expiry ?? DateTime(2030),
 );
 void main() {
+  test('Stock usage validates quantities and preserves decimal precision', () {
+    expect(
+      remainingStock(
+        egg(),
+        const StockUse(itemId: 'egg', amount: 0.125, unit: 'pcs'),
+      ),
+      1.875,
+    );
+    expect(
+      remainingStock(
+        egg(),
+        const StockUse(itemId: 'egg', amount: 2, unit: 'pcs'),
+      ),
+      0,
+    );
+    for (final amount in [0.0, -1.0, 3.0, double.nan]) {
+      expect(
+        () => remainingStock(
+          egg(),
+          StockUse(itemId: 'egg', amount: amount, unit: 'pcs'),
+        ),
+        throwsStateError,
+      );
+    }
+    expect(
+      () => remainingStock(
+        egg(),
+        const StockUse(itemId: 'egg', amount: 1, unit: 'g'),
+      ),
+      throwsStateError,
+    );
+    expect(positiveAmount('0.0001'), isNotNull);
+    expect(positiveAmount('0', allowZero: true), isNull);
+  });
+  test('Repeated stock operation only deducts once', () async {
+    final repo = FakeKitchen()..items = [egg()];
+    const usage = [StockUse(itemId: 'egg', amount: 1, unit: 'pcs')];
+    await repo.useStock('op', usage);
+    await repo.useStock('op', usage);
+    expect(repo.items.single.amount, 1);
+  });
   for (final input in ['', '0', '-1', 'NaN', 'Infinity', 'text', '100001']) {
     test(
       'Quantity rejects "$input"',
@@ -47,33 +87,27 @@ void main() {
     expect(folder.toMap()['recipeIds'], ['r']);
   });
   test('Matching separates available and missing ingredients', () {
-    final match = IngredientMatch(
-      ['Egg', 'Cooked rice'],
-      [egg()],
-      DateTime(2026),
-    );
+    final match = IngredientMatch(['Egg', 'Cooked rice'], [egg()]);
     expect(match.present, ['Egg']);
     expect(match.missing, ['Cooked rice']);
     expect(match.ratio, .5);
   });
-  test('Expired ingredients do not contribute to a match', () {
-    final match = IngredientMatch(
-      ['Egg'],
-      [egg(expiry: DateTime(2025))],
-      DateTime(2026),
-    );
+  test('Empty stock does not contribute to a match', () {
+    final match = IngredientMatch(['Egg'], [egg(amount: 0)]);
     expect(match.present, isEmpty);
     expect(match.ratio, 0);
   });
-  test('Ingredients remain usable on their use-by date', () {
-    expect(
-      egg(expiry: DateTime(2026, 9, 30)).expiredAt(DateTime(2026, 9, 30, 20)),
-      false,
-    );
+  test('Legacy dates are ignored and omitted on next save', () {
+    final item = FridgeItem.fromMap('egg', {
+      ...egg().toMap(),
+      'expiry': '2020-01-01',
+    });
+    expect(item.inStock, true);
+    expect(item.toMap().containsKey('expiry'), false);
   });
   test(
     'Empty recipe match is finite',
-    () => expect(IngredientMatch([], [], DateTime(2026)).ratio, 0),
+    () => expect(IngredientMatch([], []).ratio, 0),
   );
   test('Demo empty does not change repository data', () async {
     final repo = FakeKitchen()..items = [egg()];

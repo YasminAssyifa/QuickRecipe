@@ -24,7 +24,9 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
     _future = _repo.collections();
   }
 
-  void _reload() => setState(() => _future = _repo.collections());
+  void _reload() => setState(() {
+    _future = _repo.collections();
+  });
   Future<void> _edit([RecipeCollection? item]) async {
     if (await Navigator.push<bool>(
               context,
@@ -227,109 +229,127 @@ class _CollectionFormScreenState extends State<CollectionFormScreen> {
           widget.item == null ? 'Create collection' : 'Edit collection',
         ),
       ),
-      body: Form(
-        key: _form,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 100),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
-                controller: _name,
-                enabled: !_busy,
-                decoration: fieldStyle('Collection name'),
-                maxLength: 60,
-                validator: requiredName,
-                textInputAction: TextInputAction.next,
+      body: Column(
+        children: [
+          Expanded(
+            child: Form(
+              key: _form,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 100),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextFormField(
+                      controller: _name,
+                      enabled: !_busy,
+                      decoration: fieldStyle('Collection name'),
+                      maxLength: 60,
+                      validator: requiredName,
+                      textInputAction: TextInputAction.next,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _notes,
+                      enabled: !_busy,
+                      decoration: fieldStyle('Description (optional)'),
+                      maxLength: 300,
+                      minLines: 2,
+                      maxLines: 3,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      '${_selected.length} recipes selected',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      enabled: !_busy,
+                      decoration: fieldStyle('Search recipes'),
+                      onChanged: (query) =>
+                          setState(() => _query = query.trim().toLowerCase()),
+                    ),
+                    const SizedBox(height: 8),
+                    LoadPanel(
+                      future: _recipes,
+                      retry: () => setState(() {
+                        _recipes = _repo.recipes();
+                      }),
+                      builder: (recipes) {
+                        final found = recipes
+                            .where(
+                              (doc) => (doc.data()?['name'] ?? '')
+                                  .toString()
+                                  .toLowerCase()
+                                  .contains(_query),
+                            )
+                            .toList();
+                        final missing = _selected.difference(
+                          recipes.map((doc) => doc.id).toSet(),
+                        );
+                        return Column(
+                          children: [
+                            if (found.isEmpty)
+                              const Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Text(
+                                  'No recipes found. Try another name.',
+                                ),
+                              ),
+                            ...found.map(
+                              (doc) => CheckboxListTile(
+                                contentPadding: EdgeInsets.zero,
+                                controlAffinity:
+                                    ListTileControlAffinity.leading,
+                                title: Text(
+                                  doc.data()?['name']?.toString() ?? 'Recipe',
+                                ),
+                                value: _selected.contains(doc.id),
+                                onChanged: _busy
+                                    ? null
+                                    : (checked) => setState(() {
+                                        if (checked == true) {
+                                          _selected.add(doc.id);
+                                        } else {
+                                          _selected.remove(doc.id);
+                                        }
+                                      }),
+                              ),
+                            ),
+                            ...missing.map(
+                              (id) => CheckboxListTile(
+                                title: const Text('Recipe no longer available'),
+                                subtitle: const Text(
+                                  'Uncheck to remove it from this collection.',
+                                ),
+                                value: true,
+                                onChanged: _busy
+                                    ? null
+                                    : (_) =>
+                                          setState(() => _selected.remove(id)),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _notes,
-                enabled: !_busy,
-                decoration: fieldStyle('Description (optional)'),
-                maxLength: 300,
-                minLines: 2,
-                maxLines: 3,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                '${_selected.length} recipes selected',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                enabled: !_busy,
-                decoration: fieldStyle('Search recipes'),
-                onChanged: (query) =>
-                    setState(() => _query = query.trim().toLowerCase()),
-              ),
-              const SizedBox(height: 8),
-              LoadPanel(
-                future: _recipes,
-                retry: () => setState(() => _recipes = _repo.recipes()),
-                builder: (recipes) {
-                  final found = recipes
-                      .where(
-                        (doc) => (doc.data()?['name'] ?? '')
-                            .toString()
-                            .toLowerCase()
-                            .contains(_query),
-                      )
-                      .toList();
-                  final missing = _selected.difference(
-                    recipes.map((doc) => doc.id).toSet(),
-                  );
-                  return Column(
-                    children: [
-                      if (found.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Text('No recipes found. Try another name.'),
-                        ),
-                      ...found.map(
-                        (doc) => CheckboxListTile(
-                          contentPadding: EdgeInsets.zero,
-                          controlAffinity: ListTileControlAffinity.leading,
-                          title: Text(
-                            doc.data()?['name']?.toString() ?? 'Recipe',
-                          ),
-                          value: _selected.contains(doc.id),
-                          onChanged: _busy
-                              ? null
-                              : (checked) => setState(() {
-                                  if (checked == true) {
-                                    _selected.add(doc.id);
-                                  } else {
-                                    _selected.remove(doc.id);
-                                  }
-                                }),
-                        ),
-                      ),
-                      ...missing.map(
-                        (id) => CheckboxListTile(
-                          title: const Text('Recipe no longer available'),
-                          subtitle: const Text(
-                            'Uncheck to remove it from this collection.',
-                          ),
-                          value: true,
-                          onChanged: _busy
-                              ? null
-                              : (_) => setState(() => _selected.remove(id)),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-              const SizedBox(height: 20),
-              PrimaryAction(
+            ),
+          ),
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
+              child: PrimaryAction(
                 label: 'Save collection',
                 busy: _busy,
                 onPressed: _save,
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     ),
   );
@@ -360,7 +380,9 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
     return (found.isEmpty ? null : found.first, await _repo.recipes());
   }
 
-  void _reload() => setState(() => _future = _load());
+  void _reload() => setState(() {
+    _future = _load();
+  });
   Future<void> _edit(RecipeCollection item) async {
     if (await Navigator.push<bool>(
               context,
@@ -430,7 +452,9 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                       : () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                            settings: const RouteSettings(name: '/recipe-detail'),
+                            settings: const RouteSettings(
+                              name: '/recipe-detail',
+                            ),
                             builder: (_) =>
                                 RecipeDetailScreen(documentSnapshot: doc),
                           ),

@@ -60,7 +60,7 @@ def planned(collection, entries, existing):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Add UTS demo recipes without changing existing documents.')
+    parser = argparse.ArgumentParser(description='Add sample recipes without changing existing documents.')
     parser.add_argument('--apply', action='store_true')
     parser.add_argument('--data', type=Path, default=Path(__file__).with_name('seed_recipes.json'))
     args = parser.parse_args()

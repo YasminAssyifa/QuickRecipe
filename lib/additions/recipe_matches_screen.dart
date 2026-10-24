@@ -22,8 +22,9 @@ class _RecipeMatchesScreenState extends State<RecipeMatchesScreen> {
     _future = context.read<KitchenRepository?>()!.recipes();
   }
 
-  void _reload() =>
-      setState(() => _future = context.read<KitchenRepository?>()!.recipes());
+  void _reload() => setState(() {
+    _future = context.read<KitchenRepository?>()!.recipes();
+  });
   @override
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: kbackgroundColor,
@@ -43,7 +44,6 @@ class _RecipeMatchesScreenState extends State<RecipeMatchesScreen> {
                     match: IngredientMatch(
                       List<String>.from(doc.data()?['ingredientsName'] ?? []),
                       widget.fridge,
-                      DateTime.now(),
                     ),
                   ),
                 )
@@ -54,7 +54,7 @@ class _RecipeMatchesScreenState extends State<RecipeMatchesScreen> {
           return SingleChildScrollView(
             child: FeedbackPanel(
               title: 'No matching recipes yet',
-              message: 'Add another ingredient to your fridge. Expired ingredients are excluded.',
+              message: 'Add another ingredient to your fridge. Out-of-stock ingredients are excluded.',
               action: 'Back to fridge',
               onAction: () => Navigator.pop(context),
               icon: Icons.search_off,
@@ -65,7 +65,7 @@ class _RecipeMatchesScreenState extends State<RecipeMatchesScreen> {
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
           children: [
             const Text(
-              'Matches are based on ingredient names, not quantities. Check amounts and use-by dates before cooking.',
+              'Matches use the names of ingredients in stock. Check that you have enough before cooking.',
             ),
             const SizedBox(height: 16),
             ...ranked.map(

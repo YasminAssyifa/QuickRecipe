@@ -35,15 +35,23 @@ service cloud.firestore {
           && request.resource.data.ingredientId is string
           && request.resource.data.ingredientId.size() > 0
           && request.resource.data.amount is number
-          && request.resource.data.amount > 0
+          && request.resource.data.amount >= 0
           && request.resource.data.amount <= 100000
           && request.resource.data.unit in ['g', 'kg', 'ml', 'l', 'pcs']
           && request.resource.data.categoryId in ['produce', 'protein', 'dairy', 'grains', 'other']
-          && request.resource.data.expiry is string
-          && request.resource.data.expiry.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}')
           && request.resource.data.notes is string
           && request.resource.data.notes.size() <= 300
           && request.resource.data.updatedAt == request.time;
+      }
+      match /stockOperations/{operationId} {
+        allow read, delete: if owner(uid);
+        allow create: if owner(uid)
+          && request.resource.data.keys().hasOnly(['itemIds', 'createdAt'])
+          && request.resource.data.itemIds is list
+          && request.resource.data.itemIds.size() > 0
+          && request.resource.data.itemIds.size() <= 50
+          && request.resource.data.itemIds.toSet().size() == request.resource.data.itemIds.size()
+          && request.resource.data.createdAt == request.time;
       }
       match /collections/{collectionId} {
         allow read, delete: if owner(uid);

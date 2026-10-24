@@ -51,21 +51,17 @@ class FridgeItem {
     required this.amount,
     required this.unit,
     required this.categoryId,
-    required this.expiry,
     this.notes = '',
   });
   final String id, name, unit, categoryId, notes;
   final double amount;
-  final DateTime expiry;
-  bool expiredAt(DateTime day) =>
-      expiry.isBefore(DateTime(day.year, day.month, day.day));
+  bool get inStock => amount > 0;
   Map<String, dynamic> toMap() => {
     'name': name.trim(),
     'ingredientId': ingredientKey(name),
     'amount': amount,
     'unit': unit,
     'categoryId': categoryId,
-    'expiry': dateText(expiry),
     'notes': notes.trim(),
   };
   factory FridgeItem.fromMap(String id, Map<String, dynamic> data) =>
@@ -75,7 +71,6 @@ class FridgeItem {
         amount: (data['amount'] as num).toDouble(),
         unit: data['unit'] as String,
         categoryId: data['categoryId'] as String,
-        expiry: DateTime.parse(data['expiry'] as String),
         notes: data['notes'] as String? ?? '',
       );
 }
@@ -103,28 +98,59 @@ class RecipeCollection {
       );
 }
 
-String dateText(DateTime date) =>
-    '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+String amountText(double amount) =>
+    amount.toStringAsFixed(3).replaceFirst(RegExp(r'\.?0+$'), '');
+
+class StockUse {
+  const StockUse({
+    required this.itemId,
+    required this.amount,
+    required this.unit,
+  });
+  final String itemId, unit;
+  final double amount;
+}
+
+double remainingStock(FridgeItem item, StockUse usage) {
+  if (item.id != usage.itemId || item.unit != usage.unit) {
+    throw StateError('Ingredient or unit changed. Refresh and try again.');
+  }
+  if (!usage.amount.isFinite ||
+      usage.amount <= 0 ||
+      usage.amount > item.amount) {
+    throw StateError(
+      'Enter an amount greater than 0 and no more than the available stock.',
+    );
+  }
+  return double.parse((item.amount - usage.amount).toStringAsFixed(3));
+}
+
 String? requiredName(String? value) => (value ?? '').trim().isEmpty
     ? 'Please enter a name.'
     : value!.trim().length > 60
     ? 'Use no more than 60 characters.'
     : null;
-String? positiveAmount(String? value) {
+String? positiveAmount(String? value, {bool allowZero = false}) {
   final amount = double.tryParse((value ?? '').replaceAll(',', '.'));
-  return amount == null || !amount.isFinite || amount <= 0 || amount > 100000
-      ? 'Enter a quantity greater than 0 and at most 100000.'
+  if (amount != null &&
+      amount.isFinite &&
+      amount != double.parse(amount.toStringAsFixed(3))) {
+    return 'Use at most 3 decimal places.';
+  }
+  return amount == null ||
+          !amount.isFinite ||
+          (allowZero ? amount < 0 : amount <= 0) ||
+          amount > 100000
+      ? (allowZero
+            ? 'Enter a quantity from 0 to 100000.'
+            : 'Enter a quantity greater than 0 and at most 100000.')
       : null;
 }
 
 class IngredientMatch {
-  IngredientMatch(
-    List<String> ingredients,
-    List<FridgeItem> fridge,
-    DateTime today,
-  ) {
+  IngredientMatch(List<String> ingredients, List<FridgeItem> fridge) {
     final available = fridge
-        .where((item) => !item.expiredAt(today))
+        .where((item) => item.inStock)
         .map((item) => ingredientKey(item.name))
         .toSet();
     for (final ingredient in ingredients) {
@@ -145,6 +171,7 @@ abstract class KitchenRepository {
   Future<List<RecipeCollection>> collections();
   Future<void> saveFridge(FridgeItem item, {required bool create});
   Future<void> saveCollection(RecipeCollection item, {required bool create});
+  Future<void> useStock(String operationId, List<StockUse> usages);
   Future<void> delete(String module, String id);
   Future<List<DocumentSnapshot<Map<String, dynamic>>>> recipes();
 }
@@ -164,7 +191,7 @@ class FirebaseKitchenRepository implements KitchenRepository {
     return snapshot.docs
         .map((doc) => FridgeItem.fromMap(doc.id, doc.data()))
         .toList()
-      ..sort((a, b) => a.expiry.compareTo(b.expiry));
+      ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
   }
 
   @override
@@ -209,6 +236,47 @@ class FirebaseKitchenRepository implements KitchenRepository {
   @override
   Future<void> saveCollection(RecipeCollection item, {required bool create}) =>
       _save('collections', item.id, item.toMap(), create);
+  @override
+  Future<void> useStock(String operationId, List<StockUse> usages) async {
+    if (usages.isEmpty ||
+        usages.length > 50 ||
+        usages.map((u) => u.itemId).toSet().length != usages.length) {
+      throw StateError('Select between 1 and 50 different ingredients.');
+    }
+    final receipt = _ref('stockOperations').doc(operationId);
+    await _db.runTransaction(
+      (transaction) async {
+        if ((await transaction.get(receipt)).exists) return;
+        final changes = <DocumentReference<Map<String, dynamic>>, double>{};
+        for (final usage in usages) {
+          final ref = _ref('fridge').doc(usage.itemId);
+          final snapshot = await transaction.get(ref);
+          if (!snapshot.exists) {
+            throw StateError(
+              'An ingredient was removed. Refresh and try again.',
+            );
+          }
+          changes[ref] = remainingStock(
+            FridgeItem.fromMap(snapshot.id, snapshot.data()!),
+            usage,
+          );
+        }
+        for (final change in changes.entries) {
+          transaction.update(change.key, {
+            'amount': change.value,
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+        }
+        transaction.set(receipt, {
+          'itemIds': usages.map((u) => u.itemId).toList(),
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      },
+      timeout: const Duration(seconds: 20),
+      maxAttempts: 3,
+    );
+  }
+
   @override
   Future<void> delete(String module, String id) async {
     if (!['fridge', 'collections'].contains(module)) {
