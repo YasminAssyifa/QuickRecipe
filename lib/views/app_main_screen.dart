@@ -1,3 +1,4 @@
+import '../additions/fridge_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:quick_recipe/Utils/constants.dart';
@@ -19,7 +20,7 @@ class _AppMainScreenState extends State<AppMainScreen> {
     page = [
       const MyAppHomeScreen(),
       const FavoriteScreen(),
-      navBarPage(Iconsax.direct5),
+      const FridgeScreen(),
     ];
     super.initState();
   }

@@ -1,3 +1,5 @@
+import '../additions/shared.dart';
+import '../additions/collection_screens.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
@@ -23,15 +25,16 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       appBar: AppBar(
         backgroundColor: kbackgroundColor,
         centerTitle: true,
+        actions: [IconButton(tooltip: 'Recipe collections', icon: const Icon(Icons.folder_outlined), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CollectionsScreen())))],
         title: const Text(
           "Favorites",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
-      body: favoriteItems.isEmpty
+      body: provider.loading ? const Center(child: CircularProgressIndicator()) : provider.error != null ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [Text(provider.error!), TextButton(onPressed: provider.loadFavorites, child: const Text('Try again'))])) : favoriteItems.isEmpty
           ? const Center(
               child: Text(
-                "No Favorites yet",
+                "No Favorites yet. Tap a recipe’s heart to save it.",
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -56,6 +59,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                       );
                     }
 
+                    if (snapshot.hasError) return ListTile(title: const Text('Unable to load recipe'), trailing: TextButton(onPressed: () => setState(() {}), child: const Text('Try again')));
+                    if (snapshot.hasData && !snapshot.data!.exists) return const ListTile(title: Text('This recipe is no longer available.'));
                     if (!snapshot.hasData || snapshot.data == null) {
                       return const Center(
                         child: Text("Error Loading Favorites"),
@@ -73,6 +78,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
+                                  settings: const RouteSettings(name: '/recipe-detail'),
                                   builder: (context) =>
                                       RecipeDetailScreen(
                                     documentSnapshot: favoriteItem,
@@ -139,7 +145,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                               ),
                                             ),
                                             const Text(
-                                              " • ",
+                                              " \u2022 ",
                                               style: TextStyle(
                                                 fontWeight:
                                                     FontWeight.w900,
@@ -176,10 +182,10 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                           top: 50,
                           right: 35,
                           child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                provider.toggleFavorite(favoriteItem);
-                              });
+                            onTap: () async {
+                              if (!await confirmRemoval(context, favoriteItem['name'].toString()) || !context.mounted) return;
+                              await provider.toggleFavorite(favoriteItem);
+                              if (context.mounted) showMessage(context, provider.error ?? 'Favorite removed.');
                             },
                             child: const Icon(
                               Icons.delete,

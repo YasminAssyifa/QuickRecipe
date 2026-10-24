@@ -235,6 +235,7 @@ class _StepScreenState extends State<StepScreen> {
                         child: ElevatedButton(
                           onPressed: () {
                             if (isLastStep) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cooking completed. Enjoy your meal!')));
                               Navigator.pop(context);
                             } else {
                               setState(() {

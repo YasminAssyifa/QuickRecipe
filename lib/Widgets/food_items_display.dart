@@ -1,3 +1,4 @@
+import '../additions/shared.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
@@ -16,6 +17,7 @@ class FoodItemsDisplay extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
+            settings: const RouteSettings(name: '/recipe-detail'),
             builder: (contect) =>
                 RecipeDetailScreen(documentSnapshot: documentSnapshot),
           ),
@@ -90,8 +92,9 @@ class FoodItemsDisplay extends StatelessWidget {
                 radius: 15,
                 backgroundColor: Colors.white,
                 child: InkWell(
-                  onTap: () {
-                    provider.toggleFavorite(documentSnapshot);
+                  onTap: () async {
+                    await provider.toggleFavorite(documentSnapshot);
+                    if (context.mounted && provider.error != null) showMessage(context, provider.error!);
                   },
                   child: Icon(
                     provider.isExist(documentSnapshot)

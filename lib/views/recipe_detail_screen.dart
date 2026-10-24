@@ -1,3 +1,4 @@
+import '../additions/shared.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
@@ -90,7 +91,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.fromLTRB(20, 20, 20, 112 + MediaQuery.paddingOf(context).bottom),
                   decoration: const BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.vertical(
@@ -403,14 +404,14 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     return FloatingActionButton.extended(
       backgroundColor: Colors.white.withOpacity(0.8),
       elevation: 0,
-      onPressed: () {},
+      onPressed: () => Navigator.push(context, MaterialPageRoute(settings: const RouteSettings(name: '/cooking-steps'), builder: (_) => StepScreen(documentSnapshot: widget.documentSnapshot))),
       label: Row(
         children: [
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: kprimaryColor,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 100,
+              padding: EdgeInsets.symmetric(
+                horizontal: ((MediaQuery.sizeOf(context).width - 260) / 2).clamp(12.0, 100.0),
                 vertical: 13,
               ),
               foregroundColor: Colors.white,
@@ -419,6 +420,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
+                  settings: const RouteSettings(name: '/cooking-steps'),
                   builder: (context) =>
                       StepScreen(documentSnapshot: widget.documentSnapshot),
                 ),
@@ -437,8 +439,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                 side: BorderSide(color: Colors.grey.shade300, width: 2),
               ),
             ),
-            onPressed: () {
-              provider.toggleFavorite(widget.documentSnapshot);
+            onPressed: () async {
+              await provider.toggleFavorite(widget.documentSnapshot);
+              if (mounted && provider.error != null) showMessage(context, provider.error!);
             },
             icon: Icon(
               provider.isExist(widget.documentSnapshot)

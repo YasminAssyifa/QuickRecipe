@@ -6,6 +6,7 @@ class QuantityProvider extends ChangeNotifier {
   int get currentnumber => _currentNumber;
   // set initial ingredients amounts
   void setBaseIngredientsAmount(List<double> amounts) {
+    _currentNumber = 1;
     _baseIngredientAmounts = amounts;
   }
 

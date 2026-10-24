@@ -1,12 +1,13 @@
+import '../additions/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:quick_recipe/Utils/constants.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:quick_recipe/Widgets/Banner.dart';
+import 'package:quick_recipe/Widgets/banner.dart';
 import 'package:quick_recipe/Widgets/food_items_display.dart';
 import 'package:quick_recipe/Widgets/my_icon_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:quick_recipe/views/recipe_detail_screen.dart';
-import 'package:quick_recipe/views/signin_screen.dart';
+import 'package:quick_recipe/views/profile_screen.dart';
 import 'package:quick_recipe/views/view_all_items.dart';
 
 class MyAppHomeScreen extends StatefulWidget {
@@ -100,6 +101,7 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
               StreamBuilder(
                 stream: selectedRecipes.snapshots(),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.hasError) return FeedbackPanel(title: 'Unable to load recipes', message: 'Check your connection and try again.', action: 'Try again', onAction: () => setState(() {}));
                   if (snapshot.hasData) {
                     final List<DocumentSnapshot> recipes =
                         snapshot.data?.docs ?? [];
@@ -111,6 +113,8 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
 
                       return name.contains(searchText);
                     }).toList();
+
+                    if (filteredItems.isEmpty) return FeedbackPanel(title: 'No recipes found', message: 'Try another search or select All categories.', action: 'Clear filters', onAction: () => setState(() { _searchController.clear(); category = 'All'; }));
 
                     return Padding(
                       padding: EdgeInsetsGeometry.only(top: 5, left: 15),
@@ -139,6 +143,7 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
     return StreamBuilder(
       stream: categoriesItems.snapshots(),
       builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+        if (streamSnapshot.hasError) return TextButton(onPressed: () => setState(() {}), child: const Text('Categories unavailable. Try again'));
         if (streamSnapshot.hasData) {
           return SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -278,6 +283,7 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
+                              settings: const RouteSettings(name: '/recipe-detail'),
                               builder: (context) =>
                                   RecipeDetailScreen(documentSnapshot: doc),
                             ),
@@ -311,7 +317,7 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => const SigninScreen(),
+                                builder: (_) => const ProfileScreen(),
                               ),
                             );
         }),

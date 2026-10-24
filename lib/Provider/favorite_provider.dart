@@ -1,68 +1,101 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'profile_provider.dart';
+
 class FavoriteProvider extends ChangeNotifier {
-  List<String> _favoriteIds = [];
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  List<String> get favorites => _favoriteIds;
-
   FavoriteProvider() {
-    loadFavorites();
+    _authSubscription = FirebaseAuth.instance.authStateChanges().listen(_bind);
+  }
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  late final StreamSubscription<User?> _authSubscription;
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>?
+  _favoritesSubscription;
+  String? _uid;
+  List<String> _ids = [];
+  final Set<String> _pending = {};
+  String? error;
+  bool loading = true;
+  bool _disposed = false;
+  List<String> get favorites => List.unmodifiable(_ids);
+  void _notify() {
+    if (!_disposed) notifyListeners();
   }
 
-  // toggle favorites states
-  void toggleFavorite(DocumentSnapshot product) async {
-    String productId = product.id;
-    if (_favoriteIds.contains(productId)) {
-      _favoriteIds.remove(productId);
-      await _removeFavorite(productId); // remove from favorite
-    } else {
-      _favoriteIds.add(productId);
-      await _addFavorite(productId); // add to favorite
+  void _bind(User? user) {
+    _favoritesSubscription?.cancel();
+    _uid = user?.uid;
+    _ids = [];
+    _pending.clear();
+    error = null;
+    loading = user != null;
+    if (user != null) {
+      final uid = user.uid;
+      _favoritesSubscription = _db
+          .collection('users')
+          .doc(uid)
+          .collection('favorites')
+          .snapshots()
+          .listen(
+            (snapshot) {
+              if (_uid != uid) return;
+              _ids = snapshot.docs.map((doc) => doc.id).toList();
+              loading = false;
+              error = null;
+              _notify();
+            },
+            onError: (Object failure) {
+              if (_uid != uid) return;
+              loading = false;
+              error = accountError(failure);
+              _notify();
+            },
+          );
     }
-    notifyListeners();
+    _notify();
   }
 
-  // check if product is favorited
-  bool isExist(DocumentSnapshot product) {
-    return _favoriteIds.contains(product.id);
-  }
-
-  // add favorite to firestore
-  Future<void> _addFavorite(String productId) async {
+  Future<void> toggleFavorite(DocumentSnapshot product) async {
+    final uid = _uid;
+    if (uid == null || _pending.contains(product.id)) return;
+    _pending.add(product.id);
+    error = null;
+    _notify();
     try {
-      await _firestore.collection("userFavorite").doc(productId).set({
-        'isFavorite': true, //create the userFavorite collection and add items as favorites in firestore
-      });
-    } catch (e) {
-      print(e.toString());
+      final ref = _db
+          .collection('users')
+          .doc(uid)
+          .collection('favorites')
+          .doc(product.id);
+      if (_ids.contains(product.id)) {
+        await ref.delete();
+      } else {
+        await ref.set({
+          'recipeId': product.id,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
+    } catch (failure) {
+      if (_uid == uid) error = accountError(failure);
+    } finally {
+      if (_uid == uid) _pending.remove(product.id);
+      _notify();
     }
   }
 
-  // remove favorite from firestore
-  Future<void> _removeFavorite(String productId) async {
-    try {
-      await _firestore.collection("userFavorite").doc(productId).delete();
-    } catch (e) {
-      print(e.toString());
-    }
-  }
-
-  // load favorite from firestore (store the favorite or not)
-  Future<void> loadFavorites() async {
-    try {
-      QuerySnapshot snapshot = await _firestore
-          .collection("userFavorite")
-          .get();
-      _favoriteIds = snapshot.docs.map((doc) => doc.id).toList();
-    } catch (e) {
-      print(e.toString());
-    }
-    notifyListeners();
-  }
-  // static method to access the provider from any context
-  static FavoriteProvider of(BuildContext context, {bool listen = true}){
-    return Provider.of<FavoriteProvider>(context, listen: listen,);
+  bool isExist(DocumentSnapshot product) => _ids.contains(product.id);
+  void loadFavorites() => _bind(FirebaseAuth.instance.currentUser);
+  static FavoriteProvider of(BuildContext context, {bool listen = true}) =>
+      Provider.of<FavoriteProvider>(context, listen: listen);
+  @override
+  void dispose() {
+    _disposed = true;
+    _authSubscription.cancel();
+    _favoritesSubscription?.cancel();
+    super.dispose();
   }
 }

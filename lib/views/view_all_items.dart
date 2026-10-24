@@ -1,3 +1,4 @@
+import '../additions/shared.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
@@ -38,7 +39,7 @@ class _ViewAllItemsState extends State<ViewAllItems> {
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           Spacer(),
-          MyIconButton(icon: Iconsax.crown, pressed: () {}),
+          MyIconButton(icon: Iconsax.crown, pressed: () => showDialog<void>(context: context, builder: (dialogContext) => AlertDialog(title: const Text('QuickRecipe'), content: const Text('All recipes shown here are available to your account. No premium plan is required.'), actions: [TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('OK'))]))),
           SizedBox(width: 15),
         ],
       ),
@@ -50,7 +51,9 @@ class _ViewAllItemsState extends State<ViewAllItems> {
             StreamBuilder(
               stream: completeApp.snapshots(),
               builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+                if (streamSnapshot.hasError) return FeedbackPanel(title: 'Unable to load recipes', message: 'Check your connection and try again.', action: 'Try again', onAction: () => setState(() {}));
                 if (streamSnapshot.hasData) {
+                  if (streamSnapshot.data!.docs.isEmpty) return FeedbackPanel(title: 'No recipes available', message: 'Please refresh or come back after recipes have been added.', action: 'Refresh', onAction: () => setState(() {}));
                   return GridView.builder(
                     itemCount: streamSnapshot.data!.docs.length,
                     shrinkWrap: true,
