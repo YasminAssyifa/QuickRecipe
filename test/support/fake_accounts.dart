@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:quick_recipe/services/account_repository.dart';
 
 class FakeAccounts implements AccountRepository {
   final controller = StreamController<Account?>.broadcast(sync: true);
+  final users = <String, ({String email, String password, Profile profile})>{};
   @override
   Account? current;
   String savedName = '';
@@ -12,24 +14,68 @@ class FakeAccounts implements AccountRepository {
   Completer<void>? pending;
   @override
   Stream<Account?> get changes => controller.stream;
+
+  void addUser(
+    String username,
+    String email,
+    String password, {
+    String role = 'user',
+  }) {
+    users[username] = (
+      email: email,
+      password: password,
+      profile: Profile(name: username, username: username, role: role),
+    );
+  }
+
   @override
-  Future<void> signIn(String email, String password) async {
+  Future<void> signIn(String login, String password) async {
     calls++;
     if (pending != null) await pending!.future;
-    current = Account('test-user', email, savedName);
+    final match = users.entries.where(
+      (entry) =>
+          (entry.key == normalizeUsername(login) ||
+              entry.value.email == login) &&
+          entry.value.password == password,
+    );
+    if (users.isNotEmpty && match.isEmpty) {
+      throw FirebaseAuthException(code: 'invalid-credential');
+    }
+    final username = match.isEmpty ? 'test-user' : match.first.key;
+    current = Account(
+      username,
+      match.isEmpty ? login : match.first.value.email,
+    );
     controller.add(current);
   }
 
   @override
-  Future<void> signUp(String name, String email, String password) async {
+  Future<void> signUp({
+    required String name,
+    required String username,
+    required String email,
+    required String password,
+  }) async {
     calls++;
+    final handle = normalizeUsername(username);
+    if (users.containsKey(handle)) {
+      throw FirebaseException(plugin: 'app', code: 'username-taken');
+    }
+    addUser(handle, email, password);
     savedName = name;
+    current = Account(handle, email);
+    controller.add(current);
   }
 
   @override
-  Future<String> loadProfile(Account account) async {
+  Future<Profile> loadProfile(Account account) async {
     if (failLoad) throw StateError('offline');
-    return savedName;
+    final profile = users[account.uid]?.profile;
+    return Profile(
+      name: savedName.isEmpty ? profile?.name ?? '' : savedName,
+      username: profile?.username ?? '',
+      role: profile?.role ?? 'user',
+    );
   }
 
   @override

@@ -15,17 +15,17 @@ class SigninScreen extends StatefulWidget {
 }
 
 class _SigninScreenState extends State<SigninScreen> {
-  final TextEditingController emailController = TextEditingController();
+  final TextEditingController loginController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
   Future<void> _submit() async {
     final account = context.read<ProfileProvider>();
-    if (account.busy) return;
+    if (account.busy || !_formKey.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
     final success = await account.authenticate(
-      email: '',
-      password: '',
+      login: loginController.text,
+      password: passwordController.text,
     );
     if (!mounted) return;
     if (success) {
@@ -41,7 +41,7 @@ class _SigninScreenState extends State<SigninScreen> {
 
   @override
   void dispose() {
-    emailController.dispose();
+    loginController.dispose();
     passwordController.dispose();
     super.dispose();
   }
@@ -82,32 +82,31 @@ class _SigninScreenState extends State<SigninScreen> {
                 const SizedBox(height: 8),
 
                 Text(
-                  'Demo mode: tap Sign In to continue. No email or password needed.',
+                  'Sign in to continue to QuickRecipe',
                   style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
                 ),
 
                 const SizedBox(height: 35),
 
                 const Text(
-                  'Email',
+                  'Email or Username',
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
 
                 const SizedBox(height: 8),
 
                 TextFormField(
-                  controller: emailController,
+                  controller: loginController,
                   enabled: !account.busy,
-                  validator: (value) =>
-                      RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
-                          .hasMatch((value ?? '').trim())
-                      ? null
-                      : 'Enter a valid email address.',
+                  validator: (value) => (value ?? '').trim().isEmpty
+                      ? 'Enter your email or username.'
+                      : null,
                   textInputAction: TextInputAction.next,
                   keyboardType: TextInputType.emailAddress,
+                  autocorrect: false,
                   decoration: InputDecoration(
-                    hintText: 'Enter your email',
-                    prefixIcon: const Icon(Icons.email_outlined),
+                    hintText: 'Enter your email or username',
+                    prefixIcon: const Icon(Icons.person_outline),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),

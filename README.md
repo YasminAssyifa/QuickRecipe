@@ -4,7 +4,7 @@ Banyak orang, terutama yang memasak untuk diri sendiri, sering bingung menentuka
 
 ## Fitur
 
-- **Login demo**: tekan **Sign In** tanpa mengisi apa pun (Firebase Anonymous). **Sign Up** hanya simulasi form. Profil menyediakan edit nama dan Sign Out.
+- **Akun**: daftar dengan nama, username, email, dan password, lalu masuk memakai email atau username. Ada dua peran: **user** masuk ke aplikasi utama, **admin** masuk ke halaman admin. Profil menyediakan edit nama dan Sign Out.
 - **Home, pencarian, kategori, detail resep**: atur jumlah porsi dan ikuti langkah memasak satu per satu.
 - **Favorite**: simpan resep favorit per pengguna.
 - **Fridge**: tambah, ubah, dan hapus bahan (nama, jumlah, satuan, kelompok, catatan), dengan filter per kelompok. Tombol **Pakai bahan** memilih beberapa bahan dan mengurangi stok setelah konfirmasi. Stok nol tampil sebagai Habis.
@@ -19,6 +19,15 @@ Banyak orang, terutama yang memasak untuk diri sendiri, sering bingung menentuka
 | Edric Roland Li | 241401079 |
 | Yasmin Assyifa | 241401076 |
 | Najla Az Zahra Tanjung | 241401133 |
+
+## Akun demo
+
+| Peran | Username | Password |
+|---|---|---|
+| Admin | `admin` | `admin123` |
+| User | `user` | `user123` |
+
+Akun baru selalu berperan **user**. Peran admin diberikan lewat Firebase Console dengan mengubah field `role` menjadi `admin` pada dokumen `users/{uid}`.
 
 ## Menjalankan aplikasi
 
@@ -56,7 +65,8 @@ Konfigurasi Firebase client (`quickrecipe-00`) sudah ada di `android/app/google-
 |---|---|
 | `Complete-Flutter-App/{recipeId}` | Katalog resep (26 resep) |
 | `App-Category/{categoryId}` | Kategori: Breakfast, Lunch, Dinner, Snack, Dessert (+ All untuk filter) |
-| `users/{uid}` | Profil pengguna |
+| `users/{uid}` | Nama, email, username, dan peran (`user` atau `admin`) |
+| `usernames/{username}` | Penghubung username ke akun untuk login dengan username |
 | `users/{uid}/favorites/{recipeId}` | Resep favorit |
 | `users/{uid}/fridge/{itemId}` | Bahan di kulkas |
 | `users/{uid}/stockOperations/{operationId}` | Penanda transaksi agar stok tidak berkurang dua kali |

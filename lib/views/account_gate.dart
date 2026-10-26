@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../Provider/profile_provider.dart';
 import '../Utils/constants.dart';
+import 'admin_main_screen.dart';
 import 'app_main_screen.dart';
 import 'signin_screen.dart';
 
@@ -14,7 +15,11 @@ class AccountGate extends StatelessWidget {
     if (!account.initializing && account.uid == null) {
       return const SigninScreen();
     }
-    if (account.ready) return AppMainScreen(key: ValueKey(account.uid));
+    if (account.ready) {
+      return account.isAdmin
+          ? AdminMainScreen(key: ValueKey(account.uid))
+          : AppMainScreen(key: ValueKey(account.uid));
+    }
     return Scaffold(
       backgroundColor: kbackgroundColor,
       body: Center(
