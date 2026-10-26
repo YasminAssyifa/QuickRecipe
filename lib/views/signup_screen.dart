@@ -1,6 +1,7 @@
 import 'package:provider/provider.dart';
 
 import '../Provider/profile_provider.dart';
+import '../services/account_repository.dart';
 
 import 'package:flutter/material.dart';
 import 'package:quick_recipe/Utils/constants.dart';
@@ -14,6 +15,7 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController nameController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
@@ -24,17 +26,15 @@ class _SignupScreenState extends State<SignupScreen> {
     final account = context.read<ProfileProvider>();
     if (account.busy || !_formKey.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
-    final success = await account.authenticate(
+    final success = await account.register(
+      name: nameController.text,
+      username: usernameController.text,
       email: emailController.text,
       password: passwordController.text,
-      name: nameController.text,
     );
     if (!mounted) return;
     if (success) {
       Navigator.of(context).popUntil((route) => route.isFirst);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Demo sign-up complete. Tap Sign In to continue. No real account was created.')),
-      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(account.error ?? 'Please try again.')),
@@ -48,6 +48,7 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   void dispose() {
     nameController.dispose();
+    usernameController.dispose();
     emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
@@ -91,7 +92,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 const SizedBox(height: 8),
 
                 Text(
-                  'Try the sign-up form. This demo does not create a real account.',
+                  'Create your account to start using QuickRecipe',
                   style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
                 ),
 
@@ -117,6 +118,34 @@ class _SignupScreenState extends State<SignupScreen> {
                   decoration: InputDecoration(
                     hintText: 'Enter your name',
                     prefixIcon: const Icon(Icons.person_outline),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 18),
+
+                // Username
+                const Text(
+                  'Username',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+
+                const SizedBox(height: 8),
+
+                TextFormField(
+                  controller: usernameController,
+                  enabled: !account.busy,
+                  validator: (value) =>
+                      usernamePattern.hasMatch(normalizeUsername(value ?? ''))
+                      ? null
+                      : 'Use 3 to 20 letters, numbers, or underscores.',
+                  textInputAction: TextInputAction.next,
+                  autocorrect: false,
+                  decoration: InputDecoration(
+                    hintText: 'Choose a username',
+                    prefixIcon: const Icon(Icons.alternate_email),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),

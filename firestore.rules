@@ -10,14 +10,27 @@ service cloud.firestore {
     match /App-Category/{categoryId} {
       allow read: if request.auth != null;
     }
+    match /usernames/{username} {
+      allow get: if true;
+      allow create: if request.auth != null
+        && username.matches('^[a-z0-9_]{3,20}$')
+        && request.resource.data.keys().hasOnly(['uid', 'email'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.email == request.auth.token.email;
+    }
     match /users/{uid} {
       allow read: if owner(uid);
       allow create: if owner(uid)
-        && request.resource.data.keys().hasOnly(['name', 'email', 'createdAt'])
+        && request.auth.token.firebase.sign_in_provider == 'password'
+        && request.resource.data.keys().hasOnly(['name', 'email', 'username', 'role', 'createdAt'])
         && request.resource.data.name is string
+        && request.resource.data.name.size() >= 2
         && request.resource.data.name.size() <= 60
-        && ((request.auth.token.firebase.sign_in_provider == 'anonymous' && request.resource.data.email == '')
-          || (request.auth.token.firebase.sign_in_provider != 'anonymous' && request.resource.data.email == request.auth.token.email))
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.role == 'user'
+        && request.resource.data.username is string
+        && request.resource.data.username.matches('^[a-z0-9_]{3,20}$')
+        && getAfter(/databases/$(database)/documents/usernames/$(request.resource.data.username)).data.uid == uid
         && request.resource.data.createdAt == request.time;
       allow update: if owner(uid)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'updatedAt'])

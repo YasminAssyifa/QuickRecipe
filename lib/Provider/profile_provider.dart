@@ -12,6 +12,7 @@ String accountError(Object error) {
         'This email already has an account. Please sign in.',
       'invalid-email' => 'Enter a valid email address.',
       'weak-password' => 'Use a stronger password with at least 6 characters.',
+      'username-taken' => 'This username is already taken.',
       'invalid-credential' ||
       'wrong-password' ||
       'user-not-found' => 'Email or password is incorrect.',
@@ -20,7 +21,7 @@ String accountError(Object error) {
       'too-many-requests' =>
         'Too many attempts. Please wait before trying again.',
       'operation-not-allowed' || 'configuration-not-found' =>
-        'Demo access is unavailable. Enable Anonymous sign-in in Firebase.',
+        'Sign-in is unavailable. Enable Email/Password sign-in in Firebase.',
       'permission-denied' =>
         'Your account cannot access this data. Check the Firestore rules.',
       'user-disabled' => 'This account has been disabled.',
@@ -37,6 +38,8 @@ class ProfileProvider extends ChangeNotifier {
       (account) {
         _account = account;
         _name = '';
+        _username = '';
+        _role = 'user';
         ready = false;
         initializing = false;
         if (!busy) unawaited(load());
@@ -52,6 +55,8 @@ class ProfileProvider extends ChangeNotifier {
   late final StreamSubscription<Account?> _subscription;
   Account? _account;
   String _name = '';
+  String _username = '';
+  String _role = 'user';
   bool initializing = true;
   bool busy = false;
   bool ready = false;
@@ -60,6 +65,9 @@ class ProfileProvider extends ChangeNotifier {
   String? error;
   String? get uid => _account?.uid;
   String get name => _name;
+  String get username => _username;
+  String get role => _role;
+  bool get isAdmin => _role == 'admin';
   String get email => _account?.email ?? '';
   void _notify() {
     if (!_disposed) notifyListeners();
@@ -82,7 +90,9 @@ class ProfileProvider extends ChangeNotifier {
           _account?.uid != account.uid) {
         return;
       }
-      _name = result;
+      _name = result.name;
+      _username = result.username;
+      _role = result.role;
       ready = true;
     } catch (failure) {
       if (generation == _generation && !_disposed) {
@@ -93,21 +103,31 @@ class ProfileProvider extends ChangeNotifier {
   }
 
   Future<bool> authenticate({
+    required String login,
+    required String password,
+  }) => _enter(() => _repository.signIn(login.trim(), password));
+
+  Future<bool> register({
+    required String name,
+    required String username,
     required String email,
     required String password,
-    String? name,
-  }) async {
+  }) => _enter(
+    () => _repository.signUp(
+      name: name,
+      username: username,
+      email: email,
+      password: password,
+    ),
+  );
+
+  Future<bool> _enter(Future<void> Function() request) async {
     if (busy) return false;
     busy = true;
     error = null;
     _notify();
     try {
-      if (name == null) {
-        await _repository.signIn(email.trim(), password);
-      } else {
-        await _repository.signUp(name.trim(), email.trim(), password);
-        return true;
-      }
+      await request();
       _account = _repository.current;
       await load();
       return uid != null;
@@ -154,6 +174,8 @@ class ProfileProvider extends ChangeNotifier {
       if (_account == null) {
         _generation++;
         _name = "";
+        _username = '';
+        _role = 'user';
         ready = false;
         error = null;
       }

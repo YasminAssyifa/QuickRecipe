@@ -86,7 +86,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              const Text('Demo profile for this app installation. Your data is stored online.'),
+              Text(
+                account.username.isEmpty
+                    ? 'Manage your account details.'
+                    : 'Signed in as @${account.username}',
+                style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
+              ),
               const SizedBox(height: 28),
               TextFormField(
                 controller: _name,
@@ -114,7 +119,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onFieldSubmitted: (_) => _save(),
                 decoration: InputDecoration(
                   labelText: 'Email',
-                  hintText: 'Not required in demo mode',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
