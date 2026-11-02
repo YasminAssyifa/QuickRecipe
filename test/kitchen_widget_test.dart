@@ -8,8 +8,10 @@ import 'package:quick_recipe/additions/fridge_screen.dart';
 import 'package:quick_recipe/additions/collection_screens.dart';
 import 'package:quick_recipe/additions/recipe_matches_screen.dart';
 import 'package:quick_recipe/additions/ai_access.dart';
+import 'package:quick_recipe/additions/ai_chat.dart';
 import 'package:quick_recipe/additions/use_ingredients_screen.dart';
 
+import 'support/fake_ai.dart';
 import 'support/fake_kitchen.dart';
 
 FridgeItem sample() => FridgeItem(
@@ -24,6 +26,10 @@ Widget host(FakeKitchen repo, Widget child) =>
       value: repo,
       child: MaterialApp(home: child),
     );
+Widget aiHost(FakeAi? ai) => Provider<AiRepository?>.value(
+  value: ai,
+  child: const MaterialApp(home: AiScreen()),
+);
 Future<void> click(WidgetTester tester, String label) async {
   final target = find.text(label).last;
   if (target.evaluate().isEmpty) {
@@ -50,11 +56,12 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     addTearDown(tester.view.resetViewInsets);
-    await tester.pumpWidget(const MaterialApp(home: AiScreen()));
+    await tester.pumpWidget(aiHost(FakeAi()));
+    await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'One\nTwo\nThree\nFour');
     await tester.pumpAndSettle();
     expect(
-      tester.getRect(find.byTooltip('Preview message')).bottom,
+      tester.getRect(find.byTooltip('Send message')).bottom,
       lessThanOrEqualTo(380),
     );
     expect(tester.takeException(), isNull);
@@ -95,7 +102,9 @@ void main() {
   testWidgets('AI preference fills an editable prompt above the input', (
     tester,
   ) async {
-    await tester.pumpWidget(const MaterialApp(home: AiScreen()));
+    final ai = FakeAi();
+    await tester.pumpWidget(aiHost(ai));
+    await tester.pumpAndSettle();
     await click(tester, 'Custom');
     await click(tester, 'Diet-friendly');
     final input = find.byType(TextField);
@@ -108,16 +117,13 @@ void main() {
       lessThan(tester.getRect(input).top),
     );
     await tester.enterText(input, 'My own dinner idea');
-    await tester.tap(find.byTooltip('Preview message'));
+    await tester.tap(find.byTooltip('Send message'));
     await tester.pumpAndSettle();
-    expect(
-      find.text('AI is not connected yet. Your message was not sent or saved.'),
-      findsOneWidget,
-    );
-    expect(
-      tester.widget<TextField>(input).controller!.text,
-      'My own dinner idea',
-    );
+    expect(find.text('My own dinner idea'), findsOneWidget);
+    expect(find.text('Try an omelette.'), findsOneWidget);
+    expect(tester.widget<TextField>(input).controller!.text, isEmpty);
+    expect(ai.saved.single.question, 'My own dinner idea');
+    expect(ai.saved.single.answer, 'Try an omelette.');
   });
   testWidgets(
     'Use ingredients validates, cancels and deducts confirmed stock',
@@ -343,28 +349,132 @@ void main() {
     expect(find.text('Available: Egg'), findsOneWidget);
     expect(find.text('Still needed: Cooked rice'), findsOneWidget);
   });
-  testWidgets(
-    'AI preview reports empty input and does not claim generated answer',
-    (tester) async {
-      await tester.pumpWidget(const MaterialApp(home: AiScreen()));
-      await tester.tap(find.byTooltip('Preview message'));
-      await tester.pump();
-      expect(find.text('Type a question first.'), findsOneWidget);
-      await tester.enterText(find.byType(TextField), 'Dinner ideas');
-      await tester.tap(find.byTooltip('Preview message'));
-      await tester.pumpAndSettle(const Duration(seconds: 1));
-      expect(find.text('AI answers'), findsNothing);
-      expect(tester.takeException(), isNull);
-    },
-  );
+  testWidgets('AI rejects empty input and asks guests to sign in', (
+    tester,
+  ) async {
+    await tester.pumpWidget(aiHost(null));
+    await tester.tap(find.byTooltip('Send message'));
+    await tester.pump();
+    expect(find.text('Type a question first.'), findsOneWidget);
+    tester
+        .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+        .removeCurrentSnackBar();
+    await tester.enterText(find.byType(TextField), 'Dinner ideas');
+    await tester.tap(find.byTooltip('Send message'));
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+    expect(find.text('Sign in to use QuickRecipe AI.'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('AI shows saved history and sends recent context', (
+    tester,
+  ) async {
+    final ai = FakeAi()
+      ..saved = [
+        const ChatExchange(
+          id: 'old',
+          question: 'Ideas for rice?',
+          answer: 'Fried rice.',
+        ),
+      ];
+    await tester.pumpWidget(aiHost(ai));
+    await tester.pumpAndSettle();
+    expect(find.text('Fried rice.'), findsOneWidget);
+    expect(find.text('Try a question'), findsNothing);
+    await tester.enterText(find.byType(TextField), 'Make it spicy');
+    await tester.tap(find.byTooltip('Send message'));
+    await tester.pumpAndSettle();
+    expect(ai.asked.single.map((m) => m.text), [
+      'Ideas for rice?',
+      'Fried rice.',
+      'Make it spicy',
+    ]);
+    expect(ai.saved, hasLength(2));
+  });
+  testWidgets('AI shows progress, blocks double send and restores on error', (
+    tester,
+  ) async {
+    final ai = FakeAi()..pendingReply = Completer<void>();
+    await tester.pumpWidget(aiHost(ai));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'Dinner ideas');
+    await tester.tap(find.byTooltip('Send message'));
+    await tester.pump();
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    await tester.tap(find.byTooltip('Send message'));
+    await tester.pump();
+    expect(ai.asked, hasLength(1));
+    ai.failReply = true;
+    ai.pendingReply!.complete();
+    await tester.pumpAndSettle();
+    expect(
+      find.text('QuickRecipe AI is not available right now. Try again later.'),
+      findsOneWidget,
+    );
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller!.text,
+      'Dinner ideas',
+    );
+    expect(find.text('Try a question'), findsOneWidget);
+    expect(ai.saved, isEmpty);
+  });
+  testWidgets('AI keeps the answer when saving fails', (tester) async {
+    final ai = FakeAi()..failSave = true;
+    await tester.pumpWidget(aiHost(ai));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'Dinner ideas');
+    await tester.tap(find.byTooltip('Send message'));
+    await tester.pumpAndSettle();
+    expect(find.text('Try an omelette.'), findsOneWidget);
+    expect(
+      find.text('The answer could not be saved to your chat.'),
+      findsOneWidget,
+    );
+  });
+  testWidgets('AI history failure offers retry', (tester) async {
+    final ai = FakeAi()..failLoad = true;
+    await tester.pumpWidget(aiHost(ai));
+    await tester.pumpAndSettle();
+    expect(find.text('Unable to load chat'), findsOneWidget);
+    ai.failLoad = false;
+    await tester.tap(find.text('Try again'));
+    await tester.pumpAndSettle();
+    expect(find.text('Try a question'), findsOneWidget);
+  });
+  testWidgets('AI clears chat history after confirmation', (tester) async {
+    final ai = FakeAi()
+      ..saved = [
+        const ChatExchange(
+          id: 'old',
+          question: 'Soup?',
+          answer: 'Tomato soup.',
+        ),
+      ];
+    await tester.pumpWidget(aiHost(ai));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Clear chat'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(ai.saved, hasLength(1));
+    await tester.tap(find.byTooltip('Clear chat'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete'));
+    await tester.pumpAndSettle();
+    expect(ai.saved, isEmpty);
+    expect(find.text('Tomato soup.'), findsNothing);
+    expect(find.text('Try a question'), findsOneWidget);
+  });
   testWidgets('AI shortcut opens AI and hides on AI screen', (tester) async {
     aiShortcutVisible.value = true;
     await tester.pumpWidget(
-      MaterialApp(
-        navigatorKey: appNavigatorKey,
-        navigatorObservers: [AiRouteObserver()],
-        builder: (_, child) => AiShortcutLayer(child: child!),
-        home: const Scaffold(body: Text('Original screen')),
+      Provider<AiRepository?>.value(
+        value: FakeAi(),
+        child: MaterialApp(
+          navigatorKey: appNavigatorKey,
+          navigatorObservers: [AiRouteObserver()],
+          builder: (_, child) => AiShortcutLayer(child: child!),
+          home: const Scaffold(body: Text('Original screen')),
+        ),
       ),
     );
     await tester.pumpAndSettle();
