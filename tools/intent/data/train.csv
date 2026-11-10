@@ -1,0 +1,378 @@
+text,intent,source
+masak apa pakai telur?,cari_resep,synthetic
+ada resep ayam gak,cari_resep,synthetic
+resep pakai tahu dong,cari_resep,synthetic
+"mau masak yang cepet, ada ide?",cari_resep,synthetic
+menu makan malam yang gampang apa ya,cari_resep,synthetic
+kasih ide sarapan dong,cari_resep,synthetic
+"pengen ngemil, resep camilan apa yang enak",cari_resep,synthetic
+resep dessert yang manis,cari_resep,synthetic
+"aku mau masak tempe, enaknya dibikin apa",cari_resep,synthetic
+resep nasi goreng,cari_resep,synthetic
+cariin resep mie,cari_resep,synthetic
+ide masakan sayur bayam,cari_resep,synthetic
+resep yang 15 menit jadi,cari_resep,synthetic
+masakan yang bisa selesai kurang dari 20 menit,cari_resep,synthetic
+menu makan siang hari ini apa ya,cari_resep,synthetic
+rekomendasi resep buat makan malam,cari_resep,synthetic
+resep pakai wortel dan kol,cari_resep,synthetic
+masak apa ya hari ini,cari_resep,synthetic
+bingung mau masak apa,cari_resep,synthetic
+ada menu yang bahannya sedikit gak,cari_resep,synthetic
+resep simpel buat anak kos,cari_resep,synthetic
+resep rendah kalori dong,cari_resep,synthetic
+"lagi diet, masak apa yang ringan",cari_resep,synthetic
+menu di bawah 300 kalori,cari_resep,synthetic
+resep yang ga sampe setengah jam,cari_resep,synthetic
+"mau bikin sup, ada resep?",cari_resep,synthetic
+resep pakai kentang,cari_resep,synthetic
+olahan telur yang enak apa aja,cari_resep,synthetic
+punya ayam sama wortel bisa masak apa,cari_resep,synthetic
+cari menu sarapan yang cepat,cari_resep,synthetic
+resep tumis sayur,cari_resep,synthetic
+masakan berkuah yang gampang,cari_resep,synthetic
+resep sederhana untuk pemula,cari_resep,synthetic
+kasih aku 3 ide masakan,cari_resep,synthetic
+saran menu buat besok,cari_resep,synthetic
+ada resep yang pake tomat?,cari_resep,synthetic
+resep pakai jagung,cari_resep,synthetic
+camilan sore yang gampang dibuat,cari_resep,synthetic
+resep pancake,cari_resep,synthetic
+resep makanan penutup,cari_resep,synthetic
+mau masak kangkung,cari_resep,synthetic
+menu sehat buat makan siang,cari_resep,synthetic
+"pengen makan mie, resep apa yang cocok",cari_resep,synthetic
+rekomendasi masakan tahu,cari_resep,synthetic
+resep tempe yang ga ribet,cari_resep,synthetic
+mau masak cepat sebelum berangkat kerja,cari_resep,synthetic
+ide bekal makan siang,cari_resep,synthetic
+menu makan malam di bawah 30 menit,cari_resep,synthetic
+cari resep telur dadar,cari_resep,synthetic
+masakan sayur yang enak apa ya,cari_resep,synthetic
+ada resep bayam?,cari_resep,synthetic
+saran masakan untuk malam ini,cari_resep,synthetic
+tolong cariin resep yang mudah,cari_resep,synthetic
+mw masak apa ya enaknya,cari_resep,synthetic
+rsp ayam yg gampang,cari_resep,synthetic
+resep nasi,cari_resep,synthetic
+olahan nasi sisa semalam,cari_resep,synthetic
+pengen yg manis2,cari_resep,synthetic
+masak pakai susu bisa bikin apa,cari_resep,synthetic
+resep roti,cari_resep,synthetic
+resep dengan bahan kurang dari 5,cari_resep,synthetic
+menu rumahan yang praktis,cari_resep,synthetic
+apa resep yang paling cepat,cari_resep,synthetic
+kasih rekomendasi resep dong,cari_resep,synthetic
+resep buat makan siang yang ringan,cari_resep,synthetic
+mau masak telur balado,cari_resep,synthetic
+resep tahu kecap,cari_resep,synthetic
+menu buat sarapan anak,cari_resep,synthetic
+masakan dari mie yang enak,cari_resep,synthetic
+ide masak pakai pisang,cari_resep,synthetic
+resep sup sayur,cari_resep,synthetic
+cari masakan pakai bawang putih,cari_resep,synthetic
+resep ayam kecap,cari_resep,synthetic
+makan malam yang ga bikin gendut,cari_resep,synthetic
+ada ide masakan berkalori rendah?,cari_resep,synthetic
+masak yg cpt dong,cari_resep,synthetic
+resep yang cuma butuh 10 menit,cari_resep,synthetic
+mau masak buat makan siang,cari_resep,synthetic
+resep dengan telur dan tomat,cari_resep,synthetic
+tunjukin resep yang gampang,cari_resep,synthetic
+What can I cook with eggs?,cari_resep,synthetic
+Suggest a quick dinner,cari_resep,synthetic
+any chicken recipes?,cari_resep,synthetic
+give me a recipe with tofu,cari_resep,synthetic
+I want something quick for lunch,cari_resep,synthetic
+dinner ideas please,cari_resep,synthetic
+easy breakfast recipe,cari_resep,synthetic
+recipe with only a few ingredients,cari_resep,synthetic
+low calorie meal ideas,cari_resep,synthetic
+what should I cook tonight,cari_resep,synthetic
+find me a noodle recipe,cari_resep,synthetic
+something sweet for dessert,cari_resep,synthetic
+snack ideas,cari_resep,synthetic
+recipes under 20 minutes,cari_resep,synthetic
+"I have potatoes, what can I make",cari_resep,synthetic
+healthy lunch ideas,cari_resep,synthetic
+vegetable recipes,cari_resep,synthetic
+suggest a recipe with spinach,cari_resep,synthetic
+show me easy recipes,cari_resep,synthetic
+what's a good recipe for rice,cari_resep,synthetic
+Suggest an easy meal I can cook in under 30 minutes.,cari_resep,synthetic
+Suggest a recipe with only a few ingredients.,cari_resep,synthetic
+Suggest a low-calorie meal under 400 calories.,cari_resep,synthetic
+isi kulkasku bisa dimasak jadi apa,pakai_kulkas,synthetic
+"aku punya bahan di kulkas, masak apa ya",pakai_kulkas,synthetic
+pakai bahan yang ada di kulkas,pakai_kulkas,synthetic
+masak dari stok kulkas,pakai_kulkas,synthetic
+bahan di kulkas aku bisa jadi apa aja,pakai_kulkas,synthetic
+"cek kulkas aku, bisa masak apa",pakai_kulkas,synthetic
+resep dari bahan yang aku punya,pakai_kulkas,synthetic
+mau habisin stok kulkas,pakai_kulkas,synthetic
+masak pakai yang ada aja,pakai_kulkas,synthetic
+ada resep yang cocok sama isi kulkasku?,pakai_kulkas,synthetic
+bahan yang aku simpan bisa dibikin apa,pakai_kulkas,synthetic
+kulkasku ada apa aja yang bisa dimasak,pakai_kulkas,synthetic
+rekomendasi resep dari stok bahan,pakai_kulkas,synthetic
+masakan dari sisa bahan di kulkas,pakai_kulkas,synthetic
+pengen masak tanpa belanja,pakai_kulkas,synthetic
+"gak mau belanja, masak pake yang ada",pakai_kulkas,synthetic
+bisa masak apa dengan stok yang ada,pakai_kulkas,synthetic
+cocokin resep sama isi kulkas,pakai_kulkas,synthetic
+apa yang bisa aku masak dari persediaan,pakai_kulkas,synthetic
+bahan yang tersedia bisa jadi apa,pakai_kulkas,synthetic
+lihat kulkas terus kasih ide masak,pakai_kulkas,synthetic
+masak apa ya dari bahan sisa,pakai_kulkas,synthetic
+resep pakai bahan yang udah aku punya,pakai_kulkas,synthetic
+pakai stok bahan di rumah,pakai_kulkas,synthetic
+"bahan di kulkas mau kadaluarsa, masak apa",pakai_kulkas,synthetic
+klo dari kulkas gw bisa masak apa,pakai_kulkas,synthetic
+dr isi kulkas bs bikin apa,pakai_kulkas,synthetic
+habisin bahan di kulkas dong,pakai_kulkas,synthetic
+masak sesuai isi kulkas,pakai_kulkas,synthetic
+resep berdasarkan isi kulkas,pakai_kulkas,synthetic
+kulkas,pakai_kulkas,synthetic
+stok di rumah bisa jadi masakan apa,pakai_kulkas,synthetic
+apa aja yang bisa dimasak dari bahan yang aku punya sekarang,pakai_kulkas,synthetic
+mau masak tapi males ke pasar,pakai_kulkas,synthetic
+manfaatin bahan sisa di kulkas,pakai_kulkas,synthetic
+pakai persediaan dapur aja,pakai_kulkas,synthetic
+What can I cook with the ingredients in my fridge?,pakai_kulkas,synthetic
+what can I make with what's in my fridge,pakai_kulkas,synthetic
+use my fridge ingredients,pakai_kulkas,synthetic
+cook from my pantry,pakai_kulkas,synthetic
+recipes using what I already have,pakai_kulkas,synthetic
+"I don't want to go shopping, what can I cook",pakai_kulkas,synthetic
+match recipes to my fridge,pakai_kulkas,synthetic
+use up my leftovers in the fridge,pakai_kulkas,synthetic
+what can I cook from my stock,pakai_kulkas,synthetic
+Help me plan a meal using ingredients I already have.,pakai_kulkas,synthetic
+nasi goreng telur berapa kalori,info_resep,synthetic
+tempe orek butuh waktu berapa lama,info_resep,synthetic
+bahan tumis kangkung apa aja,info_resep,synthetic
+cara bikin telur balado gimana,info_resep,synthetic
+langkah membuat tahu kecap,info_resep,synthetic
+berapa menit masak sayur bening bayam,info_resep,synthetic
+kalori egg fried rice berapa,info_resep,synthetic
+banana pancakes bahannya apa,info_resep,synthetic
+crispy tofu masaknya lama gak,info_resep,synthetic
+tahu kecap pakai bahan apa,info_resep,synthetic
+gimana cara masak chicken noodle soup,info_resep,synthetic
+kalori tempe orek,info_resep,synthetic
+nasi goreng telur bikinnya gimana,info_resep,synthetic
+bahan apa saja untuk potato corn soup,info_resep,synthetic
+garlic spinach berapa lama,info_resep,synthetic
+langkah langkah bikin bread and butter pudding,info_resep,synthetic
+step masak soy sauce chicken,info_resep,synthetic
+berapa kalori di sweet soy tempeh,info_resep,synthetic
+vegetable rice pakai apa aja,info_resep,synthetic
+tumis kangkung berapa kalori ya,info_resep,synthetic
+lama masak egg noodle stir fry,info_resep,synthetic
+cara buat pancake pisang,info_resep,synthetic
+sayur bening bayam butuh bahan apa,info_resep,synthetic
+telur balado berapa menit jadinya,info_resep,synthetic
+kandungan kalori tahu kecap,info_resep,synthetic
+urutan masak tomato scrambled eggs,info_resep,synthetic
+tempe orek pakai bumbu apa aja,info_resep,synthetic
+cara masak tumis kangkung,info_resep,synthetic
+chicken rice bowl kalorinya berapa,info_resep,synthetic
+bahan bahan crispy tofu,info_resep,synthetic
+berapa lama bikin garlic noodles,info_resep,synthetic
+gmn cara bikin nasi goreng telur,info_resep,synthetic
+tahu kecap brp kalori,info_resep,synthetic
+how many calories in egg fried rice,info_resep,synthetic
+how long does tempe orek take,info_resep,synthetic
+what are the ingredients for garlic noodles,info_resep,synthetic
+how do I make crispy tofu,info_resep,synthetic
+steps for chicken rice bowl,info_resep,synthetic
+how long to cook potato corn soup,info_resep,synthetic
+what do I need for banana pancakes,info_resep,synthetic
+calories of tofu fried rice,info_resep,synthetic
+santan bisa diganti apa,substitusi_bahan,synthetic
+kalau gak ada telur pakai apa,substitusi_bahan,synthetic
+pengganti mentega apa ya,substitusi_bahan,synthetic
+susu bisa diganti apa,substitusi_bahan,synthetic
+"gak punya kecap manis, gantinya apa",substitusi_bahan,synthetic
+tepung terigu bisa diganti apa,substitusi_bahan,synthetic
+bawang bombay diganti bawang merah bisa?,substitusi_bahan,synthetic
+pengganti gula pasir,substitusi_bahan,synthetic
+"kecap asin habis, pakai apa",substitusi_bahan,synthetic
+alternatif keju,substitusi_bahan,synthetic
+ga ada bawang putih gimana,substitusi_bahan,synthetic
+cabai bisa diganti apa,substitusi_bahan,synthetic
+pengganti tomat untuk masakan,substitusi_bahan,synthetic
+ayam bisa diganti apa biar vegetarian,substitusi_bahan,synthetic
+tahu diganti tempe bisa gak,substitusi_bahan,synthetic
+krim kental diganti apa,substitusi_bahan,synthetic
+pengganti baking powder,substitusi_bahan,synthetic
+maizena gantinya apa,substitusi_bahan,synthetic
+"minyak goreng habis, alternatifnya",substitusi_bahan,synthetic
+yogurt bisa diganti apa,substitusi_bahan,synthetic
+pengganti cuka,substitusi_bahan,synthetic
+air jeruk nipis diganti apa,substitusi_bahan,synthetic
+susu sapi diganti susu kedelai bisa?,substitusi_bahan,synthetic
+kaldu bubuk bisa diganti apa,substitusi_bahan,synthetic
+mentega sama margarin bisa tukeran gak,substitusi_bahan,synthetic
+bahan pengganti telur buat kue,substitusi_bahan,synthetic
+apa substitusi santan yang lebih sehat,substitusi_bahan,synthetic
+gula merah bisa diganti gula pasir?,substitusi_bahan,synthetic
+klo ga ada susu pake apa,substitusi_bahan,synthetic
+ganti kecap manis pakai apa ya,substitusi_bahan,synthetic
+telur habis bisa pakai apa,substitusi_bahan,synthetic
+tukar bawang merah dengan apa,substitusi_bahan,synthetic
+How can I replace milk?,substitusi_bahan,synthetic
+what can I use instead of butter,substitusi_bahan,synthetic
+egg substitute for baking,substitusi_bahan,synthetic
+"no soy sauce, what can I use",substitusi_bahan,synthetic
+substitute for coconut milk,substitusi_bahan,synthetic
+can I swap sugar with honey,substitusi_bahan,synthetic
+alternative to flour,substitusi_bahan,synthetic
+replacement for garlic,substitusi_bahan,synthetic
+what to use instead of cream,substitusi_bahan,synthetic
+"I'm out of eggs, what now",substitusi_bahan,synthetic
+halo,bantuan,synthetic
+hai,bantuan,synthetic
+hi kak,bantuan,synthetic
+selamat pagi,bantuan,synthetic
+kamu bisa apa aja,bantuan,synthetic
+apa yang bisa kamu bantu,bantuan,synthetic
+cara pakai fitur ini gimana,bantuan,synthetic
+bantuan,bantuan,synthetic
+tolong,bantuan,synthetic
+kamu siapa,bantuan,synthetic
+terima kasih,bantuan,synthetic
+makasih ya,bantuan,synthetic
+oke sip,bantuan,synthetic
+mantap,bantuan,synthetic
+ini fitur apa,bantuan,synthetic
+aku bingung cara pakainya,bantuan,synthetic
+contoh pertanyaan yang bisa ditanya apa,bantuan,synthetic
+p,bantuan,synthetic
+assalamualaikum,bantuan,synthetic
+pagi,bantuan,synthetic
+selamat malam,bantuan,synthetic
+hai apa kabar,bantuan,synthetic
+aku harus nanya apa,bantuan,synthetic
+thanks,bantuan,synthetic
+hello,bantuan,synthetic
+hi there,bantuan,synthetic
+what can you do,bantuan,synthetic
+help,bantuan,synthetic
+how does this work,bantuan,synthetic
+thank you,bantuan,synthetic
+who are you,bantuan,synthetic
+good morning,bantuan,synthetic
+ok thanks,bantuan,synthetic
+what should I ask you,bantuan,synthetic
+cuaca hari ini gimana,di_luar_topik,synthetic
+siapa presiden indonesia,di_luar_topik,synthetic
+bantu kerjain pr matematika,di_luar_topik,synthetic
+cara bikin website,di_luar_topik,synthetic
+tips sukses kuliah,di_luar_topik,synthetic
+resep sukses jadi programmer,di_luar_topik,synthetic
+berapa kalori yang dibakar kalau lari 5 km,di_luar_topik,synthetic
+pesan gofood dong,di_luar_topik,synthetic
+rekomendasi restoran di jakarta,di_luar_topik,synthetic
+harga telur hari ini berapa,di_luar_topik,synthetic
+jadwal bola malam ini,di_luar_topik,synthetic
+putar lagu dong,di_luar_topik,synthetic
+ceritain lelucon,di_luar_topik,synthetic
+terjemahkan ini ke bahasa inggris,di_luar_topik,synthetic
+cara install flutter,di_luar_topik,synthetic
+bagusan iphone atau android,di_luar_topik,synthetic
+film bagus apa,di_luar_topik,synthetic
+cara diet tanpa olahraga,di_luar_topik,synthetic
+obat sakit kepala apa,di_luar_topik,synthetic
+sekarang jam berapa,di_luar_topik,synthetic
+kucing boleh makan telur gak,di_luar_topik,synthetic
+dokter gizi terdekat,di_luar_topik,synthetic
+cara bayar listrik online,di_luar_topik,synthetic
+buatin puisi cinta,di_luar_topik,synthetic
+berita hari ini apa,di_luar_topik,synthetic
+what's the weather today,di_luar_topik,synthetic
+tell me a joke,di_luar_topik,synthetic
+who won the football match,di_luar_topik,synthetic
+how do I learn python,di_luar_topik,synthetic
+book a table at a restaurant,di_luar_topik,synthetic
+order a pizza,di_luar_topik,synthetic
+how many calories do I burn running,di_luar_topik,synthetic
+what is the capital of france,di_luar_topik,synthetic
+play some music,di_luar_topik,synthetic
+write my essay,di_luar_topik,synthetic
+ide masakan dari ayam,cari_resep,synthetic
+mau masak pakai tahu sama tomat,cari_resep,synthetic
+masakan apa yang cocok buat makan malam ini,cari_resep,synthetic
+cari resep yang manis buat camilan,cari_resep,synthetic
+resep sarapan yang ga ribet,cari_resep,synthetic
+cooking ideas with chicken,cari_resep,synthetic
+recipes with eggs,cari_resep,synthetic
+something quick to cook,cari_resep,synthetic
+a light dinner under 400 calories,cari_resep,synthetic
+I want to cook noodles,cari_resep,synthetic
+recommend me a recipe,cari_resep,synthetic
+what's for dinner,cari_resep,synthetic
+dessert recipes,cari_resep,synthetic
+masak apa aja dari bahan yang ada di rumah,pakai_kulkas,synthetic
+mau masak pakai bahan yang aku punya di kulkas,pakai_kulkas,synthetic
+bahan apa yang aku punya bisa jadi menu apa,pakai_kulkas,synthetic
+ga sempet belanja jadi pakai stok aja,pakai_kulkas,synthetic
+cek isi kulkas buat ide masak,pakai_kulkas,synthetic
+what can I cook without going to the store,pakai_kulkas,synthetic
+use what's left in my fridge,pakai_kulkas,synthetic
+check my fridge and suggest a meal,pakai_kulkas,synthetic
+langkah masak telur balado,info_resep,synthetic
+cara membuat tempe orek,info_resep,synthetic
+berapa kalori crispy tofu,info_resep,synthetic
+apa aja bahan nasi goreng telur,info_resep,synthetic
+tahu kecap masaknya berapa menit,info_resep,synthetic
+how to cook tumis kangkung,info_resep,synthetic
+ingredients of egg fried rice,info_resep,synthetic
+how many minutes for garlic spinach,info_resep,synthetic
+steps to make banana pancakes,info_resep,synthetic
+what is in vegetable noodles,info_resep,synthetic
+bawang putih habis diganti apa,substitusi_bahan,synthetic
+kalau ga punya santan bisa pakai apa,substitusi_bahan,synthetic
+kecap manis bisa diganti gula merah gak,substitusi_bahan,synthetic
+susu cair bisa diganti susu bubuk?,substitusi_bahan,synthetic
+pengganti tepung terigu yang bebas gluten,substitusi_bahan,synthetic
+what can replace eggs,substitusi_bahan,synthetic
+milk alternative for cooking,substitusi_bahan,synthetic
+can I use margarine instead of butter,substitusi_bahan,synthetic
+I don't have soy sauce,substitusi_bahan,synthetic
+swap for sugar,substitusi_bahan,synthetic
+replace cream with what,substitusi_bahan,synthetic
+halo kak,bantuan,synthetic
+haloo,bantuan,synthetic
+hai bot,bantuan,synthetic
+hi,bantuan,synthetic
+hey,bantuan,synthetic
+hei,bantuan,synthetic
+selamat siang,bantuan,synthetic
+selamat sore,bantuan,synthetic
+apa kabar,bantuan,synthetic
+kamu bisa bantu apa,bantuan,synthetic
+fitur ini buat apa,bantuan,synthetic
+gimana cara pakai fitur resep ini,bantuan,synthetic
+aku harus tanya apa ke kamu,bantuan,synthetic
+kasih contoh pertanyaan dong,bantuan,synthetic
+ok,bantuan,synthetic
+oke makasih,bantuan,synthetic
+sip,bantuan,synthetic
+thx,bantuan,synthetic
+makasih banyak,bantuan,synthetic
+terima kasih banyak,bantuan,synthetic
+tes,bantuan,synthetic
+hey there,bantuan,synthetic
+good evening,bantuan,synthetic
+how do I use this,bantuan,synthetic
+what are you,bantuan,synthetic
+show me what you can do,bantuan,synthetic
+give me example questions,bantuan,synthetic
+thanks a lot,bantuan,synthetic
+cara jadi kaya,di_luar_topik,synthetic
+resep awet muda,di_luar_topik,synthetic
+cara masak air biar ga gosong,di_luar_topik,synthetic
+kalori harian aku harus berapa,di_luar_topik,synthetic
+how to bake a cake in minecraft,di_luar_topik,synthetic
+how to fix my laptop,di_luar_topik,synthetic
