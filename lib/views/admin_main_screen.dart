@@ -138,6 +138,7 @@ class AdminMainScreen extends StatelessWidget {
     );
   }
 
+  // Welcome banner
   Widget _buildWelcomeBanner() {
     return Container(
       width: double.infinity,
@@ -192,6 +193,7 @@ class AdminMainScreen extends StatelessWidget {
     );
   }
 
+  // Section title
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
@@ -202,6 +204,7 @@ class AdminMainScreen extends StatelessWidget {
     );
   }
 
+  // Overview card
   Widget _buildOverviewCard({
     required String title,
     required String value,
@@ -224,11 +227,19 @@ class AdminMainScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(
-            icon,
-            color: kBannerColor,
-            size: 23,
+          // Centered overview icon
+          SizedBox(
+            width: 28,
+            height: 28,
+            child: Center(
+              child: Icon(
+                icon,
+                color: kprimaryColor,
+                size: 23,
+              ),
+            ),
           ),
+
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -255,6 +266,7 @@ class AdminMainScreen extends StatelessWidget {
     );
   }
 
+  // Insights card
   Widget _buildInsightCard({
     required String title,
     required String description,
@@ -275,23 +287,30 @@ class AdminMainScreen extends StatelessWidget {
         ],
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          // Centered insight icon
           Container(
-            padding: const EdgeInsets.all(10),
+            width: 44,
+            height: 44,
+            alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: kBannerColor.withValues(alpha: 0.12),
+              color: const Color(0xFFF7F4EF),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
               icon,
-              color: kBannerColor,
-              size: 21,
+              color: kprimaryColor,
+              size: 23,
             ),
           ),
+
           const SizedBox(width: 13),
+
+          // Insight title and description
           Expanded(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
@@ -312,6 +331,15 @@ class AdminMainScreen extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+
+          const SizedBox(width: 8),
+
+          // Right arrow
+          Icon(
+            Iconsax.arrow_right_3,
+            color: Colors.grey.shade500,
+            size: 23,
           ),
         ],
       ),
