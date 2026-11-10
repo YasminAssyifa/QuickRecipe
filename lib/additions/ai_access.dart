@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../Utils/constants.dart';
 import 'ai_chat.dart';
+import 'recipe_matches_screen.dart';
 import 'shared.dart';
 
 final appNavigatorKey = GlobalKey<NavigatorState>();
@@ -137,18 +138,22 @@ class _AiScreenState extends State<AiScreen> {
   final _scroll = ScrollController();
   AiRepository? _repo;
   final List<ChatMessage> _messages = [];
+  List<RecipeSuggestion> _cards = const [];
   bool _loading = false, _busy = false;
   Object? _loadError;
   String _preference = 'Custom';
   static const _prompts = {
     'Custom': '',
-    'Balanced meals': 'Suggest a balanced meal with vegetables and protein.',
-    'Diet-friendly': 'Suggest a lighter meal with vegetables and protein.',
-    'Quick & easy': 'Suggest an easy meal I can cook in under 20 minutes.',
-    'Budget-friendly': 'Suggest a meal using affordable everyday ingredients.',
-    'Vegetarian': 'Suggest a vegetarian meal without meat or fish.',
-    'Use my ingredients':
-        'Help me plan a meal using ingredients I already have.',
+    'Quick & easy': 'Suggest an easy meal I can cook in under 30 minutes.',
+    'Use my ingredients': 'What can I cook with the ingredients in my fridge?',
+    'Few ingredients': 'Suggest a recipe with only a few ingredients.',
+    'Low calorie': 'Suggest a low-calorie meal under 400 calories.',
+  };
+  static const _filters = {
+    'Quick & easy': MealPreference.quick,
+    'Use my ingredients': MealPreference.fridge,
+    'Few ingredients': MealPreference.fewIngredients,
+    'Low calorie': MealPreference.lowCalorie,
   };
 
   @override
@@ -172,6 +177,7 @@ class _AiScreenState extends State<AiScreen> {
         _messages
           ..clear()
           ..addAll(history.expand((exchange) => exchange.messages));
+        _cards = const [];
         _loading = false;
       });
       _scrollToEnd();
@@ -225,21 +231,30 @@ class _AiScreenState extends State<AiScreen> {
     final asked = ChatMessage(fromUser: true, text: question);
     setState(() {
       _busy = true;
+      _cards = const [];
       _messages.add(asked);
       _input.clear();
     });
     _scrollToEnd();
     try {
-      final answer = await repo.reply(List.of(_messages));
+      final answer = await repo.reply(
+        List.of(_messages),
+        preference: _filters[_preference] ?? MealPreference.none,
+      );
       if (!mounted) return;
       setState(() {
-        _messages.add(ChatMessage(fromUser: false, text: answer));
+        _messages.add(ChatMessage(fromUser: false, text: answer.text));
+        _cards = answer.recipes;
         _busy = false;
       });
       _scrollToEnd();
       try {
         await repo.save(
-          ChatExchange(id: repo.newId(), question: question, answer: answer),
+          ChatExchange(
+            id: repo.newId(),
+            question: question,
+            answer: answer.text,
+          ),
         );
       } catch (_) {
         if (mounted) {
@@ -264,7 +279,10 @@ class _AiScreenState extends State<AiScreen> {
     try {
       await repo.clear();
       if (!mounted) return;
-      setState(() => _messages.clear());
+      setState(() {
+        _messages.clear();
+        _cards = const [];
+      });
       showMessage(context, 'Chat history deleted.');
     } catch (error) {
       if (mounted) showMessage(context, messageFor(error));
@@ -316,7 +334,9 @@ class _AiScreenState extends State<AiScreen> {
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 12),
-          Text('Ask for meal ideas, ingredient substitutes, or cooking tips.'),
+          Text(
+            'Ask for meal ideas, ingredient substitutes, or recipes from your fridge.',
+          ),
         ],
       ),
     ),
@@ -379,6 +399,13 @@ class _AiScreenState extends State<AiScreen> {
                     children: [
                       if (_messages.isEmpty) ..._welcome(),
                       ..._messages.map(_bubble),
+                      ..._cards.map(
+                        (card) => RecipeMatchCard(
+                          recipe: card.recipe,
+                          available: card.available,
+                          missing: card.missing,
+                        ),
+                      ),
                       if (_busy)
                         Align(
                           alignment: Alignment.centerLeft,

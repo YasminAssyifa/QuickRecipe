@@ -1,6 +1,7 @@
 import 'additions/kitchen_repository.dart';
 import 'additions/ai_access.dart';
 import 'additions/ai_chat.dart';
+import 'additions/recipe_guide.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
@@ -37,8 +38,8 @@ class MyApp extends StatelessWidget {
         ProxyProvider<ProfileProvider, KitchenRepository?>(
           update: (_, account, previous) => account.uid == null ? null : previous is FirebaseKitchenRepository && previous.uid == account.uid ? previous : FirebaseKitchenRepository(account.uid!),
         ),
-        ProxyProvider<ProfileProvider, AiRepository?>(
-          update: (_, account, previous) => account.uid == null ? null : previous is FirebaseAiRepository && previous.uid == account.uid ? previous : FirebaseAiRepository(account.uid!),
+        ProxyProvider2<ProfileProvider, KitchenRepository?, AiRepository?>(
+          update: (_, account, kitchen, previous) => account.uid == null || kitchen == null ? null : previous is RecipeGuideRepository && previous.uid == account.uid && previous.kitchen == kitchen ? previous : RecipeGuideRepository(account.uid!, kitchen),
         ),
         ChangeNotifierProvider(create: (_)=>FavoriteProvider()), //favorite provider
         ChangeNotifierProvider(create: (_)=>QuantityProvider()), // quantity provider

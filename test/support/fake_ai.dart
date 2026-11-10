@@ -5,7 +5,9 @@ import 'package:quick_recipe/additions/ai_chat.dart';
 class FakeAi implements AiRepository {
   List<ChatExchange> saved = [];
   List<List<ChatMessage>> asked = [];
+  List<MealPreference> preferences = [];
   String answer = 'Try an omelette.';
+  List<RecipeSuggestion> recipes = [];
   bool failReply = false, failSave = false, failLoad = false;
   Completer<void>? pendingReply;
   int serial = 0;
@@ -20,15 +22,19 @@ class FakeAi implements AiRepository {
   }
 
   @override
-  Future<String> reply(List<ChatMessage> conversation) async {
+  Future<AiReply> reply(
+    List<ChatMessage> conversation, {
+    MealPreference preference = MealPreference.none,
+  }) async {
     asked.add(List.of(conversation));
+    preferences.add(preference);
     if (pendingReply != null) await pendingReply!.future;
     if (failReply) {
       throw StateError(
         'QuickRecipe AI is not available right now. Try again later.',
       );
     }
-    return answer;
+    return AiReply(answer, recipes: List.of(recipes));
   }
 
   @override

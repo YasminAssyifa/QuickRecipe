@@ -69,50 +69,10 @@ class _RecipeMatchesScreenState extends State<RecipeMatchesScreen> {
             ),
             const SizedBox(height: 16),
             ...ranked.map(
-              (entry) => Card(
-                color: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(20),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      settings: const RouteSettings(name: '/recipe-detail'),
-                      builder: (_) =>
-                          RecipeDetailScreen(documentSnapshot: entry.doc),
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          entry.doc.data()?['name']?.toString() ?? 'Recipe',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Available: ${entry.match.present.join(', ')}',
-                          style: TextStyle(color: kBannerColor),
-                        ),
-                        Text(
-                          entry.match.missing.isEmpty
-                              ? 'All ingredient types available'
-                              : 'Still needed: ${entry.match.missing.join(', ')}',
-                        ),
-                        const SizedBox(height: 8),
-                        const Text('View recipe →'),
-                      ],
-                    ),
-                  ),
-                ),
+              (entry) => RecipeMatchCard(
+                recipe: entry.doc,
+                available: entry.match.present,
+                missing: entry.match.missing,
               ),
             ),
           ],
@@ -120,4 +80,72 @@ class _RecipeMatchesScreenState extends State<RecipeMatchesScreen> {
       },
     ),
   );
+}
+
+/// White recipe card that opens the recipe detail. With [available] or
+/// [missing] it shows which fridge ingredients match, otherwise the cooking
+/// time and calories.
+class RecipeMatchCard extends StatelessWidget {
+  const RecipeMatchCard({
+    super.key,
+    required this.recipe,
+    this.available = const [],
+    this.missing = const [],
+  });
+  final DocumentSnapshot<Map<String, dynamic>> recipe;
+  final List<String> available, missing;
+
+  @override
+  Widget build(BuildContext context) {
+    final data = recipe.data() ?? const <String, dynamic>{};
+    final fromFridge = available.isNotEmpty || missing.isNotEmpty;
+    return Card(
+      color: Colors.white,
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            settings: const RouteSettings(name: '/recipe-detail'),
+            builder: (_) => RecipeDetailScreen(documentSnapshot: recipe),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                data['name']?.toString() ?? 'Recipe',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              if (fromFridge) ...[
+                Text(
+                  'Available: ${available.join(', ')}',
+                  style: TextStyle(color: kBannerColor),
+                ),
+                Text(
+                  missing.isEmpty
+                      ? 'All ingredient types available'
+                      : 'Still needed: ${missing.join(', ')}',
+                ),
+              ] else
+                Text(
+                  '${data['time'] ?? '-'} Minutes • ${data['cal'] ?? '-'} Cal',
+                  style: TextStyle(color: Colors.grey.shade600),
+                ),
+              const SizedBox(height: 8),
+              const Text('View recipe →'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

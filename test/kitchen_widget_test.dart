@@ -106,11 +106,11 @@ void main() {
     await tester.pumpWidget(aiHost(ai));
     await tester.pumpAndSettle();
     await click(tester, 'Custom');
-    await click(tester, 'Diet-friendly');
+    await click(tester, 'Low calorie');
     final input = find.byType(TextField);
     expect(
       tester.widget<TextField>(input).controller!.text,
-      contains('lighter meal'),
+      contains('low-calorie meal'),
     );
     expect(
       tester.getRect(find.byType(DropdownButtonFormField<String>)).bottom,
@@ -124,6 +124,38 @@ void main() {
     expect(tester.widget<TextField>(input).controller!.text, isEmpty);
     expect(ai.saved.single.question, 'My own dinner idea');
     expect(ai.saved.single.answer, 'Try an omelette.');
+    expect(ai.preferences.single, MealPreference.lowCalorie);
+  });
+  testWidgets('AI shows recipe cards for the latest answer only', (
+    tester,
+  ) async {
+    final ai = FakeAi()
+      ..recipes = [
+        RecipeSuggestion(
+          TestRecipe('r1', {'name': 'Tempe Orek', 'time': 20, 'cal': '360'}),
+        ),
+        RecipeSuggestion(
+          TestRecipe('r2', {'name': 'Egg rice'}),
+          available: const ['Egg'],
+          missing: const ['Cooked rice'],
+        ),
+      ];
+    await tester.pumpWidget(aiHost(ai));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'resep tempe');
+    await tester.tap(find.byTooltip('Send message'));
+    await tester.pumpAndSettle();
+    expect(find.byType(RecipeMatchCard), findsNWidgets(2));
+    expect(find.text('20 Minutes • 360 Cal'), findsOneWidget);
+    expect(find.text('Available: Egg'), findsOneWidget);
+    expect(find.text('Still needed: Cooked rice'), findsOneWidget);
+    expect(ai.preferences.single, MealPreference.none);
+    ai.recipes = [];
+    await tester.enterText(find.byType(TextField), 'makasih');
+    await tester.tap(find.byTooltip('Send message'));
+    await tester.pumpAndSettle();
+    expect(find.byType(RecipeMatchCard), findsNothing);
+    expect(ai.saved.map((e) => e.answer), everyElement('Try an omelette.'));
   });
   testWidgets(
     'Use ingredients validates, cancels and deducts confirmed stock',

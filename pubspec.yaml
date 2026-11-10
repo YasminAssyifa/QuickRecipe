@@ -68,6 +68,7 @@ flutter:
     - assets/icon/app_icon.png
     - assets/quickrecipe_logo_black.png
     - assets/quick_recipe_logo_white.png
+    - assets/ai/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
