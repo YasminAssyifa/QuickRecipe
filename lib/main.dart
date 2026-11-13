@@ -1,6 +1,10 @@
 import 'additions/kitchen_repository.dart';
 import 'additions/ai_access.dart';
+import 'additions/ai_chat.dart';
+import 'additions/recipe_guide.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'package:quick_recipe/Provider/profile_provider.dart';
@@ -15,6 +19,11 @@ import 'services/account_repository.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: kDebugMode
+        ? AndroidProvider.debug
+        : AndroidProvider.playIntegrity,
+  );
   runApp(const MyApp());
 }
 
@@ -28,6 +37,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ProfileProvider(repository: FirebaseAccountRepository())),
         ProxyProvider<ProfileProvider, KitchenRepository?>(
           update: (_, account, previous) => account.uid == null ? null : previous is FirebaseKitchenRepository && previous.uid == account.uid ? previous : FirebaseKitchenRepository(account.uid!),
+        ),
+        ProxyProvider2<ProfileProvider, KitchenRepository?, AiRepository?>(
+          update: (_, account, kitchen, previous) => account.uid == null || kitchen == null ? null : previous is RecipeGuideRepository && previous.uid == account.uid && previous.kitchen == kitchen ? previous : RecipeGuideRepository(account.uid!, kitchen),
         ),
         ChangeNotifierProvider(create: (_)=>FavoriteProvider()), //favorite provider
         ChangeNotifierProvider(create: (_)=>QuantityProvider()), // quantity provider

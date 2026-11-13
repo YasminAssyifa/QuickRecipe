@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../Utils/constants.dart';
+import 'ai_chat.dart';
+import 'recipe_matches_screen.dart';
 import 'shared.dart';
 
 final appNavigatorKey = GlobalKey<NavigatorState>();
@@ -132,17 +135,60 @@ class AiScreen extends StatefulWidget {
 
 class _AiScreenState extends State<AiScreen> {
   final _input = TextEditingController();
+  final _scroll = ScrollController();
+  AiRepository? _repo;
+  final List<ChatMessage> _messages = [];
+  List<RecipeSuggestion> _cards = const [];
+  bool _loading = false, _busy = false;
+  Object? _loadError;
   String _preference = 'Custom';
   static const _prompts = {
     'Custom': '',
-    'Balanced meals': 'Suggest a balanced meal with vegetables and protein.',
-    'Diet-friendly': 'Suggest a lighter meal with vegetables and protein.',
-    'Quick & easy': 'Suggest an easy meal I can cook in under 20 minutes.',
-    'Budget-friendly': 'Suggest a meal using affordable everyday ingredients.',
-    'Vegetarian': 'Suggest a vegetarian meal without meat or fish.',
-    'Use my ingredients':
-        'Help me plan a meal using ingredients I already have.',
+    'Quick & easy': 'Suggest an easy meal I can cook in under 30 minutes.',
+    'Use my ingredients': 'What can I cook with the ingredients in my fridge?',
+    'Few ingredients': 'Suggest a recipe with only a few ingredients.',
+    'Low calorie': 'Suggest a low-calorie meal under 400 calories.',
   };
+  static const _filters = {
+    'Quick & easy': MealPreference.quick,
+    'Use my ingredients': MealPreference.fridge,
+    'Few ingredients': MealPreference.fewIngredients,
+    'Low calorie': MealPreference.lowCalorie,
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    _repo = context.read<AiRepository?>();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final repo = _repo;
+    if (repo == null) return;
+    setState(() {
+      _loading = true;
+      _loadError = null;
+    });
+    try {
+      final history = await repo.history();
+      if (!mounted) return;
+      setState(() {
+        _messages
+          ..clear()
+          ..addAll(history.expand((exchange) => exchange.messages));
+        _cards = const [];
+        _loading = false;
+      });
+      _scrollToEnd();
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _loadError = error;
+        _loading = false;
+      });
+    }
+  }
 
   void _choosePreference(String? preference) {
     if (preference == null) return;
@@ -157,20 +203,164 @@ class _AiScreenState extends State<AiScreen> {
   @override
   void dispose() {
     _input.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
-  void _preview() {
-    if (_input.text.trim().isEmpty) {
+  void _scrollToEnd() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scroll.hasClients) {
+        _scroll.jumpTo(_scroll.position.maxScrollExtent);
+      }
+    });
+  }
+
+  Future<void> _send() async {
+    final question = _input.text.trim();
+    if (question.isEmpty) {
       showMessage(context, 'Type a question first.');
       return;
     }
+    final repo = _repo;
+    if (repo == null) {
+      showMessage(context, 'Sign in to use QuickRecipe AI.');
+      return;
+    }
+    if (_busy || _loading || _loadError != null) return;
     FocusScope.of(context).unfocus();
-    showMessage(
-      context,
-      'AI is not connected yet. Your message was not sent or saved.',
-    );
+    final asked = ChatMessage(fromUser: true, text: question);
+    setState(() {
+      _busy = true;
+      _cards = const [];
+      _messages.add(asked);
+      _input.clear();
+    });
+    _scrollToEnd();
+    try {
+      final answer = await repo.reply(
+        List.of(_messages),
+        preference: _filters[_preference] ?? MealPreference.none,
+      );
+      if (!mounted) return;
+      setState(() {
+        _messages.add(ChatMessage(fromUser: false, text: answer.text));
+        _cards = answer.recipes;
+        _busy = false;
+      });
+      _scrollToEnd();
+      try {
+        await repo.save(
+          ChatExchange(
+            id: repo.newId(),
+            question: question,
+            answer: answer.text,
+          ),
+        );
+      } catch (_) {
+        if (mounted) {
+          showMessage(context, 'The answer could not be saved to your chat.');
+        }
+      }
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _messages.remove(asked);
+        _busy = false;
+        if (_input.text.isEmpty) _input.text = question;
+      });
+      showMessage(context, messageFor(error));
+    }
   }
+
+  Future<void> _clear() async {
+    final repo = _repo;
+    if (repo == null || _busy) return;
+    if (!await confirmRemoval(context, 'chat history')) return;
+    try {
+      await repo.clear();
+      if (!mounted) return;
+      setState(() {
+        _messages.clear();
+        _cards = const [];
+      });
+      showMessage(context, 'Chat history deleted.');
+    } catch (error) {
+      if (mounted) showMessage(context, messageFor(error));
+    }
+  }
+
+  Widget _bubble(ChatMessage message) => Align(
+    alignment: message.fromUser ? Alignment.centerRight : Alignment.centerLeft,
+    child: ConstrainedBox(
+      constraints: BoxConstraints(
+        maxWidth: MediaQuery.of(context).size.width * 0.8,
+      ),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: message.fromUser ? kprimaryColor : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: SelectableText(
+          message.text,
+          style: TextStyle(
+            color: message.fromUser ? Colors.white : Colors.black,
+          ),
+        ),
+      ),
+    ),
+  );
+
+  List<Widget> _welcome() => [
+    Align(
+      alignment: Alignment.centerLeft,
+      child: ClipOval(
+        child: Image.asset('assets/icon/app_icon.png', width: 64, height: 64),
+      ),
+    ),
+    const SizedBox(height: 20),
+    Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Hi! What would you like to cook?',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 12),
+          Text(
+            'Ask for meal ideas, ingredient substitutes, or recipes from your fridge.',
+          ),
+        ],
+      ),
+    ),
+    const SizedBox(height: 24),
+    const Text('Try a question', style: TextStyle(fontWeight: FontWeight.bold)),
+    const SizedBox(height: 12),
+    ...[
+      'What can I cook with eggs?',
+      'Suggest a quick dinner',
+      'How can I replace milk?',
+    ].map(
+      (text) => Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: OutlinedButton(
+          onPressed: () {
+            setState(() => _preference = 'Custom');
+            _input.text = text;
+            _input.selection = TextSelection.collapsed(offset: text.length);
+          },
+          child: Text(text),
+        ),
+      ),
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -178,80 +368,68 @@ class _AiScreenState extends State<AiScreen> {
     appBar: AppBar(
       backgroundColor: kbackgroundColor,
       title: const Text('QuickRecipe AI'),
+      actions: [
+        if (_messages.isNotEmpty && !_busy)
+          IconButton(
+            tooltip: 'Clear chat',
+            onPressed: _clear,
+            icon: const Icon(Icons.delete_outline),
+          ),
+      ],
     ),
     body: SafeArea(
       child: Column(
         children: [
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(24),
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: ClipOval(
-                    child: Image.asset(
-                      'assets/icon/app_icon.png',
-                      width: 64,
-                      height: 64,
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : _loadError != null
+                ? SingleChildScrollView(
+                    child: FeedbackPanel(
+                      title: 'Unable to load chat',
+                      message: messageFor(_loadError!),
+                      action: 'Try again',
+                      onAction: _load,
+                      icon: Icons.wifi_off,
                     ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  )
+                : ListView(
+                    controller: _scroll,
+                    padding: const EdgeInsets.all(24),
                     children: [
-                      Text(
-                        'Hi! What would you like to cook?',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
+                      if (_messages.isEmpty) ..._welcome(),
+                      ..._messages.map(_bubble),
+                      ..._cards.map(
+                        (card) => RecipeMatchCard(
+                          recipe: card.recipe,
+                          available: card.available,
+                          missing: card.missing,
                         ),
                       ),
-                      SizedBox(height: 12),
-                      Text(
-                        'This is a preview of your recipe assistant. AI answers will be available in a future update.',
+                      if (_busy)
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          ),
+                        ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Answers can be wrong. Check allergies and cooking times.',
+                        style: TextStyle(color: Colors.black54),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Try a question',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-                ...[
-                  'What can I cook with eggs?',
-                  'Suggest a quick dinner',
-                  'How can I replace milk?',
-                ].map(
-                  (text) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: OutlinedButton(
-                      onPressed: () {
-                        setState(() => _preference = 'Custom');
-                        _input.text = text;
-                        _input.selection = TextSelection.collapsed(
-                          offset: text.length,
-                        );
-                      },
-                      child: Text(text),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Preview only • No messages are sent or stored.',
-                  style: TextStyle(color: Colors.black54),
-                ),
-              ],
-            ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
@@ -277,21 +455,21 @@ class _AiScreenState extends State<AiScreen> {
                 Expanded(
                   child: TextField(
                     controller: _input,
-                    maxLength: 500,
+                    maxLength: questionLimit,
                     minLines: 1,
                     maxLines: 4,
                     decoration: fieldStyle('Ask about cooking'),
                     textInputAction: TextInputAction.send,
-                    onSubmitted: (_) => _preview(),
+                    onSubmitted: (_) => _send(),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 24),
                   child: IconButton.filled(
-                    tooltip: 'Preview message',
+                    tooltip: 'Send message',
                     style: IconButton.styleFrom(backgroundColor: kprimaryColor),
-                    onPressed: _preview,
+                    onPressed: _busy ? null : _send,
                     icon: const Icon(Icons.send),
                   ),
                 ),

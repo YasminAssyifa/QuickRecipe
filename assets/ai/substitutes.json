@@ -1,0 +1,219 @@
+{
+  "items": [
+    {
+      "label": "Santan",
+      "names": ["santan", "coconut milk"],
+      "options": [
+        "Susu evaporasi atau susu full cream, rasanya lebih ringan",
+        "Susu kedelai atau susu oat ditambah 1 sdm minyak kelapa per 200 ml",
+        "Kelapa parut yang diperas dengan air hangat"
+      ],
+      "note": "Untuk masakan berkuah, masukkan sedikit demi sedikit sambil dicicipi."
+    },
+    {
+      "label": "Susu",
+      "names": ["susu", "susu cair", "susu sapi", "milk"],
+      "options": [
+        "Susu kedelai, oat, atau almond dengan takaran sama",
+        "Susu bubuk: 2-3 sdm dilarutkan dalam 200 ml air",
+        "Susu evaporasi dicampur air 1:1"
+      ],
+      "note": "Susu nabati membuat rasa sedikit berbeda, terutama pada kue."
+    },
+    {
+      "label": "Telur",
+      "names": ["telur", "egg", "eggs"],
+      "options": [
+        "Untuk kue: 1 sdm biji rami (flaxseed) giling + 3 sdm air, diamkan 5 menit",
+        "Untuk kue: sekitar 60 g pisang lumat per butir telur",
+        "Untuk pelapis gorengan: 3 sdm tepung + 3 sdm air"
+      ],
+      "note": "Hasil kue bisa sedikit lebih padat."
+    },
+    {
+      "label": "Mentega",
+      "names": ["mentega", "butter"],
+      "options": [
+        "Margarin dengan takaran sama",
+        "Minyak sayur, sekitar 3/4 dari takaran mentega",
+        "Untuk kue: yoghurt plain atau pisang lumat untuk sebagian takaran"
+      ],
+      "note": ""
+    },
+    {
+      "label": "Margarin",
+      "names": ["margarin", "margarine"],
+      "options": ["Mentega dengan takaran sama", "Minyak sayur, sekitar 3/4 dari takaran margarin"],
+      "note": ""
+    },
+    {
+      "label": "Tepung terigu",
+      "names": ["tepung terigu", "terigu", "tepung", "flour"],
+      "options": [
+        "Untuk mengentalkan kuah: maizena atau tepung beras, setengah takaran",
+        "Untuk pelapis gorengan: tepung beras atau tepung bumbu",
+        "Untuk kue bebas gluten: tepung bebas gluten siap pakai dengan takaran sama"
+      ],
+      "note": ""
+    },
+    {
+      "label": "Maizena",
+      "names": ["maizena", "tepung maizena", "cornstarch", "corn starch"],
+      "options": ["Tepung tapioka dengan takaran sama", "Tepung terigu, dua kali takaran"],
+      "note": "Larutkan dulu dengan sedikit air dingin sebelum dimasukkan."
+    },
+    {
+      "label": "Baking powder",
+      "names": ["baking powder"],
+      "options": ["1/4 sdt baking soda + 1/2 sdt air jeruk nipis atau cuka untuk setiap 1 sdt baking powder"],
+      "note": "Segera panggang setelah adonan tercampur."
+    },
+    {
+      "label": "Gula pasir",
+      "names": ["gula pasir", "gula", "sugar"],
+      "options": [
+        "Gula merah atau gula aren, rasanya lebih karamel",
+        "Madu, sekitar 3/4 takaran, dan kurangi cairan sedikit",
+        "Untuk masakan gurih: sedikit kecap manis"
+      ],
+      "note": ""
+    },
+    {
+      "label": "Gula merah",
+      "names": ["gula merah", "gula aren", "gula jawa", "palm sugar", "brown sugar"],
+      "options": ["Gula pasir ditambah sedikit kecap manis", "Gula palem"],
+      "note": ""
+    },
+    {
+      "label": "Madu",
+      "names": ["madu", "honey"],
+      "options": ["Gula pasir atau gula merah yang dilarutkan dengan sedikit air"],
+      "note": ""
+    },
+    {
+      "label": "Kecap manis",
+      "names": ["kecap manis", "sweet soy sauce"],
+      "options": [
+        "Kecap asin + gula merah (1:1), dipanaskan sampai gulanya larut",
+        "Kecap asin + madu"
+      ],
+      "note": ""
+    },
+    {
+      "label": "Kecap asin",
+      "names": ["kecap asin", "soy sauce"],
+      "options": [
+        "Garam ditambah sedikit kaldu",
+        "Kecap ikan, pakai lebih sedikit karena lebih asin",
+        "Saus tiram, lebih kental dan manis"
+      ],
+      "note": "Kecap ikan dan saus tiram mengandung hasil laut."
+    },
+    {
+      "label": "Bawang putih",
+      "names": ["bawang putih", "garlic"],
+      "options": [
+        "Bawang putih bubuk: sekitar 1/8 sdt per siung",
+        "Bawang merah atau bawang bombay untuk aroma, rasanya berbeda"
+      ],
+      "note": ""
+    },
+    {
+      "label": "Bawang merah",
+      "names": ["bawang merah", "shallot", "shallots"],
+      "options": ["Bawang bombay, rasanya lebih manis", "Bawang goreng yang ditabur di akhir"],
+      "note": ""
+    },
+    {
+      "label": "Bawang bombay",
+      "names": ["bawang bombay", "bombay", "onion", "onions"],
+      "options": ["Bawang merah, sekitar 3 siung per 1/2 bawang bombay", "Daun bawang"],
+      "note": ""
+    },
+    {
+      "label": "Cabai",
+      "names": ["cabai", "cabai merah", "cabai rawit", "chili", "chilli"],
+      "options": ["Cabai bubuk atau cabai kering", "Saus sambal", "Merica untuk pedas yang lebih lembut"],
+      "note": ""
+    },
+    {
+      "label": "Tomat",
+      "names": ["tomat", "tomato", "tomatoes"],
+      "options": [
+        "Saus tomat atau pasta tomat, encerkan dengan sedikit air",
+        "Air jeruk nipis atau belimbing wuluh untuk rasa asam"
+      ],
+      "note": ""
+    },
+    {
+      "label": "Ayam",
+      "names": ["ayam", "daging ayam", "chicken"],
+      "options": ["Tahu atau tempe untuk versi vegetarian", "Jamur tiram", "Telur rebus untuk tumisan atau sup"],
+      "note": "Sesuaikan waktu masak, tahu dan jamur lebih cepat matang."
+    },
+    {
+      "label": "Tahu",
+      "names": ["tahu", "tofu"],
+      "options": ["Tempe", "Telur", "Jamur"],
+      "note": ""
+    },
+    {
+      "label": "Tempe",
+      "names": ["tempe", "tempeh"],
+      "options": ["Tahu", "Jamur"],
+      "note": ""
+    },
+    {
+      "label": "Krim kental",
+      "names": ["krim", "krim kental", "whipping cream", "cooking cream", "cream"],
+      "options": [
+        "Susu evaporasi",
+        "Susu full cream + 1 sdm mentega cair per 100 ml",
+        "Untuk saus: yoghurt plain, jangan sampai mendidih"
+      ],
+      "note": ""
+    },
+    {
+      "label": "Keju",
+      "names": ["keju", "cheese"],
+      "options": ["Jenis keju lain yang mudah meleleh", "Untuk versi vegan: ragi nutrisi (nutritional yeast)"],
+      "note": ""
+    },
+    {
+      "label": "Yoghurt",
+      "names": ["yoghurt", "yogurt"],
+      "options": ["Susu + 1 sdm air jeruk nipis per 200 ml, diamkan 10 menit", "Krim asam (sour cream)"],
+      "note": ""
+    },
+    {
+      "label": "Cuka",
+      "names": ["cuka", "vinegar"],
+      "options": ["Air jeruk nipis atau lemon dengan takaran sama"],
+      "note": ""
+    },
+    {
+      "label": "Jeruk nipis",
+      "names": ["jeruk nipis", "air jeruk nipis", "lime", "lemon"],
+      "options": ["Air lemon", "Cuka, sedikit saja", "Belimbing wuluh"],
+      "note": ""
+    },
+    {
+      "label": "Kaldu",
+      "names": ["kaldu", "kaldu bubuk", "kaldu blok", "stock", "broth"],
+      "options": ["Air rebusan ayam atau sayur", "Garam + sedikit gula + bawang putih"],
+      "note": ""
+    },
+    {
+      "label": "Minyak goreng",
+      "names": ["minyak", "minyak goreng", "cooking oil", "oil"],
+      "options": ["Mentega atau margarin untuk menumis", "Minyak kelapa"],
+      "note": ""
+    },
+    {
+      "label": "Nasi",
+      "names": ["nasi", "nasi putih", "rice", "cooked rice"],
+      "options": ["Nasi merah, seratnya lebih banyak", "Kentang rebus", "Kembang kol cincang yang ditumis, kalorinya lebih rendah"],
+      "note": ""
+    }
+  ]
+}
