@@ -14,6 +14,7 @@ class _AdminAddRecipeScreenState
     extends State<AdminAddRecipeScreen> {
   final _formKey = GlobalKey<FormState>();
 
+  // Text controllers
   final _nameController = TextEditingController();
   final _imageController = TextEditingController();
   final _calController = TextEditingController();
@@ -22,6 +23,7 @@ class _AdminAddRecipeScreenState
   final _ingredientsAmountController = TextEditingController();
   final _stepController = TextEditingController();
 
+  // Selected category
   String? selectedCategory;
 
   final List<String> categories = [
@@ -32,6 +34,16 @@ class _AdminAddRecipeScreenState
     'Dessert',
     'Drinks',
   ];
+
+  // Available recipe tags
+  final List<String> availableTags = [
+    'Vegetarian',
+    'Pedas',
+    'Hemat',
+  ];
+
+  // Store selected tags
+  final Set<String> selectedTags = {};
 
   @override
   void dispose() {
@@ -45,6 +57,7 @@ class _AdminAddRecipeScreenState
     super.dispose();
   }
 
+  // Input decoration
   InputDecoration _inputDecoration(String label) {
     return InputDecoration(
       labelText: label,
@@ -74,12 +87,14 @@ class _AdminAddRecipeScreenState
     );
   }
 
+  // Reusable text field
   Widget _buildTextField({
     required String label,
     required TextEditingController controller,
     String? hint,
     int maxLines = 1,
     TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
@@ -88,15 +103,148 @@ class _AdminAddRecipeScreenState
       decoration: _inputDecoration(label).copyWith(
         hintText: hint,
       ),
-      validator: (value) {
-        if (value == null || value.trim().isEmpty) {
-          return '$label is required';
-        }
-        return null;
-      },
+      validator: validator ??
+              (value) {
+            if (value == null || value.trim().isEmpty) {
+              return '$label is required';
+            }
+            return null;
+          },
     );
   }
 
+  // Validate calories
+  String? _validateCalories(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Calories is required';
+    }
+
+    final calories = int.tryParse(value.trim());
+
+    if (calories == null) {
+      return 'Calories must be a number';
+    }
+
+    if (calories <= 0) {
+      return 'Calories must be greater than 0';
+    }
+
+    return null;
+  }
+
+  // Validate image URL
+  String? _validateImage(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Image URL is required';
+    }
+
+    final uri = Uri.tryParse(value.trim());
+
+    if (uri == null ||
+        !uri.hasScheme ||
+        !(uri.scheme == 'http' || uri.scheme == 'https') ||
+        uri.host.isEmpty) {
+      return 'Please enter a valid image URL';
+    }
+
+    return null;
+  }
+
+  // Convert multiline input into a list
+  List<String> _getLines(String value) {
+    return value
+        .split('\n')
+        .map((item) => item.trim())
+        .where((item) => item.isNotEmpty)
+        .toList();
+  }
+
+  // Validate ingredients and amounts
+  bool _validateIngredients() {
+    final ingredients = _getLines(
+      _ingredientsNameController.text,
+    );
+
+    final amounts = _getLines(
+      _ingredientsAmountController.text,
+    );
+
+    if (ingredients.length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'A recipe must have at least 2 ingredients.',
+          ),
+        ),
+      );
+      return false;
+    }
+
+    if (ingredients.length != amounts.length) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'The number of ingredients and amounts must match.',
+          ),
+        ),
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+  // Recipe tags section
+  Widget _buildTagsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Recipe Tags',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'Select tags that describe this recipe.',
+          style: TextStyle(
+            color: Colors.grey,
+            fontSize: 13,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 10,
+          runSpacing: 8,
+          children: availableTags.map((tag) {
+            final isSelected = selectedTags.contains(tag);
+
+            return FilterChip(
+              label: Text(tag),
+              selected: isSelected,
+              selectedColor: kprimaryColor.withValues(
+                alpha: 0.2,
+              ),
+              checkmarkColor: kprimaryColor,
+              onSelected: (selected) {
+                setState(() {
+                  if (selected) {
+                    selectedTags.add(tag);
+                  } else {
+                    selectedTags.remove(tag);
+                  }
+                });
+              },
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  // Save recipe form
   void _saveRecipe() {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -111,12 +259,18 @@ class _AdminAddRecipeScreenState
       return;
     }
 
+    if (!_validateIngredients()) {
+      return;
+    }
+
     // Placeholder only.
     // Firestore integration will be added later.
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
         content: Text(
-          'Form completed! Database integration will be added later.',
+          'Recipe form completed! '
+              'Selected tags: ${selectedTags.isEmpty ? "None" : selectedTags.join(", ")}. '
+              'Database integration will be added later.',
         ),
       ),
     );
@@ -139,7 +293,6 @@ class _AdminAddRecipeScreenState
           ),
         ),
       ),
-
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -156,6 +309,7 @@ class _AdminAddRecipeScreenState
               ),
               const SizedBox(height: 16),
 
+              // Recipe name
               _buildTextField(
                 label: 'Recipe Name',
                 controller: _nameController,
@@ -163,6 +317,7 @@ class _AdminAddRecipeScreenState
               ),
               const SizedBox(height: 16),
 
+              // Category dropdown
               DropdownButtonFormField<String>(
                 value: selectedCategory,
                 decoration: _inputDecoration('Category'),
@@ -187,13 +342,16 @@ class _AdminAddRecipeScreenState
               ),
               const SizedBox(height: 16),
 
+              // Image URL
               _buildTextField(
                 label: 'Image',
                 controller: _imageController,
                 hint: 'Enter image URL',
+                validator: _validateImage,
               ),
               const SizedBox(height: 16),
 
+              // Calories and cooking time
               Row(
                 children: [
                   Expanded(
@@ -202,6 +360,7 @@ class _AdminAddRecipeScreenState
                       controller: _calController,
                       hint: 'e.g. 250',
                       keyboardType: TextInputType.number,
+                      validator: _validateCalories,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -214,9 +373,9 @@ class _AdminAddRecipeScreenState
                   ),
                 ],
               ),
-
               const SizedBox(height: 28),
 
+              // Ingredients section
               const Text(
                 'Ingredients',
                 style: TextStyle(
@@ -240,9 +399,9 @@ class _AdminAddRecipeScreenState
                 hint: 'Enter amounts, one per line',
                 maxLines: 4,
               ),
-
               const SizedBox(height: 28),
 
+              // Cooking instructions
               const Text(
                 'Cooking Instructions',
                 style: TextStyle(
@@ -258,9 +417,13 @@ class _AdminAddRecipeScreenState
                 hint: 'Write cooking instructions, one step per line',
                 maxLines: 5,
               ),
-
               const SizedBox(height: 28),
 
+              // Recipe tags
+              _buildTagsSection(),
+              const SizedBox(height: 28),
+
+              // Save button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -285,7 +448,6 @@ class _AdminAddRecipeScreenState
                   ),
                 ),
               ),
-
               const SizedBox(height: 20),
             ],
           ),
