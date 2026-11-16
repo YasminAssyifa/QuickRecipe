@@ -4,6 +4,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:quick_recipe/Utils/constants.dart';
 import 'package:quick_recipe/Widgets/my_icon_button.dart';
 import 'package:quick_recipe/views/profile_screen.dart';
+import 'admin_recipe_list_screen.dart';
 
 class AdminMainScreen extends StatelessWidget {
   const AdminMainScreen({super.key});
@@ -83,7 +84,7 @@ class AdminMainScreen extends StatelessWidget {
               const SizedBox(height: 25),
 
               // Welcome banner
-              _buildWelcomeBanner(),
+              _buildWelcomeBanner(context),
 
               const SizedBox(height: 28),
 
@@ -139,7 +140,7 @@ class AdminMainScreen extends StatelessWidget {
   }
 
   // Welcome banner
-  Widget _buildWelcomeBanner() {
+  Widget _buildWelcomeBanner(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(22),
@@ -171,7 +172,12 @@ class AdminMainScreen extends StatelessWidget {
           const SizedBox(height: 18),
           ElevatedButton.icon(
             onPressed: () {
-              // Add Recipe navigation will be connected later.
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const AdminRecipeListScreen(),
+                ),
+              );
             },
             icon: const Icon(Iconsax.add, size: 18),
             label: const Text('Add recipe'),
