@@ -92,6 +92,20 @@ void main() {
     expect(match.missing, ['Cooked rice']);
     expect(match.ratio, .5);
   });
+  test('Pantry staples are neither available nor missing', () {
+    final match = IngredientMatch([
+      'Telur',
+      'Air',
+      'Garam',
+      'Minyak',
+      'Salt',
+      'Cooking oil',
+      'Tomat',
+    ], [egg()]);
+    expect(match.present, ['Telur']);
+    expect(match.missing, ['Tomat']);
+    expect(match.ratio, .5);
+  });
   test('Empty stock does not contribute to a match', () {
     final match = IngredientMatch(['Egg'], [egg(amount: 0)]);
     expect(match.present, isEmpty);
