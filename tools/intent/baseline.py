@@ -6,6 +6,10 @@ Rules are checked in order and the first match wins.
 from features import normalize
 
 RULES = [
+    ('daftar_belanja', ['daftar belanja', 'list belanja', 'belanja apa', 'beli apa', 'dibeli', 'belanjaan',
+                        'shopping list', 'grocery list', 'need to buy', 'to buy']),
+    ('rencana_menu', ['rencana', 'jadwal', 'seminggu', 'meal plan', 'meal prep', 'menu 0 hari', 'menu hari ini',
+                      'plan my meals', 'weekly']),
     ('substitusi_bahan', ['ganti', 'pengganti', 'gantinya', 'diganti', 'substitusi', 'alternatif',
                           'alternatifnya', 'tukar', 'tukeran', 'replace', 'substitute', 'instead',
                           'swap', 'alternative', 'replacement']),

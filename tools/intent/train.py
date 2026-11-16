@@ -35,7 +35,8 @@ MODEL_OUT = ROOT / 'assets' / 'ai' / 'intent_model.json'
 PARITY_OUT = ROOT / 'test' / 'fixtures' / 'intent_parity.json'
 REPORT_OUT = HERE / 'report.md'
 
-INTENTS = ['cari_resep', 'pakai_kulkas', 'info_resep', 'substitusi_bahan', 'bantuan', 'di_luar_topik']
+INTENTS = ['cari_resep', 'pakai_kulkas', 'info_resep', 'substitusi_bahan', 'daftar_belanja', 'rencana_menu',
+           'bantuan', 'di_luar_topik']
 REJECTED = 'di_luar_topik'
 C_GRID = [1, 3, 10, 30, 100]
 TOLERANCE = 0.01
@@ -52,6 +53,8 @@ PARITY_TEXTS = [
     'GAK ADA TELOR, gantinya apa???', 'kucing', '', '!!!', 'résumé café 123',
     'Suggest a vegetarian meal.', 'Suggest a meal that is not spicy.', 'Suggest a budget-friendly meal.',
     'Suggest a meal I can pack for lunch.', 'Suggest a kid-friendly meal.', 'resep tanpa telur',
+    'Plan meals for 3 days from my fridge', 'What do I need to buy for Tempe Orek?', 'yang lain dong',
+    'yang hari 3 butuh beli apa aja?',
 ]
 
 
@@ -151,7 +154,7 @@ def table(labels, predicted):
 
 def matrix(labels, predicted):
     values = confusion_matrix(labels, predicted, labels=INTENTS)
-    short = ['cari', 'kulkas', 'info', 'subst', 'bantuan', 'luar']
+    short = ['cari', 'kulkas', 'info', 'subst', 'belanja', 'menu', 'bantuan', 'luar']
     lines = ['| Asli \\ Tebakan | ' + ' | '.join(short) + ' |', '|---' * (len(short) + 1) + '|']
     for i, intent in enumerate(INTENTS):
         lines.append(f'| `{intent}` | ' + ' | '.join(str(v) for v in values[i]) + ' |')
