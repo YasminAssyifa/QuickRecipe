@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:quick_recipe/services/recipe_admin_repository.dart';
 import 'package:quick_recipe/views/admin_add_recipe_screen.dart';
+import 'package:quick_recipe/views/admin_recipe_list_screen.dart';
 
 import 'support/fake_kitchen.dart';
 import 'support/fake_recipe_admin.dart';
@@ -56,6 +57,7 @@ Future<void> fillValidRecipe(WidgetTester tester) async {
 }
 
 void main() {
+  listTests();
   testWidgets('Add recipe saves numbers, tags and allergens', (tester) async {
     final repo = FakeRecipeAdmin();
     await open(tester, repo, const AdminAddRecipeScreen());
@@ -163,5 +165,65 @@ void main() {
     await tester.tap(find.text('Try again'));
     await tester.pumpAndSettle();
     expect(find.text('Recipe Information'), findsOneWidget);
+  });
+}
+
+TestRecipe sampleRecipe(String id, String name) => TestRecipe(id, {
+  'name': name,
+  'category': 'Dinner',
+  'image': 'https://example.com/$id.jpg',
+  'cal': 300,
+  'time': 20,
+  'ingredientsName': ['Tempe', 'Kecap manis'],
+  'ingredientsAmount': [120, 15],
+  'step': ['Tumis.'],
+});
+
+void listTests() {
+  testWidgets('Recipe list shows Firestore recipes and edits on tap', (
+    tester,
+  ) async {
+    final repo = FakeRecipeAdmin()
+      ..catalog = [
+        sampleRecipe('a', 'Tahu Kecap'),
+        sampleRecipe('b', 'Tempe Orek'),
+      ];
+    await open(tester, repo, const AdminRecipeListScreen());
+    expect(find.text('Tahu Kecap'), findsOneWidget);
+    expect(find.text('Dinner • 20 min'), findsNWidgets(2));
+    await tester.tap(find.text('Tempe Orek'));
+    await tester.pumpAndSettle();
+    expect(find.text('Edit Recipe'), findsOneWidget);
+    await tester.enterText(field('Recipe Name'), 'Tempe Orek Pedas');
+    await tester.tap(find.text('Save Recipe'));
+    await tester.pumpAndSettle();
+    expect(repo.updated['b']!.name, 'Tempe Orek Pedas');
+    expect(find.text('Recipe List'), findsOneWidget);
+  });
+
+  testWidgets('Recipe list deletes only after confirmation', (tester) async {
+    final repo = FakeRecipeAdmin()..catalog = [sampleRecipe('a', 'Tahu Kecap')];
+    await open(tester, repo, const AdminRecipeListScreen());
+    await tester.tap(find.byTooltip('Delete recipe'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(repo.deleted, isEmpty);
+    await tester.tap(find.byTooltip('Delete recipe'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete'));
+    await tester.pumpAndSettle();
+    expect(repo.deleted, ['a']);
+    expect(find.text('Recipe deleted.'), findsOneWidget);
+    expect(find.text('No recipes yet'), findsOneWidget);
+  });
+
+  testWidgets('Empty recipe list opens the add form', (tester) async {
+    final repo = FakeRecipeAdmin();
+    await open(tester, repo, const AdminRecipeListScreen());
+    expect(find.text('No recipes yet'), findsOneWidget);
+    await tester.tap(find.text('Add recipe'));
+    await tester.pumpAndSettle();
+    expect(find.text('Add Recipe'), findsOneWidget);
   });
 }
