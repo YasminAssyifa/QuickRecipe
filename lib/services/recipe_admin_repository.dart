@@ -76,6 +76,7 @@ abstract class RecipeAdminRepository {
   Future<void> create(RecipeDraft draft);
   Future<void> update(String id, RecipeDraft draft);
   Future<void> delete(String id);
+  Future<DashboardData> dashboard();
 }
 
 class FirebaseRecipeAdminRepository implements RecipeAdminRepository {
@@ -138,4 +139,177 @@ class FirebaseRecipeAdminRepository implements RecipeAdminRepository {
 
   @override
   Future<void> delete(String id) => _recipes.doc(id).delete();
+
+  @override
+  Future<DashboardData> dashboard() async {
+    const server = GetOptions(source: Source.server);
+    final results = await Future.wait([
+      _recipes.get(server),
+      categories(),
+      _db.collection('users').count().get(),
+      _db.collectionGroup('favorites').get(server),
+    ]);
+    final recipes = results[0] as QuerySnapshot<Map<String, dynamic>>;
+    final favorites = results[3] as QuerySnapshot<Map<String, dynamic>>;
+    return DashboardData.from(
+      recipes: [for (final doc in recipes.docs) doc.data()],
+      recipeIds: [for (final doc in recipes.docs) doc.id],
+      categories: results[1] as List<String>,
+      users: (results[2] as AggregateQuerySnapshot).count ?? 0,
+      favoriteIds: [for (final doc in favorites.docs) doc.id],
+      now: DateTime.now(),
+    );
+  }
+}
+
+enum InsightKind { category, mostSaved, unsaved, incomplete }
+
+class DashboardInsight {
+  const DashboardInsight(this.kind, this.title, this.description);
+  final InsightKind kind;
+  final String title, description;
+}
+
+/// Numbers and insights shown on the admin dashboard.
+class DashboardData {
+  const DashboardData({
+    required this.recipes,
+    required this.categories,
+    required this.users,
+    required this.newThisWeek,
+    required this.insights,
+  });
+
+  /// Builds the dashboard from the catalog. [favoriteIds] holds one recipe id
+  /// per saved favorite across all users.
+  factory DashboardData.from({
+    required List<Map<String, dynamic>> recipes,
+    required List<String> recipeIds,
+    required List<String> categories,
+    required int users,
+    required List<String> favoriteIds,
+    required DateTime now,
+  }) {
+    final weekAgo = now.subtract(const Duration(days: 7));
+    final newThisWeek = recipes.where((recipe) {
+      final created = recipe['createdAt'];
+      return created is Timestamp && created.toDate().isAfter(weekAgo);
+    }).length;
+
+    final perCategory = {for (final name in categories) name: 0};
+    for (final recipe in recipes) {
+      final category = '${recipe['category'] ?? ''}';
+      if (perCategory.containsKey(category)) {
+        perCategory[category] = perCategory[category]! + 1;
+      }
+    }
+    final names = {
+      for (var i = 0; i < recipes.length; i++)
+        recipeIds[i]: '${recipes[i]['name'] ?? 'Untitled recipe'}',
+    };
+    final saves = <String, int>{};
+    for (final id in favoriteIds) {
+      if (names.containsKey(id)) saves[id] = (saves[id] ?? 0) + 1;
+    }
+    final unsaved = names.keys.where((id) => !saves.containsKey(id)).length;
+    final incomplete = recipes
+        .where((recipe) => !_complete(recipe, categories))
+        .length;
+
+    return DashboardData(
+      recipes: recipes.length,
+      categories: categories.length,
+      users: users,
+      newThisWeek: newThisWeek,
+      insights: [
+        _categoryInsight(perCategory),
+        _savedInsight(saves, names),
+        DashboardInsight(
+          InsightKind.unsaved,
+          unsaved == 0
+              ? 'Every recipe has been saved'
+              : '${_count(unsaved, 'recipe has', 'recipes have')} no favorites yet',
+          unsaved == 0
+              ? 'Each recipe is in at least one favorite list.'
+              : 'Consider reviewing their names and photos.',
+        ),
+        DashboardInsight(
+          InsightKind.incomplete,
+          incomplete == 0
+              ? 'All recipes are complete'
+              : '${_count(incomplete, 'recipe is', 'recipes are')} incomplete',
+          incomplete == 0
+              ? 'Every recipe has an image, steps and ingredient amounts.'
+              : 'Some recipes are missing images, steps, amounts or a valid category.',
+        ),
+      ],
+    );
+  }
+
+  final int recipes, categories, users, newThisWeek;
+  final List<DashboardInsight> insights;
+
+  static String _count(int value, String one, String many) =>
+      '$value ${value == 1 ? one : many}';
+
+  static bool _complete(Map<String, dynamic> recipe, List<String> categories) {
+    final ingredients = recipe['ingredientsName'];
+    final amounts = recipe['ingredientsAmount'];
+    final steps = recipe['step'];
+    final calories = int.tryParse(
+      RegExp(r'\d+').stringMatch('${recipe['cal'] ?? ''}') ?? '',
+    );
+    return '${recipe['image'] ?? ''}'.startsWith('http') &&
+        categories.contains(recipe['category']) &&
+        recipe['time'] is num &&
+        (recipe['time'] as num) > 0 &&
+        calories != null &&
+        calories > 0 &&
+        ingredients is List &&
+        ingredients.length >= 2 &&
+        amounts is List &&
+        amounts.length == ingredients.length &&
+        amounts.every((amount) => amount is num && amount > 0) &&
+        steps is List &&
+        steps.isNotEmpty;
+  }
+
+  static DashboardInsight _categoryInsight(Map<String, int> perCategory) {
+    if (perCategory.isEmpty) {
+      return const DashboardInsight(
+        InsightKind.category,
+        'No categories yet',
+        'Add categories so users can filter recipes.',
+      );
+    }
+    final smallest = perCategory.entries.reduce(
+      (a, b) => b.value < a.value ? b : a,
+    );
+    return DashboardInsight(
+      InsightKind.category,
+      smallest.value == 0
+          ? '${smallest.key} has no recipes yet'
+          : '${smallest.key} has only ${_count(smallest.value, 'recipe', 'recipes')}',
+      'Add more ${smallest.key} recipes to balance the catalog.',
+    );
+  }
+
+  static DashboardInsight _savedInsight(
+    Map<String, int> saves,
+    Map<String, String> names,
+  ) {
+    if (saves.isEmpty) {
+      return const DashboardInsight(
+        InsightKind.mostSaved,
+        'No saved recipes yet',
+        'Users have not added any recipe to their favorites.',
+      );
+    }
+    final top = saves.entries.reduce((a, b) => b.value > a.value ? b : a);
+    return DashboardInsight(
+      InsightKind.mostSaved,
+      'Most saved: ${names[top.key]}',
+      'This recipe has been saved by ${_count(top.value, 'user', 'users')}.',
+    );
+  }
 }

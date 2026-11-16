@@ -165,5 +165,10 @@ service cloud.firestore {
           && exists(/databases/$(database)/documents/Complete-Flutter-App/$(recipeId));
       }
     }
+    // Admins count favorites across all users for the dashboard insights.
+    // A favorite only holds a recipe id and the date it was saved.
+    match /{path=**}/favorites/{recipeId} {
+      allow read: if isAdmin();
+    }
   }
 }
