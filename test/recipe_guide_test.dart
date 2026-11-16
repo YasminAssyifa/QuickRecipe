@@ -23,6 +23,41 @@ List<DocumentSnapshot<Map<String, dynamic>>> seedCatalog() => [
       TestRecipe(recipe['id'] as String, Map<String, dynamic>.from(recipe)),
 ];
 
+/// The seed catalog with tags and allergens on a few recipes, the way the
+/// admin form stores them.
+List<DocumentSnapshot<Map<String, dynamic>>> taggedCatalog() {
+  const marks = {
+    'recipe-tempe-orek': (['vegetarian', 'hemat', 'bekal'], <String>[]),
+    'recipe-telur-balado': (
+      ['vegetarian', 'pedas', 'hemat', 'bekal'],
+      ['telur'],
+    ),
+    'recipe-tahu-kecap': (
+      ['vegetarian', 'hemat', 'bekal', 'ramah-anak'],
+      <String>[],
+    ),
+    'recipe-sayur-bening-bayam': (
+      ['vegetarian', 'hemat', 'ramah-anak'],
+      <String>[],
+    ),
+    'recipe-soy-sauce-chicken': (['bekal', 'ramah-anak'], <String>[]),
+    'recipe-banana-pancakes': (
+      ['vegetarian', 'ramah-anak'],
+      ['telur', 'susu', 'gluten'],
+    ),
+  };
+  return [
+    for (final doc in seedCatalog())
+      TestRecipe(doc.id, {
+        ...doc.data()!,
+        if (marks[doc.id] case final mark?) ...{
+          'tags': mark.$1,
+          'allergens': mark.$2,
+        },
+      }),
+  ];
+}
+
 FridgeItem item(String name, {double amount = 1}) => FridgeItem(
   id: name,
   name: name,
@@ -221,6 +256,101 @@ void main() {
   test('Answers stay within the saved answer limit', () async {
     final reply = await ask('langkah langkah bikin bread and butter pudding');
     expect(reply.text.length, lessThanOrEqualTo(answerLimit));
+  });
+
+  test('Answers name ingredients in Indonesian', () async {
+    final reply = await ask('What can I cook with eggs?');
+    expect(reply.text, startsWith('Ini resep untuk bahan telur'));
+  });
+
+  group('Tags and allergens', () {
+    final tagged = taggedCatalog();
+    Future<AiReply> askTagged(
+      String question, {
+      MealPreference preference = MealPreference.none,
+    }) => guide.answer(
+      question,
+      recipes: tagged,
+      fridge: () async => fridge,
+      preference: preference,
+    );
+    Set<String> tagsOf(RecipeSuggestion s) =>
+        Set<String>.from(data(s)['tags'] ?? const []);
+
+    test('Tag preferences keep only matching recipes', () async {
+      for (final (preference, tag) in [
+        (MealPreference.vegetarian, 'vegetarian'),
+        (MealPreference.budget, 'hemat'),
+        (MealPreference.lunchbox, 'bekal'),
+        (MealPreference.kidFriendly, 'ramah-anak'),
+      ]) {
+        final reply = await askTagged('resep dong', preference: preference);
+        expect(reply.recipes, isNotEmpty, reason: '$preference');
+        expect(reply.recipes.every((s) => tagsOf(s).contains(tag)), isTrue);
+      }
+    });
+
+    test('Words in the question become tag filters', () async {
+      final notSpicy = await askTagged('menu vegetarian yang tidak pedas');
+      expect(notSpicy.recipes, isNotEmpty);
+      for (final s in notSpicy.recipes) {
+        expect(tagsOf(s), contains('vegetarian'));
+        expect(tagsOf(s), isNot(contains('pedas')));
+      }
+      expect(notSpicy.text, contains('tidak pedas'));
+
+      final student = await askTagged('menu hemat buat anak kos');
+      expect(student.text, contains('hemat'));
+      expect(student.text, isNot(contains('ramah anak')));
+
+      final lunchbox = await askTagged('ide bekal');
+      expect(lunchbox.text, isNot(contains('makan siang')));
+      expect(
+        lunchbox.recipes.every((s) => tagsOf(s).contains('bekal')),
+        isTrue,
+      );
+    });
+
+    test('Excluded allergens drop unsafe and unmarked recipes', () async {
+      final reply = await askTagged('resep tanpa telur');
+      expect(reply.recipes, isNotEmpty);
+      for (final s in reply.recipes) {
+        expect(data(s)['allergens'], isNot(contains('telur')));
+        expect(
+          List<String>.from(data(s)['ingredientsName'])
+              .map((n) => n.toLowerCase()),
+          isNot(anyOf(contains('telur'), contains('egg'))),
+        );
+      }
+      expect(reply.text, contains('tanpa telur'));
+      expect(reply.text, contains('belum punya data alergen'));
+    });
+
+    test('Untagged catalogs explain that nothing matches', () async {
+      final reply = await ask('resep vegetarian');
+      expect(reply.recipes, isEmpty);
+      expect(reply.text, contains('vegetarian'));
+    });
+  });
+
+  test('Repeating a question shows other recipes', () async {
+    final repo = RecipeGuideRepository(
+      'user',
+      FakeKitchen()..catalog = catalog,
+      loader: () async => guide,
+    );
+    const question = [
+      ChatMessage(fromUser: true, text: 'masak apa pakai telur?'),
+    ];
+    final first = {
+      for (final s in (await repo.reply(question)).recipes) s.recipe.id,
+    };
+    final second = {
+      for (final s in (await repo.reply(question)).recipes) s.recipe.id,
+    };
+    expect(first, hasLength(maxSuggestions));
+    expect(second, hasLength(maxSuggestions));
+    expect(first.intersection(second), isEmpty);
   });
 
   test('Repository caches the model and reports load failures', () async {

@@ -50,6 +50,8 @@ PARITY_TEXTS = [
     'What can I cook with the ingredients in my fridge?',
     'Suggest a recipe with only a few ingredients.', 'Suggest a low-calorie meal under 400 calories.',
     'GAK ADA TELOR, gantinya apa???', 'kucing', '', '!!!', 'résumé café 123',
+    'Suggest a vegetarian meal.', 'Suggest a meal that is not spicy.', 'Suggest a budget-friendly meal.',
+    'Suggest a meal I can pack for lunch.', 'Suggest a kid-friendly meal.', 'resep tanpa telur',
 ]
 
 

@@ -148,12 +148,22 @@ class _AiScreenState extends State<AiScreen> {
     'Use my ingredients': 'What can I cook with the ingredients in my fridge?',
     'Few ingredients': 'Suggest a recipe with only a few ingredients.',
     'Low calorie': 'Suggest a low-calorie meal under 400 calories.',
+    'Vegetarian': 'Suggest a vegetarian meal.',
+    'Not spicy': 'Suggest a meal that is not spicy.',
+    'Budget-friendly': 'Suggest a budget-friendly meal.',
+    'Lunchbox': 'Suggest a meal I can pack for lunch.',
+    'Kid-friendly': 'Suggest a kid-friendly meal.',
   };
   static const _filters = {
     'Quick & easy': MealPreference.quick,
     'Use my ingredients': MealPreference.fridge,
     'Few ingredients': MealPreference.fewIngredients,
     'Low calorie': MealPreference.lowCalorie,
+    'Vegetarian': MealPreference.vegetarian,
+    'Not spicy': MealPreference.notSpicy,
+    'Budget-friendly': MealPreference.budget,
+    'Lunchbox': MealPreference.lunchbox,
+    'Kid-friendly': MealPreference.kidFriendly,
   };
 
   @override

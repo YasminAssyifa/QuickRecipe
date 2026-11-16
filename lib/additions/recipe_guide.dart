@@ -28,6 +28,7 @@ class RecipeGuideRepository extends FirestoreChatRepository {
   Future<RecipeGuide>? _guide;
   List<DocumentSnapshot<Map<String, dynamic>>>? _catalog;
   DateTime? _catalogTime;
+  Set<String> _lastShown = {};
 
   @override
   Future<AiReply> reply(
@@ -47,12 +48,17 @@ class RecipeGuideRepository extends FirestoreChatRepository {
         'QuickRecipe AI is not available right now. Try again later.',
       );
     }
-    return guide.answer(
+    final reply = await guide.answer(
       question.text,
       recipes: await _recipes(),
       fridge: _fridge,
       preference: preference,
+      recent: _lastShown,
     );
+    if (reply.recipes.isNotEmpty) {
+      _lastShown = {for (final card in reply.recipes) card.recipe.id};
+    }
+    return reply;
   }
 
   Future<List<DocumentSnapshot<Map<String, dynamic>>>> _recipes() async {
@@ -132,8 +138,13 @@ class RecipeGuide {
     required List<DocumentSnapshot<Map<String, dynamic>>> recipes,
     required Future<List<FridgeItem>> Function() fridge,
     MealPreference preference = MealPreference.none,
+    Set<String> recent = const {},
   }) async {
     final catalog = recipes.map(_Recipe.new).toList();
+    for (final recipe in catalog) {
+      recipe.order =
+          _random.nextDouble() + (recent.contains(recipe.doc.id) ? 1 : 0);
+    }
     final text = _Text(classifier.normalize(question, keepNumbers: true));
     final request = _Request.read(text, catalog, preference);
     final prediction = classifier.predict(question);
@@ -187,7 +198,7 @@ class RecipeGuide {
     }
     final fitting = catalog.where(request.fits).toList();
     if (!request.hasCriteria) {
-      fitting.shuffle(_random);
+      fitting.sort((a, b) => a.order.compareTo(b.order));
       return _list(
         'Ini beberapa ide masakan. Sebutkan bahan, waktu, atau jenis makanan '
         'supaya hasilnya lebih pas.',
@@ -220,15 +231,13 @@ class RecipeGuide {
         final byMatch = b
             .countOf(request.ingredients)
             .compareTo(a.countOf(request.ingredients));
-        if (byMatch != 0) return byMatch;
-        final byTime = (a.minutes ?? 999).compareTo(b.minutes ?? 999);
-        return byTime != 0 ? byTime : a.name.compareTo(b.name);
+        return byMatch != 0 ? byMatch : a.order.compareTo(b.order);
       });
 
   AiReply _list(String intro, List<_Recipe> recipes, _Request request) {
     final lines = [
       intro,
-      for (final recipe in recipes) '• ${recipe.summary}',
+      for (final recipe in recipes) '• ${recipe.summary(request)}',
       if (request.notes.isNotEmpty) '',
       ...request.notes,
     ];
@@ -266,7 +275,12 @@ class RecipeGuide {
           ..sort((a, b) {
             final byRatio = b.match.ratio.compareTo(a.match.ratio);
             if (byRatio != 0) return byRatio;
-            return a.match.missing.length.compareTo(b.match.missing.length);
+            final byMissing = a.match.missing.length.compareTo(
+              b.match.missing.length,
+            );
+            return byMissing != 0
+                ? byMissing
+                : a.recipe.order.compareTo(b.recipe.order);
           });
     final filters = request.describe();
     if (ranked.isEmpty) {
@@ -401,8 +415,9 @@ const _help =
     '• Cari resep dari isi kulkasmu. Contoh: "isi kulkasku bisa jadi apa?"\n'
     '• Info resep: kalori, waktu, bahan, dan langkah. Contoh: "tempe orek berapa kalori?"\n'
     '• Bahan pengganti. Contoh: "santan bisa diganti apa?"\n'
-    'Menu Meal preference di bawah bisa dipakai untuk filter resep cepat, '
-    'sedikit bahan, rendah kalori, atau dari isi kulkas.';
+    'Kamu juga bisa minta resep vegetarian, tidak pedas, hemat, untuk bekal, '
+    'ramah anak, atau tanpa bahan tertentu, misalnya "resep tanpa telur".\n'
+    'Menu Meal preference di bawah bisa dipakai sebagai filter yang terus aktif.';
 
 const _thanks = ['makasih', 'terima kasih', 'thanks', 'thank you', 'thx'];
 const _calorieWords = [
@@ -477,7 +492,6 @@ const _categoryWords = {
   'makan pagi': 'breakfast',
   'breakfast': 'breakfast',
   'makan siang': 'lunch',
-  'bekal': 'lunch',
   'lunch': 'lunch',
   'makan malam': 'dinner',
   'malam ini': 'dinner',
@@ -614,6 +628,119 @@ const _sameIngredient = {
 };
 const _ignoredIngredients = {'water'};
 
+/// Indonesian names used when an answer repeats an ingredient the user asked
+/// for, so "eggs" is answered as "telur".
+const _indonesianNames = {
+  'egg': 'telur',
+  'chicken': 'ayam',
+  'tofu': 'tahu',
+  'tempeh': 'tempe',
+  'cooked rice': 'nasi',
+  'rice': 'beras',
+  'noodles': 'mie',
+  'spinach': 'bayam',
+  'carrot': 'wortel',
+  'tomato': 'tomat',
+  'potato': 'kentang',
+  'corn': 'jagung',
+  'cabbage': 'kol',
+  'milk': 'susu',
+  'banana': 'pisang',
+  'flour': 'tepung',
+  'bread': 'roti',
+  'butter': 'mentega',
+  'sugar': 'gula',
+  'cooking oil': 'minyak',
+  'soy sauce': 'kecap asin',
+  'sweet soy sauce': 'kecap manis',
+  'garlic': 'bawang putih',
+  'shallot': 'bawang merah',
+  'onion': 'bawang bombay',
+  'chili': 'cabai',
+  'salt': 'garam',
+  'pepper': 'merica',
+  'cheese': 'keju',
+  'coconut milk': 'santan',
+};
+
+/// Words that ask for a recipe tag. Checked in order, and a matched phrase is
+/// removed so "anak kos" is not also read as "anak".
+const _tagWords = [
+  ('anak kos', 'hemat'),
+  ('akhir bulan', 'hemat'),
+  ('ramah anak', 'ramah-anak'),
+  ('kid friendly', 'ramah-anak'),
+  ('anak', 'ramah-anak'),
+  ('balita', 'ramah-anak'),
+  ('kids', 'ramah-anak'),
+  ('vegetarian', 'vegetarian'),
+  ('vegan', 'vegetarian'),
+  ('tanpa daging', 'vegetarian'),
+  ('meatless', 'vegetarian'),
+  ('hemat', 'hemat'),
+  ('murah', 'hemat'),
+  ('irit', 'hemat'),
+  ('budget', 'hemat'),
+  ('cheap', 'hemat'),
+  ('bekal', 'bekal'),
+  ('lunchbox', 'bekal'),
+  ('pack for lunch', 'bekal'),
+  ('pedas', 'pedas'),
+  ('pedes', 'pedas'),
+  ('spicy', 'pedas'),
+];
+const _notSpicyWords = [
+  'tidak pedas',
+  'tanpa pedas',
+  'not spicy',
+  'no spicy',
+  'non spicy',
+  'mild',
+];
+const _tagNames = {
+  'vegetarian': 'vegetarian',
+  'pedas': 'pedas',
+  'hemat': 'hemat',
+  'bekal': 'cocok untuk bekal',
+  'ramah-anak': 'ramah anak',
+};
+
+/// Words for each allergen, read after "tanpa", "alergi", "bebas", "no" or
+/// "without", or before "free".
+const _allergenWords = {
+  'telur': 'telur',
+  'egg': 'telur',
+  'eggs': 'telur',
+  'susu': 'susu',
+  'milk': 'susu',
+  'dairy': 'susu',
+  'keju': 'susu',
+  'kacang': 'kacang',
+  'kacang tanah': 'kacang',
+  'peanut': 'kacang',
+  'peanuts': 'kacang',
+  'nuts': 'kacang',
+  'seafood': 'seafood',
+  'udang': 'seafood',
+  'ikan': 'seafood',
+  'cumi': 'seafood',
+  'shrimp': 'seafood',
+  'prawn': 'seafood',
+  'fish': 'seafood',
+  'gluten': 'gluten',
+  'terigu': 'gluten',
+  'tepung terigu': 'gluten',
+  'wheat': 'gluten',
+};
+const _allergenIngredients = {
+  'telur': {'egg'},
+  'susu': {'milk', 'cheese', 'butter'},
+  'kacang': <String>{},
+  'seafood': <String>{},
+  'gluten': {'flour', 'bread', 'noodles'},
+};
+const _negations = ['tanpa', 'alergi', 'bebas', 'no', 'without', 'tidak pakai'];
+
 /// Phrases where an ingredient word means something else ("tidak tahu" is
 /// "don't know", not tofu).
 const _notIngredients = ['tidak tahu', 'belum tahu', 'mau tahu', 'ingin tahu'];
@@ -656,19 +783,30 @@ class _Recipe {
     steps = List<String>.from(data['step'] ?? const []);
     keys = ingredients.map(_ingredient).toSet();
     nameForms = _words(name).map(_form).toSet();
+    tags = Set<String>.from(data['tags'] ?? const []);
+    final listed = data['allergens'];
+    allergens = listed is List ? Set<String>.from(listed) : null;
   }
   final DocumentSnapshot<Map<String, dynamic>> doc;
   late final String name, category;
   late final int? minutes, calories;
   late final List<String> ingredients, steps;
   late final List<num?> amounts;
-  late final Set<String> keys, nameForms;
+  late final Set<String> keys, nameForms, tags;
+
+  /// Allergens marked by the admin, or null for recipes saved before the
+  /// allergen field existed.
+  late final Set<String>? allergens;
+
+  /// Random position used to vary suggestions; recently shown recipes are
+  /// moved to the end.
+  double order = 0;
 
   bool hasAll(Set<String> wanted) => keys.containsAll(wanted);
   int countOf(Set<String> wanted) => wanted.where(keys.contains).length;
 
-  String get summary =>
-      '$name (${[if (minutes != null) '$minutes menit', if (calories != null) '$calories kkal', '${ingredients.length} bahan'].join(', ')})';
+  String summary(_Request request) =>
+      '$name (${[if (minutes != null) '$minutes menit', if (calories != null) '$calories kkal', if (request.maxIngredients != null) '${ingredients.length} bahan'].join(', ')})';
 
   String get ingredientList => [
     for (var i = 0; i < ingredients.length; i++)
@@ -724,14 +862,43 @@ class _Request {
     MealPreference preference,
   ) {
     final request = _Request._();
+    var padded = text.padded;
+    for (final entry in _allergenWords.entries) {
+      for (final negation in _negations) {
+        for (final phrase in [
+          '$negation ${entry.key}',
+          if (negation == _negations.first) '${entry.key} free',
+        ]) {
+          if (padded.contains(' $phrase ')) {
+            request.excludedAllergens.add(entry.value);
+            padded = padded.replaceAll(' $phrase ', ' | ');
+          }
+        }
+      }
+    }
+    for (final phrase in _notSpicyWords) {
+      if (padded.contains(' $phrase ')) {
+        request.excludedTags.add('pedas');
+        padded = padded.replaceAll(' $phrase ', ' | ');
+      }
+    }
+    for (final (phrase, tag) in _tagWords) {
+      if (padded.contains(' $phrase ')) {
+        request.requiredTags.add(tag);
+        padded = padded.replaceAll(' $phrase ', ' | ');
+      }
+    }
     final known = {for (final recipe in catalog) ...recipe.keys};
-    final (found, rest) = mentions(text, catalog);
+    final (found, rest) = mentions(
+      _Text(padded.split(' ').where((word) => word.isNotEmpty).toList()),
+      catalog,
+    );
     found.forEach((key, word) {
       if (known.contains(key)) {
         request.ingredients.add(key);
-        request.ingredientNames.add(word);
+        request.ingredientNames.add(_indonesianNames[key] ?? word);
       } else {
-        request.unknownIngredients.add(word);
+        request.unknownIngredients.add(_indonesianNames[key] ?? word);
       }
     });
     if (request.ingredients.isNotEmpty &&
@@ -796,8 +963,26 @@ class _Request {
         request._limitCalories(lowCalories);
       case MealPreference.fridge:
         request.fridge = true;
+      case MealPreference.vegetarian:
+        request.requiredTags.add('vegetarian');
+      case MealPreference.notSpicy:
+        request.excludedTags.add('pedas');
+      case MealPreference.budget:
+        request.requiredTags.add('hemat');
+      case MealPreference.lunchbox:
+        request.requiredTags.add('bekal');
+      case MealPreference.kidFriendly:
+        request.requiredTags.add('ramah-anak');
       case MealPreference.none:
         break;
+    }
+    request.requiredTags.removeAll(request.excludedTags);
+    if (request.excludedAllergens.isNotEmpty &&
+        catalog.any((recipe) => recipe.allergens == null)) {
+      request.notes.add(
+        'Resep yang belum punya data alergen tidak ditampilkan. '
+        'Tetap cek bahannya sebelum memasak.',
+      );
     }
     return request;
   }
@@ -837,7 +1022,8 @@ class _Request {
     return (found, padded);
   }
 
-  final Set<String> ingredients = {};
+  final Set<String> ingredients = {}, requiredTags = {}, excludedTags = {};
+  final Set<String> excludedAllergens = {};
   final List<String> ingredientNames = [], unknownIngredients = [], notes = [];
   String? category;
   int? maxMinutes, maxCalories, maxIngredients;
@@ -856,6 +1042,9 @@ class _Request {
       maxCalories != null ||
       maxIngredients != null ||
       fridge ||
+      requiredTags.isNotEmpty ||
+      excludedTags.isNotEmpty ||
+      excludedAllergens.isNotEmpty ||
       ingredients.isNotEmpty ||
       unknownIngredients.isNotEmpty;
 
@@ -865,7 +1054,21 @@ class _Request {
           (recipe.minutes != null && recipe.minutes! <= maxMinutes!)) &&
       (maxCalories == null ||
           (recipe.calories != null && recipe.calories! <= maxCalories!)) &&
-      (maxIngredients == null || recipe.ingredients.length <= maxIngredients!);
+      (maxIngredients == null ||
+          recipe.ingredients.length <= maxIngredients!) &&
+      recipe.tags.containsAll(requiredTags) &&
+      !recipe.tags.any(excludedTags.contains) &&
+      (excludedAllergens.isEmpty || _safeFor(recipe));
+
+  /// A recipe is only safe when the admin marked its allergens and neither
+  /// the marks nor the ingredient names contain an excluded allergen.
+  bool _safeFor(_Recipe recipe) {
+    final marked = recipe.allergens;
+    if (marked == null || marked.any(excludedAllergens.contains)) return false;
+    return !excludedAllergens.any(
+      (allergen) => recipe.keys.any(_allergenIngredients[allergen]!.contains),
+    );
+  }
 
   String describe() => _join([
     if (ingredientNames.isNotEmpty) 'bahan ${_join(ingredientNames)}',
@@ -873,6 +1076,10 @@ class _Request {
     if (maxMinutes != null) 'maksimal $maxMinutes menit',
     if (maxIngredients != null) 'maksimal $maxIngredients bahan',
     if (maxCalories != null) 'maksimal $maxCalories kkal',
+    for (final tag in requiredTags) _tagNames[tag]!,
+    if (excludedTags.contains('pedas')) 'tidak pedas',
+    if (excludedAllergens.isNotEmpty)
+      'tanpa ${_join(excludedAllergens.toList())}',
   ]);
 
   String nothingFound() {

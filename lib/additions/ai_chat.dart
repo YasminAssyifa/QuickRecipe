@@ -33,7 +33,18 @@ class ChatExchange {
 
 /// Filter chosen in the "Meal preference" menu. It stays active for every
 /// recipe suggestion until the user picks another option.
-enum MealPreference { none, quick, fridge, fewIngredients, lowCalorie }
+enum MealPreference {
+  none,
+  quick,
+  fridge,
+  fewIngredients,
+  lowCalorie,
+  vegetarian,
+  notSpicy,
+  budget,
+  lunchbox,
+  kidFriendly,
+}
 
 /// A recipe shown as a card under the latest answer. [available] and
 /// [missing] are filled only for suggestions based on the user's fridge.
