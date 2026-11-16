@@ -345,7 +345,7 @@ class _AiScreenState extends State<AiScreen> {
           ),
           SizedBox(height: 12),
           Text(
-            'Ask for meal ideas, ingredient substitutes, or recipes from your fridge.',
+            'Ask for meal ideas, a meal plan, a shopping list, or ingredient substitutes.',
           ),
         ],
       ),
@@ -355,7 +355,8 @@ class _AiScreenState extends State<AiScreen> {
     const SizedBox(height: 12),
     ...[
       'What can I cook with eggs?',
-      'Suggest a quick dinner',
+      'Plan meals for 3 days from my fridge',
+      'What do I need to buy for Tempe Orek?',
       'How can I replace milk?',
     ].map(
       (text) => Padding(

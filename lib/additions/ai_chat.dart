@@ -60,9 +60,12 @@ class RecipeSuggestion {
 }
 
 class AiReply {
-  const AiReply(this.text, {this.recipes = const []});
+  const AiReply(this.text, {this.recipes = const [], this.plan = const []});
   final String text;
   final List<RecipeSuggestion> recipes;
+
+  /// Recipe ids per day when the answer is a meal plan.
+  final List<List<String>> plan;
 }
 
 abstract class AiRepository {
