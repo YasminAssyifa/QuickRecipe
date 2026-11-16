@@ -37,6 +37,8 @@ String ingredientKey(String name) {
     'mentega': 'butter',
     'gula': 'sugar',
     'minyak': 'cooking oil',
+    'minyak goreng': 'cooking oil',
+    'garam': 'salt',
     'kecap asin': 'soy sauce',
     'kecap manis': 'sweet soy sauce',
     'air': 'water',
@@ -147,6 +149,10 @@ String? positiveAmount(String? value, {bool allowZero = false}) {
       : null;
 }
 
+/// Ingredients almost every kitchen has, so they are never reported as
+/// available or missing.
+const pantryStaples = {'water', 'salt', 'cooking oil'};
+
 class IngredientMatch {
   IngredientMatch(List<String> ingredients, List<FridgeItem> fridge) {
     final available = fridge
@@ -154,9 +160,9 @@ class IngredientMatch {
         .map((item) => ingredientKey(item.name))
         .toSet();
     for (final ingredient in ingredients) {
-      (available.contains(ingredientKey(ingredient)) ? present : missing).add(
-        ingredient,
-      );
+      final key = ingredientKey(ingredient);
+      if (pantryStaples.contains(key)) continue;
+      (available.contains(key) ? present : missing).add(ingredient);
     }
   }
   final List<String> present = [], missing = [];
