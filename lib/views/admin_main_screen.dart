@@ -1,43 +1,71 @@
-
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:quick_recipe/Utils/constants.dart';
 import 'package:quick_recipe/Widgets/my_icon_button.dart';
 import 'package:quick_recipe/views/profile_screen.dart';
+import 'package:provider/provider.dart';
+
+import '../additions/shared.dart';
+import '../services/recipe_admin_repository.dart';
 import 'admin_recipe_list_screen.dart';
 
-class AdminMainScreen extends StatelessWidget {
+class AdminMainScreen extends StatefulWidget {
   const AdminMainScreen({super.key});
 
-  // Placeholder statistics
-  static const List<Map<String, dynamic>> overviewData = [
-    {'title': 'Recipes', 'value': '26', 'icon': Iconsax.book_1},
-    {'title': 'Categories', 'value': '5', 'icon': Iconsax.category},
-    {'title': 'Users', 'value': '14', 'icon': Iconsax.profile_2user},
-    {'title': 'New this week', 'value': '3', 'icon': Iconsax.trend_up},
-  ];
+  @override
+  State<AdminMainScreen> createState() => _AdminMainScreenState();
+}
 
-  // Placeholder insights
-  static const List<Map<String, dynamic>> insightsData = [
+class _AdminMainScreenState extends State<AdminMainScreen> {
+  static const _insightIcons = {
+    InsightKind.category: Iconsax.chart,
+    InsightKind.mostSaved: Iconsax.heart,
+    InsightKind.unsaved: Iconsax.bookmark,
+    InsightKind.incomplete: Iconsax.info_circle,
+  };
+
+  RecipeAdminRepository? _repo;
+  late Future<DashboardData> _data;
+
+  @override
+  void initState() {
+    super.initState();
+    _repo = context.read<RecipeAdminRepository?>();
+    _data = _load();
+  }
+
+  Future<DashboardData> _load() async {
+    final repo = _repo;
+    if (repo == null) {
+      throw StateError('Sign in as an admin to see the dashboard.');
+    }
+    return repo.dashboard();
+  }
+
+  Future<void> _reload() async {
+    setState(() {
+      _data = _load();
+    });
+    try {
+      await _data;
+    } catch (_) {
+      // The dashboard shows the error with a retry button.
+    }
+  }
+
+  // Overview statistics, or a dash while they load
+  List<Map<String, dynamic>> _overview(DashboardData? data) => [
+    {'title': 'Recipes', 'value': data?.recipes, 'icon': Iconsax.book_1},
     {
-      'title': 'Snack has only 3 recipes',
-      'description': 'Add more Snack recipes to balance the catalog.',
-      'icon': Iconsax.chart,
+      'title': 'Categories',
+      'value': data?.categories,
+      'icon': Iconsax.category,
     },
+    {'title': 'Users', 'value': data?.users, 'icon': Iconsax.profile_2user},
     {
-      'title': 'Most saved: Egg Fried Rice',
-      'description': 'This recipe has been saved by 12 users.',
-      'icon': Iconsax.heart,
-    },
-    {
-      'title': '5 recipes have no favorites yet',
-      'description': 'Consider reviewing their names and photos.',
-      'icon': Iconsax.bookmark,
-    },
-    {
-      'title': '2 recipes are incomplete',
-      'description': 'Some recipes are missing images or cooking steps.',
-      'icon': Iconsax.info_circle,
+      'title': 'New this week',
+      'value': data?.newThisWeek,
+      'icon': Iconsax.trend_up,
     },
   ];
 
@@ -46,94 +74,121 @@ class AdminMainScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: kbackgroundColor,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 15,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
-                children: [
-                  const Expanded(
-                    child: Text(
-                      'Admin Dashboard',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        height: 1.2,
-                      ),
-                    ),
-                  ),
-                  MyIconButton(
-                    icon: Iconsax.profile_circle,
-                    pressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const ProfileScreen(),
+        child: FutureBuilder<DashboardData>(
+          future: _data,
+          builder: (context, snapshot) {
+            final data = snapshot.data;
+            final overviewData = _overview(data);
+            return RefreshIndicator(
+              onRefresh: _reload,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 15,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header
+                    Row(
+                      children: [
+                        const Expanded(
+                          child: Text(
+                            'Admin Dashboard',
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              height: 1.2,
+                            ),
+                          ),
                         ),
-                      );
-                    },
-                  ),
-                ],
-              ),
+                        MyIconButton(
+                          icon: Iconsax.profile_circle,
+                          pressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const ProfileScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
 
-              const SizedBox(height: 25),
+                    const SizedBox(height: 25),
 
-              // Welcome banner
-              _buildWelcomeBanner(context),
+                    // Welcome banner
+                    _buildWelcomeBanner(context),
 
-              const SizedBox(height: 28),
+                    const SizedBox(height: 28),
 
-              // Overview
-              _buildSectionTitle('Overview'),
-              const SizedBox(height: 14),
+                    // Overview
+                    _buildSectionTitle('Overview'),
+                    const SizedBox(height: 14),
 
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: overviewData.length,
-                gridDelegate:
-                const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 14,
-                  mainAxisSpacing: 14,
-                  childAspectRatio: 1.45,
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: overviewData.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 14,
+                            mainAxisSpacing: 14,
+                            childAspectRatio: 1.45,
+                          ),
+                      itemBuilder: (context, index) {
+                        final item = overviewData[index];
+
+                        return _buildOverviewCard(
+                          title: item['title'],
+                          value: '${item['value'] ?? '-'}',
+                          icon: item['icon'],
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 28),
+
+                    // Insights
+                    _buildSectionTitle('Insights'),
+                    const SizedBox(height: 14),
+
+                    if (snapshot.hasError)
+                      FeedbackPanel(
+                        title: 'Unable to load dashboard',
+                        message: messageFor(snapshot.error!),
+                        action: 'Try again',
+                        onAction: _reload,
+                        icon: Icons.wifi_off,
+                      )
+                    else if (data == null)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(24),
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    else
+                      ...data.insights.map(
+                        (insight) => Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: _buildInsightCard(
+                            title: insight.title,
+                            description: insight.description,
+                            icon: _insightIcons[insight.kind]!,
+                          ),
+                        ),
+                      ),
+
+                    const SizedBox(height: 20),
+                  ],
                 ),
-                itemBuilder: (context, index) {
-                  final item = overviewData[index];
-
-                  return _buildOverviewCard(
-                    title: item['title'],
-                    value: item['value'],
-                    icon: item['icon'],
-                  );
-                },
               ),
-
-              const SizedBox(height: 28),
-
-              // Insights
-              _buildSectionTitle('Insights'),
-              const SizedBox(height: 14),
-
-              ...insightsData.map(
-                    (item) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: _buildInsightCard(
-                    title: item['title'],
-                    description: item['description'],
-                    icon: item['icon'],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
@@ -163,21 +218,18 @@ class AdminMainScreen extends StatelessWidget {
           const SizedBox(height: 8),
           const Text(
             'Manage your recipes and keep everything organized.',
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.white,
-              height: 1.4,
-            ),
+            style: TextStyle(fontSize: 13, color: Colors.white, height: 1.4),
           ),
           const SizedBox(height: 18),
           ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => const AdminRecipeListScreen(),
                 ),
               );
+              if (mounted) _reload();
             },
             icon: const Icon(Iconsax.add, size: 18),
             label: const Text('Add recipe'),
@@ -185,10 +237,7 @@ class AdminMainScreen extends StatelessWidget {
               backgroundColor: Colors.white,
               foregroundColor: kBannerColor,
               elevation: 0,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 18,
-                vertical: 12,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -203,10 +252,7 @@ class AdminMainScreen extends StatelessWidget {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: const TextStyle(
-        fontSize: 21,
-        fontWeight: FontWeight.bold,
-      ),
+      style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
     );
   }
 
@@ -237,13 +283,7 @@ class AdminMainScreen extends StatelessWidget {
           SizedBox(
             width: 28,
             height: 28,
-            child: Center(
-              child: Icon(
-                icon,
-                color: kprimaryColor,
-                size: 23,
-              ),
-            ),
+            child: Center(child: Icon(icon, color: kprimaryColor, size: 23)),
           ),
 
           Column(
@@ -260,10 +300,7 @@ class AdminMainScreen extends StatelessWidget {
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
             ],
           ),
@@ -304,11 +341,7 @@ class AdminMainScreen extends StatelessWidget {
               color: const Color(0xFFF7F4EF),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
-              icon,
-              color: kprimaryColor,
-              size: 23,
-            ),
+            child: Icon(icon, color: kprimaryColor, size: 23),
           ),
 
           const SizedBox(width: 13),
@@ -342,11 +375,7 @@ class AdminMainScreen extends StatelessWidget {
           const SizedBox(width: 8),
 
           // Right arrow
-          Icon(
-            Iconsax.arrow_right_3,
-            color: Colors.grey.shade500,
-            size: 23,
-          ),
+          Icon(Iconsax.arrow_right_3, color: Colors.grey.shade500, size: 23),
         ],
       ),
     );
