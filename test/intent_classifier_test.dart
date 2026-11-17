@@ -57,6 +57,11 @@ void main() {
       'What can I cook with eggs?': 'cari_resep',
       'Suggest a quick dinner': 'cari_resep',
       'How can I replace milk?': 'substitusi_bahan',
+      'Suggest a vegetarian meal.': 'cari_resep',
+      'Suggest a meal that is not spicy.': 'cari_resep',
+      'Suggest a budget-friendly meal.': 'cari_resep',
+      'Suggest a meal I can pack for lunch.': 'cari_resep',
+      'Suggest a kid-friendly meal.': 'cari_resep',
     };
     expected.forEach((text, intent) {
       final prediction = classifier.predict(text);
