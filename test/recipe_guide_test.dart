@@ -11,16 +11,12 @@ import 'package:quick_recipe/services/recipe_guide.dart';
 
 import 'support/fake_kitchen.dart';
 
+/// A small catalog of 24 recipes used by these tests.
 List<DocumentSnapshot<Map<String, dynamic>>> seedCatalog() => [
-  for (final file in [
-    'tools/seed_recipes.json',
-    'tools/indonesian_recipes.json',
-  ])
-    for (final recipe
-        in (jsonDecode(File(file).readAsStringSync())
-                as Map<String, dynamic>)['Complete-Flutter-App']
-            as List)
-      TestRecipe(recipe['id'] as String, Map<String, dynamic>.from(recipe)),
+  for (final recipe
+      in jsonDecode(File('test/fixtures/recipes.json').readAsStringSync())
+          as List)
+    TestRecipe(recipe['id'] as String, Map<String, dynamic>.from(recipe)),
 ];
 
 /// The seed catalog with tags and allergens on a few recipes, the way the

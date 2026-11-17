@@ -1,9 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_ai/firebase_ai.dart';
 
 const questionLimit = 500;
 const answerLimit = 4000;
-const historyWindow = 10;
 
 class ChatMessage {
   const ChatMessage({required this.fromUser, required this.text});
@@ -118,52 +116,5 @@ abstract class FirestoreChatRepository implements AiRepository {
       }
       await batch.commit();
     }
-  }
-}
-
-const _instruction =
-    'You are the cooking assistant inside the QuickRecipe app. '
-    'Help with recipes, meal ideas, ingredient substitutes, and cooking steps. '
-    'Reply in the language the user writes in. Keep answers short and practical. '
-    'Politely decline topics unrelated to food or cooking. '
-    'Remind the user to check allergies when suggesting ingredients.';
-
-/// Gemini through Firebase AI Logic. Not wired in main.dart while the
-/// project's AI Logic setup is unavailable; kept so it can be switched back on.
-class FirebaseAiRepository extends FirestoreChatRepository {
-  FirebaseAiRepository(super.uid);
-  late final GenerativeModel _model = FirebaseAI.googleAI().generativeModel(
-    model: 'gemini-3.5-flash',
-    systemInstruction: Content.system(_instruction),
-    generationConfig: GenerationConfig(maxOutputTokens: 1024),
-  );
-
-  @override
-  Future<AiReply> reply(
-    List<ChatMessage> conversation, {
-    MealPreference preference = MealPreference.none,
-  }) async {
-    final recent = conversation.length > historyWindow
-        ? conversation.sublist(conversation.length - historyWindow)
-        : conversation;
-    final GenerateContentResponse response;
-    try {
-      response = await _model.generateContent(
-        recent.map(
-          (message) => Content(message.fromUser ? 'user' : 'model', [
-            TextPart(message.text),
-          ]),
-        ),
-      );
-    } on FirebaseAIException {
-      throw StateError(
-        'QuickRecipe AI is not available right now. Try again later.',
-      );
-    }
-    final text = (response.text ?? '').trim();
-    if (text.isEmpty) throw StateError('No answer was returned. Try again.');
-    return AiReply(
-      text.length > answerLimit ? text.substring(0, answerLimit) : text,
-    );
   }
 }
