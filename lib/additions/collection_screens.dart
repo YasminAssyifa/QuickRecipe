@@ -66,7 +66,10 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
     backgroundColor: kbackgroundColor,
     appBar: AppBar(
       backgroundColor: kbackgroundColor,
-      title: const Text('Recipe collections'),
+      title: const Text(
+          "Recipe collections",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
       actions: [
         IconButton(
           tooltip: 'New collection',
@@ -227,6 +230,7 @@ class _CollectionFormScreenState extends State<CollectionFormScreen> {
         backgroundColor: kbackgroundColor,
         title: Text(
           widget.item == null ? 'Create collection' : 'Edit collection',
+          style: TextStyle(fontWeight: FontWeight.bold,)
         ),
       ),
       body: Column(

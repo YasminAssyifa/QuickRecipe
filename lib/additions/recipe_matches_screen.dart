@@ -30,7 +30,10 @@ class _RecipeMatchesScreenState extends State<RecipeMatchesScreen> {
     backgroundColor: kbackgroundColor,
     appBar: AppBar(
       backgroundColor: kbackgroundColor,
-      title: const Text('Recipes from your fridge'),
+      title: const Text(
+          "Recipes from your fridge",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
     ),
     body: LoadPanel(
       future: _future,
