@@ -48,6 +48,8 @@ class FoodItemsDisplay extends StatelessWidget {
                 SizedBox(height: 10),
                 Text(
                   documentSnapshot['name'],
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 5),

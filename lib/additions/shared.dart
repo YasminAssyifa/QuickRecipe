@@ -5,9 +5,40 @@ import '../Provider/profile_provider.dart';
 
 String messageFor(Object error) =>
     error is StateError ? error.message.toString() : accountError(error);
-void showMessage(BuildContext context, String message) =>
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
+// void showMessage(BuildContext context, String message) =>
+//     ScaffoldMessenger.of(context)
+//         .showSnackBar(SnackBar(content: Text(message)));
+
+void showMessage(
+  BuildContext context,
+  String message, {
+  bool isError = false,
+}) => ScaffoldMessenger.of(context).showSnackBar(
+  SnackBar(
+    // content: Text(message),
+    backgroundColor: isError ? Colors.red : Colors.green,
+    behavior: SnackBarBehavior.floating,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadiusGeometry.circular(15),
+    ),
+    duration: const Duration(seconds: 3),
+    content: TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOutCubic,
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(
+            offset: Offset(0, 10 * (1 - value)), // Slight upward slide
+            child: child,
+          ),
+        );
+      },
+      child: Text(message),
+    ),
+  ),
+);
 
 Future<bool> confirmRemoval(BuildContext context, String name) async =>
     await showDialog<bool>(

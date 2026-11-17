@@ -101,7 +101,13 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
               StreamBuilder(
                 stream: selectedRecipes.snapshots(),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (snapshot.hasError) return FeedbackPanel(title: 'Unable to load recipes', message: 'Check your connection and try again.', action: 'Try again', onAction: () => setState(() {}));
+                  if (snapshot.hasError)
+                    return FeedbackPanel(
+                      title: 'Unable to load recipes',
+                      message: 'Check your connection and try again.',
+                      action: 'Try again',
+                      onAction: () => setState(() {}),
+                    );
                   if (snapshot.hasData) {
                     final List<DocumentSnapshot> recipes =
                         snapshot.data?.docs ?? [];
@@ -114,7 +120,16 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
                       return name.contains(searchText);
                     }).toList();
 
-                    if (filteredItems.isEmpty) return FeedbackPanel(title: 'No recipes found', message: 'Try another search or select All categories.', action: 'Clear filters', onAction: () => setState(() { _searchController.clear(); category = 'All'; }));
+                    if (filteredItems.isEmpty)
+                      return FeedbackPanel(
+                        title: 'No recipes found',
+                        message: 'Try another search or select All categories.',
+                        action: 'Clear filters',
+                        onAction: () => setState(() {
+                          _searchController.clear();
+                          category = 'All';
+                        }),
+                      );
 
                     return Padding(
                       padding: EdgeInsetsGeometry.only(top: 5, left: 15),
@@ -126,7 +141,6 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
                               .toList(),
                         ),
                       ),
-                      
                     );
                   }
                   return Center(child: CircularProgressIndicator());
@@ -143,7 +157,11 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
     return StreamBuilder(
       stream: categoriesItems.snapshots(),
       builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
-        if (streamSnapshot.hasError) return TextButton(onPressed: () => setState(() {}), child: const Text('Categories unavailable. Try again'));
+        if (streamSnapshot.hasError)
+          return TextButton(
+            onPressed: () => setState(() {}),
+            child: const Text('Categories unavailable. Try again'),
+          );
         if (streamSnapshot.hasData) {
           return SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -187,115 +205,179 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
     );
   }
 
+  final LayerLink _layerLink = LayerLink();
+  final GlobalKey _searchBarKey = GlobalKey();
+  OverlayEntry? _suggestionOverlay;
+
+  void _showSuggestions() {
+    if (_searchController.text.trim().isEmpty) {
+      _removeSuggestions();
+      return;
+    }
+
+    // If overlay already exists, just refresh its contents.
+    if (_suggestionOverlay != null) {
+      _suggestionOverlay!.markNeedsBuild();
+      return;
+    }
+
+    _suggestionOverlay = OverlayEntry(
+      builder: (overlayContext) {
+        final renderBox =
+            _searchBarKey.currentContext?.findRenderObject() as RenderBox?;
+
+        final searchWidth =
+            renderBox?.size.width ??
+            MediaQuery.sizeOf(overlayContext).width - 30;
+
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            // Tap outside to close suggestions
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: _removeSuggestions,
+                child: const SizedBox.expand(),
+              ),
+            ),
+
+            // Floating dropdown attached to search bar
+            CompositedTransformFollower(
+              link: _layerLink,
+              showWhenUnlinked: false,
+              offset: const Offset(0, 55),
+              child: Material(
+                elevation: 8,
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                child: SizedBox(
+                  width: searchWidth,
+                  child: StreamBuilder(
+                    stream: selectedRecipes.snapshots(),
+                    builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                      if (!snapshot.hasData || snapshot.hasError) {
+                        return const SizedBox();
+                      }
+
+                      final searchText = _searchController.text.toLowerCase();
+
+                      final suggestions = snapshot.data!.docs
+                          .where((doc) {
+                            final name = doc['name'].toString().toLowerCase();
+
+                            return name.contains(searchText);
+                          })
+                          .take(5)
+                          .toList();
+
+                      if (suggestions.isEmpty) {
+                        return const Padding(
+                          padding: EdgeInsets.all(15),
+                          child: Text(
+                            'No recipes found.',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        );
+                      }
+
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: suggestions.map((doc) {
+                          return ListTile(
+                            dense: true,
+                            leading: const Icon(Iconsax.receipt_item, size: 20),
+                            title: Text(
+                              doc['name'].toString(),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            onTap: () {
+                              _removeSuggestions();
+
+                              Navigator.push(
+                                this.context,
+                                MaterialPageRoute(
+                                  settings: const RouteSettings(
+                                    name: '/recipe-detail',
+                                  ),
+                                  builder: (context) =>
+                                      RecipeDetailScreen(documentSnapshot: doc),
+                                ),
+                              );
+                            },
+                          );
+                        }).toList(),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    Overlay.of(context, rootOverlay: true).insert(_suggestionOverlay!);
+  }
+
+  void _removeSuggestions() {
+    _suggestionOverlay?.remove();
+    _suggestionOverlay = null;
+  }
+
   Widget mySearchBar() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 22),
-      child: Column(
-        children: [
-          TextField(
-            controller: _searchController,
+      child: CompositedTransformTarget(
+        link: _layerLink,
+        child: TextField(
+          key: _searchBarKey,
+          controller: _searchController,
 
-            onChanged: (value) {
-              setState(() {});
-            },
+          onChanged: (value) {
+            setState(() {});
 
-            decoration: InputDecoration(
-              filled: true,
-              prefixIcon: const Icon(Iconsax.search_normal),
-              fillColor: Colors.white,
-              border: InputBorder.none,
-              hintText: "Search any recipes",
-              hintStyle: const TextStyle(color: Colors.grey),
+            if (value.trim().isNotEmpty) {
+              _showSuggestions();
+            } else {
+              _removeSuggestions();
+            }
+          },
 
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide.none,
-              ),
+          decoration: InputDecoration(
+            filled: true,
+            prefixIcon: const Icon(Iconsax.search_normal),
+            fillColor: Colors.white,
+            border: InputBorder.none,
+            hintText: "Search any recipes",
+            hintStyle: const TextStyle(color: Colors.grey),
 
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide.none,
-              ),
-
-              suffixIcon: _searchController.text.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Iconsax.close_circle),
-                      onPressed: () {
-                        _searchController.clear();
-                        setState(() {});
-                      },
-                    )
-                  : null,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
             ),
+
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+
+            suffixIcon: _searchController.text.isNotEmpty
+                ? IconButton(
+                    icon: const Icon(Iconsax.close_circle),
+                    onPressed: () {
+                      _searchController.clear();
+                      _removeSuggestions();
+                      setState(() {});
+                    },
+                  )
+                : null,
           ),
-
-          // Suggestion list
-          if (_searchController.text.isNotEmpty)
-            StreamBuilder(
-              stream: selectedRecipes.snapshots(),
-              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (!snapshot.hasData) {
-                  return const SizedBox();
-                }
-
-                final searchText = _searchController.text.toLowerCase();
-
-                final suggestions = snapshot.data!.docs
-                    .where((doc) {
-                      final name = doc['name'].toString().toLowerCase();
-
-                      return name.contains(searchText);
-                    })
-                    .take(5)
-                    .toList();
-
-                if (suggestions.isEmpty) {
-                  return const SizedBox();
-                }
-
-                return Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.only(top: 5),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: suggestions.map((doc) {
-                      return ListTile(
-                        dense: true,
-                        leading: const Icon(Iconsax.receipt_item, size: 20),
-                        title: Text(
-                          doc['name'].toString(),
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              settings: const RouteSettings(name: '/recipe-detail'),
-                              builder: (context) =>
-                                  RecipeDetailScreen(documentSnapshot: doc),
-                            ),
-                          );
-                        },
-                      );
-                    }).toList(),
-                  ),
-                );
-              },
-            ),
-        ],
+        ),
       ),
     );
   }
@@ -313,20 +395,22 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
         ),
         const Spacer(),
         // ini kt gw ga kepake
-        MyIconButton(icon: Iconsax.profile_circle, pressed: () {
-          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const ProfileScreen(),
-                              ),
-                            );
-        }),
+        MyIconButton(
+          icon: Iconsax.profile_circle,
+          pressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfileScreen()),
+            );
+          },
+        ),
       ],
     );
   }
 
   @override
   void dispose() {
+    _removeSuggestions();
     _searchController.dispose();
     super.dispose();
   }

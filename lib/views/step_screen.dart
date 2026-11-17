@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:quick_recipe/Utils/constants.dart';
 import 'package:quick_recipe/Widgets/my_icon_button.dart';
+import 'package:quick_recipe/additions/shared.dart';
 
 class StepScreen extends StatefulWidget {
   final DocumentSnapshot documentSnapshot;
@@ -235,7 +236,8 @@ class _StepScreenState extends State<StepScreen> {
                         child: ElevatedButton(
                           onPressed: () {
                             if (isLastStep) {
-                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cooking completed. Enjoy your meal!')));
+                              // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cooking completed. Enjoy your meal!')));
+                              showMessage(context, 'Cooking completed. Enjoy your meal!');
                               Navigator.pop(context);
                             } else {
                               setState(() {
