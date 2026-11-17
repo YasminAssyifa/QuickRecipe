@@ -200,6 +200,17 @@ void main() {
     }
   });
 
+  test('Says so when no ingredient or recipe is recognised', () async {
+    final typo = await ask('resep yg ada ayammm');
+    expect(typo.text, startsWith('Aku belum menemukan bahan atau nama resep'));
+    expect(typo.recipes, isEmpty);
+    final ideas = await ask('masak apa ya hari ini');
+    expect(ideas.text, startsWith('Ini beberapa ide masakan'));
+    expect(ideas.recipes, isNotEmpty);
+    final chicken = await ask('resep yg ada ayamnya');
+    expect(chicken.text, startsWith('Ini resep untuk bahan ayam'));
+  });
+
   test('Recognises a single word of a recipe name and -nya', () async {
     expect(names(await ask('resep pancake dong')), ['Banana Pancakes']);
     expect(

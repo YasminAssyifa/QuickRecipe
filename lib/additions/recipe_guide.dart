@@ -324,6 +324,9 @@ class RecipeGuide {
         stock,
       );
     }
+    if (!request.hasCriteria && text.hasUnknownWords(catalog)) {
+      return const AiReply(_notFound);
+    }
     if (!request.hasCriteria) {
       fitting.sort((a, b) => a.order.compareTo(b.order));
       return _list(
@@ -931,6 +934,109 @@ int? _numberBefore(_Text text, List<String> words) {
   return null;
 }
 
+/// Everyday words of a recipe request that carry no ingredient or recipe.
+const _generalWords = {
+  'yang',
+  'ada',
+  'apa',
+  'dong',
+  'aku',
+  'saya',
+  'kamu',
+  'kita',
+  'mau',
+  'ingin',
+  'bisa',
+  'boleh',
+  'minta',
+  'tolong',
+  'kasih',
+  'cari',
+  'cariin',
+  'buat',
+  'untuk',
+  'dengan',
+  'pakai',
+  'sama',
+  'dan',
+  'atau',
+  'tidak',
+  'saja',
+  'lagi',
+  'juga',
+  'hari',
+  'ini',
+  'itu',
+  'besok',
+  'nanti',
+  'sekarang',
+  'pagi',
+  'siang',
+  'sore',
+  'malam',
+  'makan',
+  'makanan',
+  'masak',
+  'masakan',
+  'memasak',
+  'resep',
+  'menu',
+  'ide',
+  'saran',
+  'rekomendasi',
+  'enak',
+  'gampang',
+  'mudah',
+  'praktis',
+  'bingung',
+  'kira',
+  'sesuatu',
+  'yuk',
+  'bagaimana',
+  'coba',
+  'dulu',
+  'punya',
+  'bahan',
+  'harus',
+  'sebaiknya',
+  'kalau',
+  'jadi',
+  'what',
+  'should',
+  'can',
+  'could',
+  'cook',
+  'cooking',
+  'make',
+  'recipe',
+  'recipes',
+  'meal',
+  'meals',
+  'idea',
+  'ideas',
+  'suggest',
+  'give',
+  'some',
+  'something',
+  'please',
+  'today',
+  'tonight',
+  'tomorrow',
+  'for',
+  'with',
+  'the',
+  'and',
+  'have',
+  'want',
+  'eat',
+  'food',
+  'dish',
+  'any',
+  'good',
+  'easy',
+  'you',
+};
+
 /// Words that never identify a recipe on their own.
 const _commonWords = {
   'resep',
@@ -1017,6 +1123,9 @@ String _join(List<String> items) => items.length < 2
 const _unclear =
     'Aku belum yakin maksudmu. Coba tanya seperti "masak apa pakai telur?", '
     '"santan bisa diganti apa?", atau "isi kulkasku bisa jadi apa?".';
+const _notFound =
+    'Aku belum menemukan bahan atau nama resep di pertanyaanmu. '
+    'Coba sebut bahannya, misalnya "resep pakai ayam".';
 const _outOfScope =
     'Maaf, aku hanya bisa bantu soal resep di QuickRecipe: mencari resep, '
     'memakai isi kulkas, info resep, dan bahan pengganti.';
@@ -1486,6 +1595,29 @@ class _Text {
     if (kept.isNotEmpty) return kept;
     final named = namedRecipes(catalog);
     return named.length == 1 ? named : [];
+  }
+
+  /// Whether the question has a word that is neither a general request word
+  /// nor a known ingredient, category or recipe word, such as a misspelled
+  /// ingredient. A plain "masak apa hari ini?" has none.
+  bool hasUnknownWords(List<_Recipe> catalog) {
+    final known = <String>{
+      ..._generalWords,
+      ..._commonWords,
+      for (final phrase in [..._ingredientTerms, ..._categoryWords.keys])
+        ...phrase.split(' '),
+      for (final recipe in catalog) ...[
+        ...recipe.nameForms,
+        for (final name in recipe.ingredients) ..._words(name),
+      ],
+    };
+    return tokens.any(
+      (token) =>
+          token.length >= 3 &&
+          int.tryParse(token) == null &&
+          !known.contains(token) &&
+          !known.contains(_form(token)),
+    );
   }
 
   /// Recipes with a distinctive word of their name in the question, as in
