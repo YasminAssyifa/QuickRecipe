@@ -58,6 +58,12 @@ Future<void> fillValidRecipe(WidgetTester tester) async {
 
 void main() {
   listTests();
+  test('The All filter is not a recipe category', () {
+    expect(recipeCategories(['All', 'Snack', ' Lunch ', 'all', 'Snack', '']), [
+      'Lunch',
+      'Snack',
+    ]);
+  });
   testWidgets('Add recipe saves numbers, tags and allergens', (tester) async {
     final repo = FakeRecipeAdmin();
     await open(tester, repo, const AdminAddRecipeScreen());
