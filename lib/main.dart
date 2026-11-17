@@ -15,6 +15,7 @@ import 'firebase_options.dart';
 
 import 'views/account_gate.dart';
 import 'services/account_repository.dart';
+import 'services/recipe_admin_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,6 +41,9 @@ class MyApp extends StatelessWidget {
         ),
         ProxyProvider2<ProfileProvider, KitchenRepository?, AiRepository?>(
           update: (_, account, kitchen, previous) => account.uid == null || kitchen == null ? null : previous is RecipeGuideRepository && previous.uid == account.uid && previous.kitchen == kitchen ? previous : RecipeGuideRepository(account.uid!, kitchen),
+        ),
+        ProxyProvider<ProfileProvider, RecipeAdminRepository?>(
+          update: (_, account, previous) => account.uid == null ? null : previous is FirebaseRecipeAdminRepository && previous.uid == account.uid ? previous : FirebaseRecipeAdminRepository(account.uid!),
         ),
         ChangeNotifierProvider(create: (_)=>FavoriteProvider()), //favorite provider
         ChangeNotifierProvider(create: (_)=>QuantityProvider()), // quantity provider
