@@ -1,9 +1,9 @@
-import '../additions/fridge_screen.dart';
+import 'package:quick_recipe/screens/fridge_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:quick_recipe/Utils/constants.dart';
-import 'package:quick_recipe/views/favorite_screen.dart';
-import 'package:quick_recipe/views/my_app_home_screen.dart';
+import 'package:quick_recipe/utils/constants.dart';
+import 'package:quick_recipe/screens/favorite_screen.dart';
+import 'package:quick_recipe/screens/my_app_home_screen.dart';
 
 class AppMainScreen extends StatefulWidget {
   const AppMainScreen({super.key});

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:quick_recipe/Utils/constants.dart';
+import 'package:quick_recipe/utils/constants.dart';
 import 'package:provider/provider.dart';
-import 'package:quick_recipe/Provider/profile_provider.dart';
+import 'package:quick_recipe/providers/profile_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

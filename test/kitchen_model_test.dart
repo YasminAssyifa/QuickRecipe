@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:quick_recipe/additions/kitchen_repository.dart';
+import 'package:quick_recipe/services/kitchen_repository.dart';
 
 import 'support/fake_kitchen.dart';
 

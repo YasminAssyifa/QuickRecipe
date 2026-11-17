@@ -1,11 +1,11 @@
 import 'package:provider/provider.dart';
 
-import '../Provider/profile_provider.dart';
+import 'package:quick_recipe/providers/profile_provider.dart';
 
 import 'package:flutter/material.dart';
-import 'package:quick_recipe/Utils/constants.dart';
+import 'package:quick_recipe/utils/constants.dart';
 
-import 'signup_screen.dart';
+import 'package:quick_recipe/screens/signup_screen.dart';
 
 class SigninScreen extends StatefulWidget {
   const SigninScreen({super.key});

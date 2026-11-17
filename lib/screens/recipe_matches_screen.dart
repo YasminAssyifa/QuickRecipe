@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 
-import '../Utils/constants.dart';
-import '../views/recipe_detail_screen.dart';
-import 'kitchen_repository.dart';
-import 'shared.dart';
+import 'package:quick_recipe/utils/constants.dart';
+import 'package:quick_recipe/screens/recipe_detail_screen.dart';
+import 'package:quick_recipe/services/kitchen_repository.dart';
+import 'package:quick_recipe/widgets/shared_widgets.dart';
 
 class RecipeMatchesScreen extends StatefulWidget {
   const RecipeMatchesScreen({super.key, required this.fridge});

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../Utils/constants.dart';
-import 'kitchen_repository.dart';
-import 'shared.dart';
-import 'collection_screens.dart';
-import 'recipe_matches_screen.dart';
-import 'use_ingredients_screen.dart';
+import 'package:quick_recipe/utils/constants.dart';
+import 'package:quick_recipe/services/kitchen_repository.dart';
+import 'package:quick_recipe/widgets/shared_widgets.dart';
+import 'package:quick_recipe/screens/collection_screens.dart';
+import 'package:quick_recipe/screens/recipe_matches_screen.dart';
+import 'package:quick_recipe/screens/use_ingredients_screen.dart';
 
 class FridgeScreen extends StatefulWidget {
   const FridgeScreen({super.key});

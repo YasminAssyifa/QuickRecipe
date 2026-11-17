@@ -1,10 +1,10 @@
 import 'package:provider/provider.dart';
 
-import '../Provider/profile_provider.dart';
-import '../services/account_repository.dart';
+import 'package:quick_recipe/providers/profile_provider.dart';
+import 'package:quick_recipe/services/account_repository.dart';
 
 import 'package:flutter/material.dart';
-import 'package:quick_recipe/Utils/constants.dart';
+import 'package:quick_recipe/utils/constants.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});

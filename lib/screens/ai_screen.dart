@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../Utils/constants.dart';
-import 'ai_chat.dart';
-import 'recipe_matches_screen.dart';
-import 'shared.dart';
+import 'package:quick_recipe/utils/constants.dart';
+import 'package:quick_recipe/services/chat_repository.dart';
+import 'package:quick_recipe/screens/recipe_matches_screen.dart';
+import 'package:quick_recipe/widgets/shared_widgets.dart';
 
 final appNavigatorKey = GlobalKey<NavigatorState>();
 final aiShortcutVisible = ValueNotifier<bool>(true);

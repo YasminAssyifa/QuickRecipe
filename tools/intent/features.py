@@ -1,6 +1,6 @@
 """Text normalisation and feature extraction for the intent model.
 
-The Dart side (lib/additions/intent_classifier.dart) repeats these exact
+The Dart side (lib/services/intent_classifier.dart) repeats these exact
 steps. The slang table is exported inside the model file so both sides
 always use the same values, and the parity test checks that both return
 the same probabilities.

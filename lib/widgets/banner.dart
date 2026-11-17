@@ -1,6 +1,6 @@
-import '../views/view_all_items.dart';
+import 'package:quick_recipe/screens/view_all_items.dart';
 import 'package:flutter/material.dart';
-import 'package:quick_recipe/Utils/constants.dart';
+import 'package:quick_recipe/utils/constants.dart';
 
 class BannerToExplore extends StatelessWidget {
   const BannerToExplore({super.key});

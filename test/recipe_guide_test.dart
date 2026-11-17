@@ -4,10 +4,10 @@ import 'dart:math' as math;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:quick_recipe/additions/ai_chat.dart';
-import 'package:quick_recipe/additions/intent_classifier.dart';
-import 'package:quick_recipe/additions/kitchen_repository.dart';
-import 'package:quick_recipe/additions/recipe_guide.dart';
+import 'package:quick_recipe/services/chat_repository.dart';
+import 'package:quick_recipe/services/intent_classifier.dart';
+import 'package:quick_recipe/services/kitchen_repository.dart';
+import 'package:quick_recipe/services/recipe_guide.dart';
 
 import 'support/fake_kitchen.dart';
 

@@ -4,9 +4,9 @@ import 'dart:math' as math;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
-import 'ai_chat.dart';
-import 'intent_classifier.dart';
-import 'kitchen_repository.dart';
+import 'package:quick_recipe/services/chat_repository.dart';
+import 'package:quick_recipe/services/intent_classifier.dart';
+import 'package:quick_recipe/services/kitchen_repository.dart';
 
 const quickMinutes = 30;
 const fewIngredients = 5;

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:quick_recipe/additions/intent_classifier.dart';
+import 'package:quick_recipe/services/intent_classifier.dart';
 
 void main() {
   final classifier = IntentClassifier.parse(

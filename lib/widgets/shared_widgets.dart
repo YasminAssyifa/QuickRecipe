@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../Utils/constants.dart';
-import '../Provider/profile_provider.dart';
+import 'package:quick_recipe/utils/constants.dart';
+import 'package:quick_recipe/providers/profile_provider.dart';
 
 String messageFor(Object error) =>
     error is StateError ? error.message.toString() : accountError(error);

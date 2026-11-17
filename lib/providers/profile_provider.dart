@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-import '../services/account_repository.dart';
+import 'package:quick_recipe/services/account_repository.dart';
 
 String accountError(Object error) {
   if (error is FirebaseException) {
