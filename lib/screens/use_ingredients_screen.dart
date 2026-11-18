@@ -44,11 +44,11 @@ class _UseIngredientsScreenState extends State<UseIngredientsScreen> {
   Future<void> _save(List<FridgeItem> items) async {
     if (_busy) return;
     if (_selected.isEmpty) {
-      showMessage(context, 'Pilih minimal satu bahan.');
+      showMessage(context, 'Pilih minimal satu bahan.', isError: true);
       return;
     }
     if (_selected.length > 50) {
-      showMessage(context, 'Pilih maksimal 50 bahan sekaligus.');
+      showMessage(context, 'Pilih maksimal 50 bahan sekaligus.', isError: true);
       return;
     }
     if (!_form.currentState!.validate()) return;
@@ -56,7 +56,7 @@ class _UseIngredientsScreenState extends State<UseIngredientsScreen> {
         .where((item) => _selected.contains(item.id))
         .toList();
     if (selected.length != _selected.length) {
-      showMessage(context, 'Stok berubah. Pilih ulang bahan yang tersedia.');
+      showMessage(context, 'Stok berubah. Pilih ulang bahan yang tersedia.', isError: true);
       setState(() => _selected.retainAll(items.map((item) => item.id)));
       return;
     }
@@ -129,7 +129,10 @@ class _UseIngredientsScreenState extends State<UseIngredientsScreen> {
       backgroundColor: kbackgroundColor,
       appBar: AppBar(
         backgroundColor: kbackgroundColor,
-        title: const Text('Pakai bahan'),
+        title: const Text(
+          "Pakai bahan",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
       body: LoadPanel(
         future: _future,

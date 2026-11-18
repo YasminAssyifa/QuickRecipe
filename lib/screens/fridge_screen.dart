@@ -75,7 +75,11 @@ class _FridgeScreenState extends State<FridgeScreen> {
     backgroundColor: kbackgroundColor,
     appBar: AppBar(
       backgroundColor: kbackgroundColor,
-      title: const Text('My Fridge'),
+      centerTitle: true,
+      title: const Text(
+          "My Fridge",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
       actions: [
         IconButton(
           tooltip: 'Recipe collections',

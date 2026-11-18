@@ -1,3 +1,4 @@
+import 'package:quick_recipe/widgets/my_icon_button.dart';
 import 'package:quick_recipe/widgets/shared_widgets.dart';
 import 'package:quick_recipe/screens/collection_screens.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -26,19 +27,42 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
         backgroundColor: kbackgroundColor,
         centerTitle: true,
         actions: [IconButton(tooltip: 'Recipe collections', icon: const Icon(Icons.folder_outlined), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CollectionsScreen())))],
+        // actions: [
+        //   MyIconButton(
+        //     icon: Iconsax.folder,
+        //     pressed: () {
+        //       Navigator.push(
+        //         context,
+        //         MaterialPageRoute(builder: (_) => const CollectionsScreen()),
+        //       );
+        //     },
+        //   ),
+        // ],
         title: const Text(
           "Favorites",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
-      body: provider.loading ? const Center(child: CircularProgressIndicator()) : provider.error != null ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [Text(provider.error!), TextButton(onPressed: provider.loadFavorites, child: const Text('Try again'))])) : favoriteItems.isEmpty
+      body: provider.loading
+          ? const Center(child: CircularProgressIndicator())
+          : provider.error != null
+          ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(provider.error!),
+                  TextButton(
+                    onPressed: provider.loadFavorites,
+                    child: const Text('Try again'),
+                  ),
+                ],
+              ),
+            )
+          : favoriteItems.isEmpty
           ? const Center(
               child: Text(
                 "No Favorites yet. Tap a recipe’s heart to save it.",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             )
           : ListView.builder(
@@ -52,15 +76,22 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                       .doc(favorite)
                       .get(),
                   builder: (context, snapshot) {
-                    if (snapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
                     }
 
-                    if (snapshot.hasError) return ListTile(title: const Text('Unable to load recipe'), trailing: TextButton(onPressed: () => setState(() {}), child: const Text('Try again')));
-                    if (snapshot.hasData && !snapshot.data!.exists) return const ListTile(title: Text('This recipe is no longer available.'));
+                    if (snapshot.hasError)
+                      return ListTile(
+                        title: const Text('Unable to load recipe'),
+                        trailing: TextButton(
+                          onPressed: () => setState(() {}),
+                          child: const Text('Try again'),
+                        ),
+                      );
+                    if (snapshot.hasData && !snapshot.data!.exists)
+                      return const ListTile(
+                        title: Text('This recipe is no longer available.'),
+                      );
                     if (!snapshot.hasData || snapshot.data == null) {
                       return const Center(
                         child: Text("Error Loading Favorites"),
@@ -72,15 +103,19 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     return Stack(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 5,
+                            horizontal: 15,
+                          ),
                           child: GestureDetector(
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  settings: const RouteSettings(name: '/recipe-detail'),
-                                  builder: (context) =>
-                                      RecipeDetailScreen(
+                                  settings: const RouteSettings(
+                                    name: '/recipe-detail',
+                                  ),
+                                  builder: (context) => RecipeDetailScreen(
                                     documentSnapshot: favoriteItem,
                                   ),
                                 ),
@@ -100,8 +135,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                     width: 100,
                                     height: 80,
                                     decoration: BoxDecoration(
-                                      borderRadius:
-                                          BorderRadius.circular(20),
+                                      borderRadius: BorderRadius.circular(20),
                                       image: DecorationImage(
                                         fit: BoxFit.cover,
                                         image: NetworkImage(
@@ -120,6 +154,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                       children: [
                                         Text(
                                           favoriteItem['name'],
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16,
@@ -138,8 +174,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                             Text(
                                               "${favoriteItem['cal']} Cal",
                                               style: const TextStyle(
-                                                fontWeight:
-                                                    FontWeight.bold,
+                                                fontWeight: FontWeight.bold,
                                                 fontSize: 12,
                                                 color: Colors.grey,
                                               ),
@@ -147,8 +182,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                             const Text(
                                               " \u2022 ",
                                               style: TextStyle(
-                                                fontWeight:
-                                                    FontWeight.w900,
+                                                fontWeight: FontWeight.w900,
                                                 color: Colors.grey,
                                               ),
                                             ),
@@ -161,8 +195,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                             Text(
                                               "${favoriteItem['time']} Minutes",
                                               style: const TextStyle(
-                                                fontWeight:
-                                                    FontWeight.bold,
+                                                fontWeight: FontWeight.bold,
                                                 fontSize: 12,
                                                 color: Colors.grey,
                                               ),
@@ -183,14 +216,21 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                           right: 35,
                           child: GestureDetector(
                             onTap: () async {
-                              if (!await confirmRemoval(context, favoriteItem['name'].toString()) || !context.mounted) return;
+                              if (!await confirmRemoval(
+                                    context,
+                                    favoriteItem['name'].toString(),
+                                  ) ||
+                                  !context.mounted)
+                                return;
                               await provider.toggleFavorite(favoriteItem);
-                              if (context.mounted) showMessage(context, provider.error ?? 'Favorite removed.');
+                              if (context.mounted)
+                                showMessage(
+                                  context,
+                                  provider.error ?? 'Favorite removed.',
+                                  isError: false,
+                                );
                             },
-                            child: const Icon(
-                              Icons.delete,
-                              color: Colors.red,
-                            ),
+                            child: const Icon(Icons.delete, color: Colors.red),
                           ),
                         ),
                       ],
