@@ -52,11 +52,13 @@ Konfigurasi Firebase client (`quickrecipe-00`) sudah ada di `android/app/google-
 
 | Folder | Isi |
 |---|---|
-| `lib/views`, `lib/Widgets` | Layar dan komponen UI |
-| `lib/Provider`, `lib/services` | State (Provider) dan akses data akun |
-| `lib/additions` | Fridge, Pakai bahan, pencocokan resep, koleksi, AI Preview, dan repository Firestore |
+| `lib/screens` | Semua layar aplikasi, untuk user dan admin |
+| `lib/widgets` | Komponen UI yang dipakai ulang |
+| `lib/providers` | State aplikasi (Provider) |
+| `lib/services` | Akses data Firestore: akun, resep, kulkas, koleksi, dan QuickRecipe AI |
+| `lib/utils` | Konstanta warna |
 | `test/` | Uji unit dan widget |
-| `tools/` | Skrip mengisi resep ke Firestore dan datanya |
+| `tools/intent` | Data, skrip latih, dan laporan evaluasi model intent QuickRecipe AI |
 | `firestore.rules` | Aturan akses Firestore |
 
 ## Data (Cloud Firestore)
@@ -74,21 +76,14 @@ Konfigurasi Firebase client (`quickrecipe-00`) sudah ada di `android/app/google-
 
 Data pengguna hanya bisa diakses oleh UID pemiliknya, sedangkan katalog resep hanya bisa dibaca oleh pengguna yang sudah login (lihat `firestore.rules`). Foto resep tambahan bersumber dari [TheMealDB](https://www.themealdb.com/api.php), dan nilai kalori hanyalah data contoh.
 
-## Mengisi data resep
+## Mengelola resep
 
-Skrip seed hanya menambah resep yang belum ada dan tidak menimpa dokumen lama:
-
-```powershell
-python tools/seed_firestore.py            # simulasi
-python tools/seed_firestore.py --apply    # tulis ke Firestore
-```
-
-Untuk menulis dibutuhkan token Google OAuth berizin Firestore lewat environment `GOOGLE_OAUTH_ACCESS_TOKEN`, bukan token pengguna aplikasi.
+Resep ditambah, diubah, dan dihapus oleh akun admin lewat dashboard (Add recipe → Recipe List).
 
 ## Pengujian
 
 ```powershell
 flutter test
-python -m unittest discover -s tools -p "test_*.py"
+python -m unittest discover -s tools/intent -p "test_*.py"
 flutter analyze --no-fatal-infos
 ```

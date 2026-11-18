@@ -4,23 +4,19 @@ import 'dart:math' as math;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:quick_recipe/additions/ai_chat.dart';
-import 'package:quick_recipe/additions/intent_classifier.dart';
-import 'package:quick_recipe/additions/kitchen_repository.dart';
-import 'package:quick_recipe/additions/recipe_guide.dart';
+import 'package:quick_recipe/services/chat_repository.dart';
+import 'package:quick_recipe/services/intent_classifier.dart';
+import 'package:quick_recipe/services/kitchen_repository.dart';
+import 'package:quick_recipe/services/recipe_guide.dart';
 
 import 'support/fake_kitchen.dart';
 
+/// A small catalog of 24 recipes used by these tests.
 List<DocumentSnapshot<Map<String, dynamic>>> seedCatalog() => [
-  for (final file in [
-    'tools/seed_recipes.json',
-    'tools/indonesian_recipes.json',
-  ])
-    for (final recipe
-        in (jsonDecode(File(file).readAsStringSync())
-                as Map<String, dynamic>)['Complete-Flutter-App']
-            as List)
-      TestRecipe(recipe['id'] as String, Map<String, dynamic>.from(recipe)),
+  for (final recipe
+      in jsonDecode(File('test/fixtures/recipes.json').readAsStringSync())
+          as List)
+    TestRecipe(recipe['id'] as String, Map<String, dynamic>.from(recipe)),
 ];
 
 /// The seed catalog with tags and allergens on a few recipes, the way the
@@ -156,7 +152,144 @@ void main() {
       containsAll(['Nasi', 'Telur', 'Bawang merah']),
     );
     expect(reply.recipes.first.missing, isNotEmpty);
-    expect(reply.text, contains('masih perlu'));
+    expect(reply.text, contains('Ini yang paling dekat'));
+    expect(
+      reply.text,
+      contains('1. Nasi Goreng Telur: tinggal beli kecap manis.'),
+    );
+    expect(
+      reply.text,
+      contains('Kurang bawang putih, tapi kamu punya bawang merah'),
+    );
+    // Ingredients in a recipe's name are never swapped.
+    expect(reply.text, isNot(contains('Kurang tofu')));
+  });
+
+  test('Fridge answers name recipes that can be cooked with a swap', () async {
+    fridge = [
+      item('Tempe'),
+      item('Bawang merah'),
+      item('Bawang putih'),
+      item('Kecap asin'),
+      item('Gula merah'),
+    ];
+    final reply = await ask('isi kulkasku bisa jadi apa');
+    // Sweet Soy Tempeh is the older copy of Tempe Orek in the seed data.
+    expect(names(reply).take(2), contains('Tempe Orek'));
+    expect(reply.text, contains('bisa kamu masak sekarang juga'));
+    expect(
+      reply.text,
+      contains('Kurang kecap manis, tapi kamu punya kecap asin dan gula merah'),
+    );
+  });
+
+  test('Suggestions give a reason from the fridge or the question', () async {
+    fridge = [item('Nasi')];
+    final reply = await ask('masak apa pakai telur?');
+    final lines = reply.text.split('\n').where((l) => l.startsWith('• '));
+    expect(lines, hasLength(reply.recipes.length));
+    for (final line in lines) {
+      expect(
+        line,
+        anyOf(contains('sudah ada di kulkasmu'), contains('memakai telur')),
+      );
+    }
+  });
+
+  test('Says so when no ingredient or recipe is recognised', () async {
+    final typo = await ask('resep yg ada ayammm');
+    expect(typo.text, startsWith('Aku belum menemukan bahan atau nama resep'));
+    expect(typo.recipes, isEmpty);
+    final ideas = await ask('masak apa ya hari ini');
+    expect(ideas.text, startsWith('Ini beberapa ide masakan'));
+    expect(ideas.recipes, isNotEmpty);
+    final chicken = await ask('resep yg ada ayamnya');
+    expect(chicken.text, startsWith('Ini resep untuk bahan ayam'));
+  });
+
+  test('Recognises a single word of a recipe name and -nya', () async {
+    expect(names(await ask('resep pancake dong')), ['Banana Pancakes']);
+    expect(
+      (await ask('cabainya bisa diganti apa?')).text,
+      startsWith('Pengganti cabai'),
+    );
+  });
+
+  group('Shopping lists, meal plans and follow-ups', () {
+    test('Shopping list adds up grams and skips the fridge', () async {
+      fridge = [item('Telur'), item('Nasi')];
+      final reply = await ask(
+        'besok mau masak tempe orek sama nasi goreng telur, belanja apa aja?',
+      );
+      expect(
+        names(reply),
+        unorderedEquals(['Tempe Orek', 'Nasi Goreng Telur']),
+      );
+      expect(reply.text, contains('• Tempe: 120 g'));
+      expect(reply.text, contains('• Bawang merah: 30 g (15 g + 15 g)'));
+      expect(reply.text, contains('Sudah ada di kulkas: nasi dan telur.'));
+      expect(reply.text, isNot(contains('Minyak')));
+      expect(reply.text, isNot(contains('• Air')));
+    });
+
+    test('Meal plan fills lunch and dinner without repeats', () async {
+      fridge = [item('Telur'), item('Nasi'), item('Tempe')];
+      final memory = ChatMemory();
+      final reply = await guide.answer(
+        'buatin menu 3 hari dari isi kulkas',
+        recipes: catalog,
+        fridge: () async => fridge,
+        memory: memory,
+      );
+      expect(reply.plan, hasLength(3));
+      expect(reply.plan.every((day) => day.length == 2), isTrue);
+      final ids = reply.plan.expand((day) => day).toList();
+      expect(ids.toSet(), hasLength(ids.length));
+      expect(reply.text, contains('Hari 3'));
+      expect(reply.text, contains('Belanja sekali untuk 3 hari:'));
+      expect(reply.text, contains('Sarapan belum ada'));
+      expect(memory.plan, reply.plan);
+
+      final dayThree = await guide.answer(
+        'yang hari 3 butuh beli apa aja?',
+        recipes: catalog,
+        fridge: () async => fridge,
+        memory: memory,
+      );
+      expect([
+        for (final s in dayThree.recipes) s.recipe.id,
+      ], unorderedEquals(reply.plan[2]));
+      expect(dayThree.text, startsWith('Daftar belanja untuk'));
+    });
+
+    test('Follow-up questions reuse the last answer', () async {
+      final memory = ChatMemory();
+      Future<AiReply> chat(String question) => guide.answer(
+        question,
+        recipes: catalog,
+        fridge: () async => fridge,
+        memory: memory,
+      );
+      final first = await chat('masak apa pakai telur?');
+      final more = await chat('yang lain dong');
+      expect(more.text, startsWith('Ini resep untuk bahan telur'));
+      expect(
+        {for (final s in more.recipes) s.recipe.id}
+            .intersection({for (final s in first.recipes) s.recipe.id}),
+        isEmpty,
+      );
+      final second = await chat('belanja untuk yang kedua');
+      expect(second.recipes.single.recipe.id, more.recipes[1].recipe.id);
+    });
+
+    test('Substitutes point out what is already in the fridge', () async {
+      fridge = [item('Kecap asin'), item('Gula merah')];
+      final soy = await ask('kecap manis bisa diganti apa');
+      expect(soy.text, contains('(ada di kulkasmu)'));
+      fridge = [item('Telur')];
+      final chili = await ask('cabai bisa diganti apa');
+      expect(chili.text, contains('belum punya bahan penggantinya'));
+    });
   });
 
   test(

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:quick_recipe/additions/ai_chat.dart';
+import 'package:quick_recipe/services/chat_repository.dart';
 
 class FakeAi implements AiRepository {
   List<ChatExchange> saved = [];

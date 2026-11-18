@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../Utils/constants.dart';
-import 'ai_chat.dart';
-import 'recipe_matches_screen.dart';
-import 'shared.dart';
+import 'package:quick_recipe/utils/constants.dart';
+import 'package:quick_recipe/services/chat_repository.dart';
+import 'package:quick_recipe/screens/recipe_matches_screen.dart';
+import 'package:quick_recipe/widgets/shared_widgets.dart';
 
 final appNavigatorKey = GlobalKey<NavigatorState>();
 final aiShortcutVisible = ValueNotifier<bool>(true);
@@ -345,7 +345,7 @@ class _AiScreenState extends State<AiScreen> {
           ),
           SizedBox(height: 12),
           Text(
-            'Ask for meal ideas, ingredient substitutes, or recipes from your fridge.',
+            'Ask for meal ideas, a meal plan, a shopping list, or ingredient substitutes.',
           ),
         ],
       ),
@@ -355,7 +355,8 @@ class _AiScreenState extends State<AiScreen> {
     const SizedBox(height: 12),
     ...[
       'What can I cook with eggs?',
-      'Suggest a quick dinner',
+      'Plan meals for 3 days from my fridge',
+      'What do I need to buy for Tempe Orek?',
       'How can I replace milk?',
     ].map(
       (text) => Padding(

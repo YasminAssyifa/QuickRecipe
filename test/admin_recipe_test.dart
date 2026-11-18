@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:quick_recipe/services/recipe_admin_repository.dart';
-import 'package:quick_recipe/views/admin_add_recipe_screen.dart';
-import 'package:quick_recipe/views/admin_recipe_list_screen.dart';
+import 'package:quick_recipe/screens/admin_add_recipe_screen.dart';
+import 'package:quick_recipe/screens/admin_recipe_list_screen.dart';
 
 import 'support/fake_kitchen.dart';
 import 'support/fake_recipe_admin.dart';
@@ -58,6 +58,12 @@ Future<void> fillValidRecipe(WidgetTester tester) async {
 
 void main() {
   listTests();
+  test('The All filter is not a recipe category', () {
+    expect(recipeCategories(['All', 'Snack', ' Lunch ', 'all', 'Snack', '']), [
+      'Lunch',
+      'Snack',
+    ]);
+  });
   testWidgets('Add recipe saves numbers, tags and allergens', (tester) async {
     final repo = FakeRecipeAdmin();
     await open(tester, repo, const AdminAddRecipeScreen());

@@ -1,14 +1,14 @@
-import '../additions/shared.dart';
+import 'package:quick_recipe/widgets/shared_widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:quick_recipe/Utils/constants.dart';
+import 'package:quick_recipe/utils/constants.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:quick_recipe/Widgets/banner.dart';
-import 'package:quick_recipe/Widgets/food_items_display.dart';
-import 'package:quick_recipe/Widgets/my_icon_button.dart';
+import 'package:quick_recipe/widgets/banner.dart';
+import 'package:quick_recipe/widgets/food_items_display.dart';
+import 'package:quick_recipe/widgets/my_icon_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:quick_recipe/views/recipe_detail_screen.dart';
-import 'package:quick_recipe/views/profile_screen.dart';
-import 'package:quick_recipe/views/view_all_items.dart';
+import 'package:quick_recipe/screens/recipe_detail_screen.dart';
+import 'package:quick_recipe/screens/profile_screen.dart';
+import 'package:quick_recipe/screens/view_all_items.dart';
 
 class MyAppHomeScreen extends StatefulWidget {
   const MyAppHomeScreen({super.key});

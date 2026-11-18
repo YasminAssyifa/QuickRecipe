@@ -1,14 +1,12 @@
-import 'package:quick_recipe/Widgets/my_icon_button.dart';
-
-import '../additions/shared.dart';
-import '../additions/collection_screens.dart';
-
+import 'package:quick_recipe/widgets/my_icon_button.dart';
+import 'package:quick_recipe/widgets/shared_widgets.dart';
+import 'package:quick_recipe/screens/collection_screens.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:quick_recipe/Provider/favorite_provider.dart';
-import 'package:quick_recipe/Utils/constants.dart';
-import 'package:quick_recipe/views/recipe_detail_screen.dart';
+import 'package:quick_recipe/providers/favorite_provider.dart';
+import 'package:quick_recipe/utils/constants.dart';
+import 'package:quick_recipe/screens/recipe_detail_screen.dart';
 
 class FavoriteScreen extends StatefulWidget {
   const FavoriteScreen({super.key});
