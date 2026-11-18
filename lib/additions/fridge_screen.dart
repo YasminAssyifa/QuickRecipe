@@ -77,9 +77,9 @@ class _FridgeScreenState extends State<FridgeScreen> {
       backgroundColor: kbackgroundColor,
       centerTitle: true,
       title: const Text(
-          "My Fridge",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        "My Fridge",
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
       actions: [
         IconButton(
           tooltip: 'Recipe collections',
@@ -165,24 +165,96 @@ class _FridgeScreenState extends State<FridgeScreen> {
                 label: const Text('Add ingredient'),
               ),
               const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
+
+              FormField<String>(
                 initialValue: _group ?? 'all',
-                decoration: fieldStyle('Kelompok bahan'),
-                isExpanded: true,
-                items: [
-                  const DropdownMenuItem(
-                    value: 'all',
-                    child: Text('All ingredients'),
-                  ),
-                  ...foodGroups.entries.map(
-                    (entry) => DropdownMenuItem(
-                      value: entry.key,
-                      child: Text(entry.value),
-                    ),
-                  ),
-                ],
-                onChanged: (value) =>
-                    setState(() => _group = value == 'all' ? null : value),
+                builder: (FormFieldState<String> state) {
+                  final selectedValue = state.value ?? 'all';
+
+                  final selectedLabel = selectedValue == 'all'
+                      ? 'All ingredients'
+                      : foodGroups[selectedValue] ?? 'All ingredients';
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () async {
+                          final RenderBox button =
+                              state.context.findRenderObject() as RenderBox;
+
+                          final RenderBox overlay =
+                              Overlay.of(context).context.findRenderObject()
+                                  as RenderBox;
+
+                          final position = RelativeRect.fromRect(
+                            Rect.fromPoints(
+                              button.localToGlobal(
+                                Offset.zero,
+                                ancestor: overlay,
+                              ),
+                              button.localToGlobal(
+                                button.size.bottomRight(Offset.zero),
+                                ancestor: overlay,
+                              ),
+                            ),
+                            Offset.zero & overlay.size,
+                          );
+
+                          final value = await showMenu<String>(
+                            context: context,
+                            position: position,
+                            constraints: BoxConstraints(
+                              minWidth: button.size.width,
+                              maxWidth: button.size.width,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            color: Colors.white,
+                            elevation: 8,
+                            items: [
+                              const PopupMenuItem(
+                                value: 'all',
+                                child: Text('All ingredients'),
+                              ),
+                              ...foodGroups.entries.map(
+                                (entry) => PopupMenuItem(
+                                  value: entry.key,
+                                  child: Text(entry.value),
+                                ),
+                              ),
+                            ],
+                          );
+
+                          if (value != null) {
+                            state.didChange(value);
+
+                            setState(() {
+                              _group = value == 'all' ? null : value;
+                            });
+                          }
+                        },
+                        child: InputDecorator(
+                          decoration: fieldStyle('Kelompok bahan').copyWith(
+                            suffixIcon: const Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                            ),
+                          ),
+                          isEmpty: false,
+                          child: Text(
+                            selectedLabel,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: 12),
               if (!items.any(
@@ -352,61 +424,207 @@ class _FridgeFormScreenState extends State<FridgeFormScreen> {
                 textInputAction: TextInputAction.next,
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: _amount,
-                enabled: !_busy,
-                decoration: fieldStyle('Quantity').copyWith(
-                  prefixIcon: IconButton(
-                    tooltip: 'Decrease quantity',
-                    onPressed: _busy ? null : () => _adjustAmount(-1),
-                    icon: const Icon(Icons.remove),
-                  ),
-                  suffixIcon: IconButton(
-                    tooltip: 'Increase quantity',
-                    onPressed: _busy ? null : () => _adjustAmount(1),
-                    icon: const Icon(Icons.add),
-                  ),
-                ),
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                validator: (value) =>
-                    positiveAmount(value, allowZero: widget.item != null),
-                textInputAction: TextInputAction.next,
-              ),
-              const SizedBox(height: 20),
-              DropdownButtonFormField<String>(
-                initialValue: _unit,
-                decoration: fieldStyle('Unit'),
-                items: ingredientUnits
-                    .map(
-                      (unit) =>
-                          DropdownMenuItem(value: unit, child: Text(unit)),
-                    )
-                    .toList(),
-                onChanged: _busy
-                    ? null
-                    : (value) => setState(() => _unit = value!),
-              ),
-              const SizedBox(height: 20),
-              DropdownButtonFormField<String>(
-                initialValue: _category,
-                isExpanded: true,
-                decoration: fieldStyle('Kelompok bahan').copyWith(
-                  helperText:
-                      'Groups help you filter ingredients in your fridge.',
-                ),
-                items: foodGroups.entries
-                    .map(
-                      (entry) => DropdownMenuItem(
-                        value: entry.key,
-                        child: Text(entry.value),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Quantity field
+                  Expanded(
+                    flex: 2,
+                    child: TextFormField(
+                      controller: _amount,
+                      enabled: !_busy,
+                      decoration: fieldStyle('Quantity').copyWith(
+                        prefixIcon: IconButton(
+                          tooltip: 'Decrease quantity',
+                          onPressed: _busy ? null : () => _adjustAmount(-1),
+                          icon: const Icon(Icons.remove),
+                        ),
+                        suffixIcon: IconButton(
+                          tooltip: 'Increase quantity',
+                          onPressed: _busy ? null : () => _adjustAmount(1),
+                          icon: const Icon(Icons.add),
+                        ),
                       ),
-                    )
-                    .toList(),
-                onChanged: _busy
-                    ? null
-                    : (value) => setState(() => _category = value!),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      validator: (value) =>
+                          positiveAmount(value, allowZero: widget.item != null),
+                      textInputAction: TextInputAction.next,
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  // Unit dropdown
+                  Expanded(
+                    flex: 1,
+                    child: FormField<String>(
+                      initialValue: _unit,
+                      builder: (FormFieldState<String> state) {
+                        return InkWell(
+                          borderRadius: BorderRadius.circular(12),
+                          onTap: _busy
+                              ? null
+                              : () async {
+                                  final RenderBox button =
+                                      state.context.findRenderObject()
+                                          as RenderBox;
+
+                                  final RenderBox overlay =
+                                      Overlay.of(context).context
+                                              .findRenderObject()
+                                          as RenderBox;
+
+                                  final position = RelativeRect.fromRect(
+                                    Rect.fromPoints(
+                                      button.localToGlobal(
+                                        Offset.zero,
+                                        ancestor: overlay,
+                                      ),
+                                      button.localToGlobal(
+                                        button.size.bottomRight(Offset.zero),
+                                        ancestor: overlay,
+                                      ),
+                                    ),
+                                    Offset.zero & overlay.size,
+                                  );
+
+                                  final value = await showMenu<String>(
+                                    context: context,
+                                    position: position,
+                                    constraints: BoxConstraints(
+                                      minWidth: button.size.width,
+                                      maxWidth: button.size.width,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    color: Colors.white,
+                                    elevation: 8,
+                                    items: ingredientUnits.map((unit) {
+                                      return PopupMenuItem<String>(
+                                        value: unit,
+                                        child: Text(unit),
+                                      );
+                                    }).toList(),
+                                  );
+
+                                  if (value != null) {
+                                    state.didChange(value);
+
+                                    setState(() {
+                                      _unit = value;
+                                    });
+                                  }
+                                },
+                          child: InputDecorator(
+                            decoration: fieldStyle('Unit').copyWith(
+                              suffixIcon: const Icon(
+                                Icons.keyboard_arrow_down_rounded,
+                              ),
+                            ),
+                            isEmpty: false,
+                            child: Text(
+                              state.value ?? _unit,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              FormField<String>(
+                initialValue: _category,
+                builder: (FormFieldState<String> state) {
+                  final selectedValue = state.value;
+
+                  final selectedLabel = selectedValue == null
+                      ? 'Select a group'
+                      : foodGroups[selectedValue] ?? 'Select a group';
+
+                  return InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: _busy
+                        ? null
+                        : () async {
+                            final RenderBox button =
+                                state.context.findRenderObject() as RenderBox;
+
+                            final RenderBox overlay =
+                                Overlay.of(context).context.findRenderObject()
+                                    as RenderBox;
+
+                            final position = RelativeRect.fromRect(
+                              Rect.fromPoints(
+                                button.localToGlobal(
+                                  Offset.zero,
+                                  ancestor: overlay,
+                                ),
+                                button.localToGlobal(
+                                  button.size.bottomRight(Offset.zero),
+                                  ancestor: overlay,
+                                ),
+                              ),
+                              Offset.zero & overlay.size,
+                            );
+
+                            final value = await showMenu<String>(
+                              context: context,
+                              position: position,
+                              constraints: BoxConstraints(
+                                minWidth: button.size.width,
+                                maxWidth: button.size.width,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              color: Colors.white,
+                              elevation: 8,
+                              items: foodGroups.entries.map((entry) {
+                                return PopupMenuItem<String>(
+                                  value: entry.key,
+                                  child: Text(
+                                    entry.value,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                );
+                              }).toList(),
+                            );
+
+                            if (value != null) {
+                              state.didChange(value);
+
+                              setState(() {
+                                _category = value;
+                              });
+                            }
+                          },
+                    child: InputDecorator(
+                      decoration: fieldStyle('Kelompok bahan').copyWith(
+                        helperText: 'Groups help you filter ingredients in your fridge.',
+                        suffixIcon: const Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                        ),
+                      ),
+                      isEmpty: selectedValue == null,
+                      child: Text(
+                        selectedLabel,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 20),
               TextFormField(
