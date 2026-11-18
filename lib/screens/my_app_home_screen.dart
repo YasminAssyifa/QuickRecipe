@@ -146,6 +146,8 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
                   return Center(child: CircularProgressIndicator());
                 },
               ),
+
+              const SizedBox(height: 40),
             ],
           ),
         ),
