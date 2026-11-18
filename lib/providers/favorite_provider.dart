@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'profile_provider.dart';
+import 'package:quick_recipe/providers/profile_provider.dart';
 
 class FavoriteProvider extends ChangeNotifier {
   FavoriteProvider() {

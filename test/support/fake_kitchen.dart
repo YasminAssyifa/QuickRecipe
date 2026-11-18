@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:quick_recipe/additions/kitchen_repository.dart';
+import 'package:quick_recipe/services/kitchen_repository.dart';
 
 class TestRecipe implements DocumentSnapshot<Map<String, dynamic>> {
   TestRecipe(this.id, this.fields);

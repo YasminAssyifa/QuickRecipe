@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:quick_recipe/Provider/profile_provider.dart';
-import 'package:quick_recipe/views/account_gate.dart';
-import 'package:quick_recipe/views/admin_main_screen.dart';
-import 'package:quick_recipe/views/profile_screen.dart';
-import 'package:quick_recipe/views/signin_screen.dart';
-import 'package:quick_recipe/views/signup_screen.dart';
+import 'package:quick_recipe/providers/profile_provider.dart';
+import 'package:quick_recipe/screens/account_gate.dart';
+import 'package:quick_recipe/screens/admin_main_screen.dart';
+import 'package:quick_recipe/screens/profile_screen.dart';
+import 'package:quick_recipe/screens/signin_screen.dart';
+import 'package:quick_recipe/screens/signup_screen.dart';
 
 import 'support/fake_accounts.dart';
 

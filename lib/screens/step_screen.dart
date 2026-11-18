@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:quick_recipe/Utils/constants.dart';
-import 'package:quick_recipe/Widgets/my_icon_button.dart';
-import 'package:quick_recipe/additions/shared.dart';
+import 'package:quick_recipe/utils/constants.dart';
+import 'package:quick_recipe/widgets/my_icon_button.dart';
+import 'package:quick_recipe/widgets/shared_widgets.dart';
 
 class StepScreen extends StatefulWidget {
   final DocumentSnapshot documentSnapshot;

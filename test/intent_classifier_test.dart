@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:quick_recipe/additions/intent_classifier.dart';
+import 'package:quick_recipe/services/intent_classifier.dart';
 
 void main() {
   final classifier = IntentClassifier.parse(
@@ -62,6 +62,8 @@ void main() {
       'Suggest a budget-friendly meal.': 'cari_resep',
       'Suggest a meal I can pack for lunch.': 'cari_resep',
       'Suggest a kid-friendly meal.': 'cari_resep',
+      'Plan meals for 3 days from my fridge': 'rencana_menu',
+      'What do I need to buy for Tempe Orek?': 'daftar_belanja',
     };
     expected.forEach((text, intent) {
       final prediction = classifier.predict(text);

@@ -66,6 +66,16 @@ class RecipeDraft {
   };
 }
 
+/// Category names a recipe can have. The "All" entry in App-Category is only
+/// the filter chip on the Home screen, so it is left out.
+List<String> recipeCategories(Iterable<String> names) =>
+    names
+        .map((name) => name.trim())
+        .where((name) => name.isNotEmpty && name.toLowerCase() != 'all')
+        .toSet()
+        .toList()
+      ..sort();
+
 abstract class RecipeAdminRepository {
   Future<List<String>> categories();
   Future<List<DocumentSnapshot<Map<String, dynamic>>>> recipes();
@@ -91,12 +101,9 @@ class FirebaseRecipeAdminRepository implements RecipeAdminRepository {
     final snapshot = await _db
         .collection(categoryCollection)
         .get(const GetOptions(source: Source.server));
-    return snapshot.docs
-        .map((doc) => '${doc.data()['name'] ?? ''}'.trim())
-        .where((name) => name.isNotEmpty)
-        .toSet()
-        .toList()
-      ..sort();
+    return recipeCategories([
+      for (final doc in snapshot.docs) '${doc.data()['name'] ?? ''}',
+    ]);
   }
 
   @override

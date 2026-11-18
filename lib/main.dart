@@ -1,30 +1,23 @@
-import 'additions/kitchen_repository.dart';
-import 'additions/ai_access.dart';
-import 'additions/ai_chat.dart';
-import 'additions/recipe_guide.dart';
-import 'package:flutter/foundation.dart';
+import 'package:quick_recipe/services/kitchen_repository.dart';
+import 'package:quick_recipe/screens/ai_screen.dart';
+import 'package:quick_recipe/services/chat_repository.dart';
+import 'package:quick_recipe/services/recipe_guide.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
-import 'package:quick_recipe/Provider/profile_provider.dart';
-import 'package:quick_recipe/Provider/favorite_provider.dart';
-import 'package:quick_recipe/Provider/quantity.dart';
+import 'package:quick_recipe/providers/profile_provider.dart';
+import 'package:quick_recipe/providers/favorite_provider.dart';
+import 'package:quick_recipe/providers/quantity.dart';
 
 import 'firebase_options.dart';
 
-import 'views/account_gate.dart';
+import 'package:quick_recipe/screens/account_gate.dart';
 import 'services/account_repository.dart';
 import 'services/recipe_admin_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await FirebaseAppCheck.instance.activate(
-    androidProvider: kDebugMode
-        ? AndroidProvider.debug
-        : AndroidProvider.playIntegrity,
-  );
   runApp(const MyApp());
 }
 

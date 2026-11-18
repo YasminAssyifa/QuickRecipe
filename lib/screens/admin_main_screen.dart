@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:quick_recipe/Utils/constants.dart';
-import 'package:quick_recipe/Widgets/my_icon_button.dart';
-import 'package:quick_recipe/views/profile_screen.dart';
+import 'package:quick_recipe/utils/constants.dart';
+import 'package:quick_recipe/widgets/my_icon_button.dart';
+import 'package:quick_recipe/screens/profile_screen.dart';
 import 'package:provider/provider.dart';
 
-import '../additions/shared.dart';
-import '../services/recipe_admin_repository.dart';
-import 'admin_recipe_list_screen.dart';
+import 'package:quick_recipe/widgets/shared_widgets.dart';
+import 'package:quick_recipe/services/recipe_admin_repository.dart';
+import 'package:quick_recipe/screens/admin_recipe_list_screen.dart';
 
 class AdminMainScreen extends StatefulWidget {
   const AdminMainScreen({super.key});

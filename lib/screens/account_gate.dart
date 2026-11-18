@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../Provider/profile_provider.dart';
-import '../Utils/constants.dart';
-import 'admin_main_screen.dart';
-import 'app_main_screen.dart';
-import 'signin_screen.dart';
+import 'package:quick_recipe/providers/profile_provider.dart';
+import 'package:quick_recipe/utils/constants.dart';
+import 'package:quick_recipe/screens/admin_main_screen.dart';
+import 'package:quick_recipe/screens/app_main_screen.dart';
+import 'package:quick_recipe/screens/signin_screen.dart';
 
 class AccountGate extends StatelessWidget {
   const AccountGate({super.key});
